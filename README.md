@@ -34,4 +34,4 @@ Make sure you install the versions compatible with your Minecraft installation.
 
 ## Contributing
 
-Bug reports and suggestions are welcome. Please open an issue in this repository.
+Bug reports and suggestions are welcome. Please open an [issue](https://github.com/FERSPl/Disabilitiesmod/issues) in this repository.
