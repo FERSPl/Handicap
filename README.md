@@ -1,36 +1,91 @@
-# Disabilities
+# Handicap
 
-A Minecraft Fabric mod that randomly gives players disabilities at regular intervals.
+A Minecraft Fabric mod that randomly gives players a new handicap at regular intervals. Survive as long as you can with 30 different handicaps, or pick the ones you want with commands.
+
+> Inspired by the mod [Disabilities](https://modrinth.com/mod/disabilities) by OddSense. Handicap is an independent implementation with its own code.
 
 ## Features
 
-- Random disabilities are assigned every **10 minutes** by default.
-- Choose a specific disability, a random one, or all disabilities using commands.
-- Give or remove disabilities from selected players.
-- Operator permissions required for commands.
+- A random handicap is given to every player every **10 minutes** by default (the interval can be changed or turned off).
+- Give, remove or list handicaps for selected players with commands.
+- Pick a specific handicap, a random one, or all of them.
+- Handicaps are saved per world.
+- Operator permissions are required for commands.
 
 ## Commands
 
 | Command | Description |
 |---|---|
-| `/disability give <players> <disability\|all\|random>` | Give one or more disabilities to players. |
-| `/disability remove <players> <disability\|all\|random>` | Remove one or more disabilities from players. |
+| `/handicap give <players> <handicap\|all\|random>` | Give one handicap, a random one, or all of them. |
+| `/handicap remove <players> <handicap\|all\|random>` | Remove one handicap, a random one, or all of them. |
+| `/handicap list <players>` | Show the handicaps of the selected players. |
+| `/handicap next <players>` | Skip the timer and give the next random handicap. |
+| `/handicap reset` | Remove every handicap and restart the timer. |
+| `/handicap timer [off\|30s\|10m\|1h]` | Show the timer, turn it off, or change its length (minimum 5 seconds). |
 
-Replace `<players>` with the target player or players, and `<disability>` with the name of a supported disability.
+Replace `<players>` with a player name or a selector such as `@s` or `@a`, and `<handicap>` with an ID from the table below.
+
+## Handicaps
+
+Status: ✅ implemented, 🚧 planned.
+
+| # | Handicap | ID | Effect | Status |
+|---|---|---|---|---|
+| 1 | Blind | `blind` | Permanent blindness | ✅ |
+| 2 | Color Blind | `color_blind` | You see in black and white | 🚧 |
+| 3 | Deaf | `deaf` | You can't hear anything | ✅ |
+| 4 | Diabetes | `diabetes` | Sugary food hurts you when eaten | ✅ |
+| 5 | Schizophrenia | `schizophrenia` | You see and hear things that aren't real | ✅ |
+| 6 | Mute | `mute` | You can't speak in chat | ✅ |
+| 7 | Seizures | `seizures` | Damage, low hunger or bad effects can trigger seizures | ✅ |
+| 8 | Cancer | `cancer` | Your maximum health slowly wastes away | ✅ |
+| 9 | OCD | `ocd` | Compulsions you must obey, or you get sick | ✅ |
+| 10 | Amputated Offhand | `amputated_offhand` | Your offhand is gone | ✅ |
+| 11 | Amputated Leg | `amputated_leg` | You must jump to move around | ✅ |
+| 12 | Dyslexia | `dyslexia` | Most text becomes unreadable | 🚧 |
+| 13 | Short | `short` | You are smaller and your reach is shorter | ✅ |
+| 14 | Dementia | `dementia` | Items move around in your inventory | ✅ |
+| 15 | Asthma | `asthma` | Sprinting for too long leaves you out of breath | ✅ |
+| 16 | Cerebral Palsy | `cerebral_palsy` | Random involuntary movements | ✅ |
+| 17 | Narcolepsy | `narcolepsy` | You randomly fall asleep | ✅ |
+| 18 | Parkinson's | `parkinsons` | Your crosshair shakes constantly | ✅ |
+| 19 | Pollen Allergy | `pollen_allergy` | Flowers nearby poison you | ✅ |
+| 20 | Insomnia | `insomnia` | You can't sleep | ✅ |
+| 21 | Arthritis | `arthritis` | Mining and attacking are slower | ✅ |
+| 22 | Brittle Bones | `brittle_bones` | You take twice as much fall damage | ✅ |
+| 23 | ADHD | `adhd` | Your selected hotbar slot changes at random | ✅ |
+| 24 | Tourette's | `tourettes` | Your camera jerks and you say random things in chat | ✅ |
+| 25 | Vertigo | `vertigo` | The world randomly starts to spin | ✅ |
+| 26 | Prosopagnosia | `prosopagnosia` | All mobs look the same | 🚧 |
+| 27 | Scoliosis | `scoliosis` | Your view is permanently tilted | 🚧 |
+| 28 | Kleptomania | `kleptomania` | You can't drop items | ✅ |
+| 29 | Lactose Intolerance | `lactose_intolerance` | Drinking milk kills you instantly | ✅ |
+| 30 | Anosognosia | `anosognosia` | You can't see your own handicaps | ✅ |
 
 ## Requirements
 
-- Fabric
+- Minecraft **26.1**
+- [Fabric Loader](https://fabricmc.net/) 0.19.5 or newer
+- [Fabric API](https://modrinth.com/mod/fabric-api)
+- Java 25 (the official Minecraft launcher already includes it)
 
-Make sure you install the versions compatible with your Minecraft installation.
+Install the mod on the **client**, and also on the **server** if you play multiplayer. Some handicaps (camera shaking, sound, fake noises) only work when the mod is installed on the client.
 
 ## Installation
 
-1. Install Fabric for the supported Minecraft version.
-2. Download the mod `.jar` file.
-3. Place the `.jar` file in your Minecraft `mods` folder.
+1. Install Fabric Loader for Minecraft 26.1.
+2. Download Fabric API and the mod `.jar` file.
+3. Place both `.jar` files in your Minecraft `mods` folder.
 4. Launch Minecraft using the Fabric profile.
+
+## Building from source
+
+You need JDK 25. Run `./gradlew build`; the mod is created in `build/libs/`.
 
 ## Contributing
 
-Bug reports and suggestions are welcome. Please open an [issue](https://github.com/FERSPl/Disabilitiesmod/issues) in this repository.
+Bug reports and suggestions are welcome. Please open an [issue](https://github.com/FERSPI/Disabilitiesmod/issues) in this repository.
+
+## License
+
+Released under the [MIT License](LICENSE).
