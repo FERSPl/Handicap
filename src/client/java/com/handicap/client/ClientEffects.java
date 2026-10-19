@@ -24,6 +24,7 @@ public final class ClientEffects {
 	private static double savedVolume = -1.0;
 	private static int vertigoTicks = 0;
 	private static int wobbleTick = 0;
+	private static Boolean savedSubtitles = null;
 	private static boolean colorBlindOn = false;
 	private static int colorBlindTicks = 0;
 	private static boolean postEffectWarned = false;
@@ -53,6 +54,10 @@ public final class ClientEffects {
 				savedVolume = mc.options.getSoundSourceOptionInstance(SoundSource.MASTER).get();
 				mc.options.getSoundSourceOptionInstance(SoundSource.MASTER).set(0.0);
 			}
+			if (savedSubtitles == null) {
+				savedSubtitles = mc.options.showSubtitles().get();
+				mc.options.showSubtitles().set(true);
+			}
 		} else {
 			restoreSound(mc);
 		}
@@ -77,6 +82,17 @@ public final class ClientEffects {
 			clearPostEffect(mc);
 			colorBlindOn = false;
 			colorBlindTicks = 0;
+		}
+
+		if (ClientState.has(Handicap.PARAPLEGIA)) {
+			p.setSprinting(false);
+		}
+
+		if (ClientState.has(Handicap.TINNITUS) && rnd.nextInt(900) == 0) {
+			for (int i = 0; i < 3; i++) {
+				mc.level.playLocalSound(p.getX(), p.getY(), p.getZ(), SoundEvents.AMETHYST_BLOCK_CHIME,
+					SoundSource.PLAYERS, 0.7f, 1.8f + 0.1f * i, false);
+			}
 		}
 
 		setLegModifier(p, ClientState.has(Handicap.AMPUTATED_LEG) && p.onGround());
@@ -141,6 +157,10 @@ public final class ClientEffects {
 	}
 
 	private static void restoreSound(Minecraft mc) {
+		if (savedSubtitles != null) {
+			mc.options.showSubtitles().set(savedSubtitles);
+			savedSubtitles = null;
+		}
 		if (savedVolume >= 0) {
 			mc.options.getSoundSourceOptionInstance(SoundSource.MASTER).set(savedVolume);
 			savedVolume = -1.0;

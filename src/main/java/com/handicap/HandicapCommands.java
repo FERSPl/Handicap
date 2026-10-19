@@ -30,6 +30,13 @@ public final class HandicapCommands {
 		return SharedSuggestionProvider.suggest(options, builder);
 	};
 
+	private static final SuggestionProvider<CommandSourceStack> MINUTES_SUGGESTIONS = (ctx, builder) -> {
+		for (String value : new String[] {"1", "5", "10", "30"}) {
+			builder.suggest(value, Component.literal("minutes"));
+		}
+		return builder.buildFuture();
+	};
+
 	private HandicapCommands() {
 	}
 
@@ -64,6 +71,7 @@ public final class HandicapCommands {
 				.then(Commands.literal("off")
 					.executes(HandicapCommands::timerOff))
 				.then(Commands.argument("minutes", DoubleArgumentType.doubleArg(0.1, 10000.0))
+					.suggests(MINUTES_SUGGESTIONS)
 					.executes(HandicapCommands::timerSet)));
 	}
 
@@ -194,7 +202,9 @@ public final class HandicapCommands {
 		final String text = s.timerEnabled()
 			? "Next handicap in " + formatDuration(s.secondsRemaining()) + " (interval: " + formatDuration(s.timerSeconds()) + ")."
 			: "The timer is off.";
+		final String usage = "Usage: /handicap timer <minutes> or /handicap timer off";
 		ctx.getSource().sendSuccess(() -> Component.literal(text), false);
+		ctx.getSource().sendSuccess(() -> Component.literal(usage), false);
 		return 1;
 	}
 
@@ -217,7 +227,7 @@ public final class HandicapCommands {
 		double minutes = DoubleArgumentType.getDouble(ctx, "minutes");
 		int seconds = (int) Math.round(minutes * 60.0);
 		if (seconds < 5) {
-			ctx.getSource().sendFailure(Component.literal("Invalid duration: enter a number of minutes (minimum 0.1) or off."));
+			ctx.getSource().sendFailure(Component.literal("Invalid duration: enter a number of minutes (minimum 0.1), or off."));
 			return 0;
 		}
 		s.setTimerSeconds(seconds);

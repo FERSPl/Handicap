@@ -49,6 +49,7 @@ public final class HandicapManager {
 		int windedSeconds;
 		int narcoSeconds;
 		boolean blindApplied;
+		int glutenSeconds;
 
 		ItemStack useItem;
 		int useRemaining;
@@ -63,7 +64,7 @@ public final class HandicapManager {
 		boolean lastOnGround = true;
 		boolean lastSneak;
 
-		int lastMask = -1;
+		long lastMask = -1L;
 		int lastFlags = -1;
 	}
 
@@ -325,6 +326,18 @@ public final class HandicapManager {
 	private static void tickPlayerExtra(ServerPlayer p, Set<Handicap> set, Runtime rt) {
 		RandomSource rnd = p.getRandom();
 
+		setModifier(p, Attributes.JUMP_STRENGTH, "paraplegia_jump", -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+			set.contains(Handicap.PARAPLEGIA));
+		setModifier(p, Attributes.MOVEMENT_SPEED, "reduced_mobility", -0.3, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+			set.contains(Handicap.REDUCED_MOBILITY));
+		if (!set.contains(Handicap.CELIAC)) {
+			rt.glutenSeconds = 0;
+		} else if (rt.glutenSeconds > 0) {
+			rt.glutenSeconds--;
+		}
+		setModifier(p, Attributes.MOVEMENT_SPEED, "celiac_slow", -0.35, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+			rt.glutenSeconds > 0);
+
 		if (!set.contains(Handicap.SEIZURES)) {
 			rt.seizureSeconds = 0;
 		} else {
@@ -369,7 +382,7 @@ public final class HandicapManager {
 			}
 		}
 
-		int mask = 0;
+		long mask = 0L;
 		for (Handicap d : set) {
 			mask |= d.bit();
 		}
@@ -392,13 +405,14 @@ public final class HandicapManager {
 
 		boolean lactose = state.has(id, Handicap.LACTOSE_INTOLERANCE);
 		boolean diabetes = state.has(id, Handicap.DIABETES);
-		if (lactose || diabetes) {
+		boolean celiac = state.has(id, Handicap.CELIAC);
+		if (lactose || diabetes || celiac) {
 			if (p.isUsingItem()) {
 				rt.useItem = p.getUseItem().copy();
 				rt.useRemaining = p.getUseItemRemainingTicks();
 			} else if (rt.useItem != null) {
 				if (rt.useRemaining <= 2) {
-					onConsumed(p, rt.useItem, lactose, diabetes);
+					onConsumed(p, rt.useItem, lactose, diabetes, celiac);
 				}
 				rt.useItem = null;
 			}
@@ -432,7 +446,12 @@ public final class HandicapManager {
 		rt.lastSneak = sneaking;
 	}
 
-	private static void onConsumed(ServerPlayer p, ItemStack item, boolean lactose, boolean diabetes) {
+	private static void onConsumed(ServerPlayer p, ItemStack item, boolean lactose, boolean diabetes, boolean celiac) {
+		if (celiac && (item.is(Items.BREAD) || item.is(Items.COOKIE))) {
+			RUNTIME.computeIfAbsent(p.getUUID(), k -> new Runtime()).glutenSeconds = 30;
+			p.addEffect(new MobEffectInstance(MobEffects.HUNGER, 600, 1));
+			p.sendOverlayMessage(Component.literal("Gluten! You feel sick..."));
+		}
 		if (lactose && item.is(Items.MILK_BUCKET)) {
 			p.sendSystemMessage(Component.literal("Your lactose intolerance was fatal...").withStyle(ChatFormatting.RED));
 			p.kill((ServerLevel) p.level());

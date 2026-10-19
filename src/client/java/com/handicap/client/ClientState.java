@@ -3,7 +3,7 @@ package com.handicap.client;
 import com.handicap.Handicap;
 
 public final class ClientState {
-	public static volatile int mask = 0;
+	public static volatile long mask = 0L;
 	public static volatile int flags = 0;
 
 	private ClientState() {
@@ -18,7 +18,7 @@ public final class ClientState {
 	}
 
 	public static void reset() {
-		mask = 0;
+		mask = 0L;
 		flags = 0;
 	}
 }

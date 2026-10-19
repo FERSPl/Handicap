@@ -31,7 +31,11 @@ public enum Handicap {
 	DEAF("deaf", "Deaf", "You can't hear anything"),
 	SCOLIOSIS("scoliosis", "Scoliosis", "Your view is permanently tilted"),
 	COLOR_BLIND("color_blind", "Color Blind", "You see in black and white"),
-	DYSLEXIA("dyslexia", "Dyslexia", "Most text becomes hard to read");
+	DYSLEXIA("dyslexia", "Dyslexia", "Most text becomes hard to read"),
+	PARAPLEGIA("paraplegia", "Paraplegia", "You can't jump or sprint"),
+	REDUCED_MOBILITY("reduced_mobility", "Reduced Mobility", "You move more slowly"),
+	CELIAC("celiac", "Celiac Disease", "Bread and cookies make you sick"),
+	TINNITUS("tinnitus", "Tinnitus", "A ringing noise plays from time to time");
 
 	public final String id;
 	public final String displayName;
@@ -43,8 +47,8 @@ public enum Handicap {
 		this.description = description;
 	}
 
-	public int bit() {
-		return 1 << ordinal();
+	public long bit() {
+		return 1L << ordinal();
 	}
 
 	public static Handicap byId(String id) {
