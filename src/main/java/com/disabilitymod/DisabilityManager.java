@@ -98,7 +98,7 @@ public final class DisabilityManager {
 		// Muet : bloque les messages du chat
 		ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, params) -> {
 			if (state != null && state.has(sender.getUUID(), Disability.MUTE)) {
-				sender.displayClientMessage(Component.literal("Tu es muet : impossible de parler."), true);
+				sender.sendOverlayMessage(Component.literal("Tu es muet : impossible de parler."));
 				return false;
 			}
 			return true;
@@ -246,7 +246,7 @@ public final class DisabilityManager {
 				if (stage < 9) {
 					stage++;
 					state.setCancerStage(id, stage);
-					p.displayClientMessage(Component.literal("Ta santé se dégrade..."), true);
+					p.sendOverlayMessage(Component.literal("Ta santé se dégrade..."));
 				}
 			}
 		} else {
@@ -272,7 +272,7 @@ public final class DisabilityManager {
 				rt.sprintSeconds = 0;
 				rt.windedSeconds = 8;
 				p.setSprinting(false);
-				p.displayClientMessage(Component.literal("Tu manques d'air !"), true);
+				p.sendOverlayMessage(Component.literal("Tu manques d'air !"));
 			}
 		} else {
 			rt.sprintSeconds = Math.max(0, rt.sprintSeconds - 2);
@@ -288,7 +288,7 @@ public final class DisabilityManager {
 		} else if (rnd.nextInt(120) == 0) {
 			rt.narcoSeconds = 5;
 			p.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 120, 0, false, false, false));
-			p.displayClientMessage(Component.literal("Zzz..."), true);
+			p.sendOverlayMessage(Component.literal("Zzz..."));
 		}
 		boolean asleep = rt.narcoSeconds > 0;
 		setModifier(p, Attributes.MOVEMENT_SPEED, "narcolepsy_move", -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, asleep);
@@ -297,7 +297,7 @@ public final class DisabilityManager {
 		// --- Insomnie ---
 		if (set.contains(Disability.INSOMNIA) && p.isSleeping()) {
 			p.stopSleepInBed(true, true);
-			p.displayClientMessage(Component.literal("Tu n'arrives pas à dormir."), true);
+			p.sendOverlayMessage(Component.literal("Tu n'arrives pas à dormir."));
 		}
 
 		// --- Main secondaire amputée ---
@@ -332,7 +332,7 @@ public final class DisabilityManager {
 			for (BlockPos pos : BlockPos.betweenClosed(base.offset(-2, -1, -2), base.offset(2, 2, 2))) {
 				if (p.level().getBlockState(pos).is(BlockTags.FLOWERS)) {
 					p.addEffect(new MobEffectInstance(MobEffects.POISON, 100, 0));
-					p.displayClientMessage(Component.literal("Atchoum ! Le pollen t'empoisonne."), true);
+					p.sendOverlayMessage(Component.literal("Atchoum ! Le pollen t'empoisonne."));
 					break;
 				}
 			}
@@ -416,7 +416,7 @@ public final class DisabilityManager {
 
 	private static void startSeizure(ServerPlayer p, Runtime rt) {
 		rt.seizureSeconds = 6;
-		p.displayClientMessage(Component.literal("Crise d'épilepsie !"), true);
+		p.sendOverlayMessage(Component.literal("Crise d'épilepsie !"));
 	}
 
 	// ------------------------------------------------------------------
@@ -482,7 +482,7 @@ public final class DisabilityManager {
 			int damage = sugarDamage(item);
 			if (damage > 0) {
 				p.setHealth(Math.max(1.0f, p.getHealth() - damage));
-				p.displayClientMessage(Component.literal("Trop de sucre..."), true);
+				p.sendOverlayMessage(Component.literal("Trop de sucre..."));
 			}
 		}
 	}

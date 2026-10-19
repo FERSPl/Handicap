@@ -57,7 +57,7 @@ public final class ClientEffects {
 				tried = true;
 			}
 			if (tried) {
-				p.displayClientMessage(Component.literal("Tu n'arrives pas à lâcher cet objet !"), true);
+				p.sendOverlayMessage(Component.literal("Tu n'arrives pas à lâcher cet objet !"));
 			}
 		}
 
@@ -97,7 +97,7 @@ public final class ClientEffects {
 				p.setXRot(Mth.clamp(p.getXRot() + Mth.sin(wobbleTick * 0.2f) * 1.5f, -90.0f, 90.0f));
 			} else if (rnd.nextInt(1200) == 0) {
 				vertigoTicks = 100;
-				p.displayClientMessage(Component.literal("Tout tourne autour de toi..."), true);
+				p.sendOverlayMessage(Component.literal("Tout tourne autour de toi..."));
 			}
 		} else {
 			vertigoTicks = 0;
@@ -125,7 +125,7 @@ public final class ClientEffects {
 				Component msg = rnd.nextBoolean()
 					? Component.translatable("multiplayer.player.joined", name).withStyle(ChatFormatting.YELLOW)
 					: Component.literal("<" + name + "> je te vois");
-				p.displayClientMessage(msg, false);
+				p.sendSystemMessage(msg);
 			}
 		}
 	}
