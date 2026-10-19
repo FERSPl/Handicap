@@ -20,7 +20,7 @@ Replace `<players>` with the target player or players, and `<disability>` with t
 
 ## Requirements
 
-- Minecraft **26.1**
+- Minecraft **in the right version**
 - Fabric
 
 Make sure you install the versions compatible with your Minecraft installation.
