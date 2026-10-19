@@ -10,7 +10,7 @@ A Minecraft Fabric mod that randomly gives players a new handicap at regular int
 - Give, remove or list handicaps for selected players with commands.
 - Pick a specific handicap, a random one, or all of them.
 - Handicaps are saved per world.
-- Operator permissions are required for commands.
+- **Operator permissions are required for commands.**
 
 ## Commands
 
@@ -79,10 +79,6 @@ Install the mod on the **client**, and also on the **server** if you play multip
 2. Download Fabric API and the mod `.jar` file.
 3. Place both `.jar` files in your Minecraft `mods` folder.
 4. Launch Minecraft using the Fabric profile.
-
-## Building from source
-
-You need JDK 25. Run `./gradlew build`; the mod is created in `build/libs/`.
 
 ## Contributing
 
