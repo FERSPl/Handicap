@@ -1,0 +1,30 @@
+{
+	"schemaVersion": 1,
+	"id": "disabilitymod",
+	"version": "${version}",
+	"name": "Random Disabilities",
+	"description": "Gagne un handicap aléatoire à intervalle régulier (inspiré du mod Disabilities).",
+	"authors": [
+		"Moi"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/disabilitymod/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.disabilitymod.DisabilityMod"
+		],
+		"client": [
+			"com.disabilitymod.client.DisabilityModClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~26.1",
+		"java": ">=25",
+		"fabric-api": "*"
+	}
+}

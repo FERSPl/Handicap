@@ -1,0 +1,160 @@
+package com.disabilitymod.client;
+
+import com.disabilitymod.Disability;
+import com.disabilitymod.DisabilityMod;
+
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.phys.Vec3;
+
+/** Effets exécutés uniquement sur le client, à chaque tick. */
+public final class ClientEffects {
+	private static double savedVolume = -1.0;
+	private static int vertigoTicks = 0;
+	private static int wobbleTick = 0;
+
+	private static final Identifier LEG_ID = DisabilityMod.id("amputated_leg_client");
+
+	private static final String[] FAKE_NAMES = {"Herobrine", "Steve_", "xX_Ombre_Xx", "Entity303"};
+
+	private ClientEffects() {
+	}
+
+	public static void tick(Minecraft mc) {
+		LocalPlayer p = mc.player;
+		if (p == null || mc.level == null) {
+			restoreSound(mc);
+			vertigoTicks = 0;
+			return;
+		}
+		RandomSource rnd = p.getRandom();
+
+		// --- Sourd : volume général à 0 ---
+		if (ClientState.has(Disability.DEAF)) {
+			if (savedVolume < 0) {
+				savedVolume = mc.options.getSoundSourceOptionInstance(SoundSource.MASTER).get();
+				mc.options.getSoundSourceOptionInstance(SoundSource.MASTER).set(0.0);
+			}
+		} else {
+			restoreSound(mc);
+		}
+
+		// --- Kleptomanie : la touche « jeter » ne fait rien ---
+		if (ClientState.has(Disability.KLEPTOMANIA)) {
+			boolean tried = false;
+			while (mc.options.keyDrop.consumeClick()) {
+				tried = true;
+			}
+			if (tried) {
+				p.displayClientMessage(Component.literal("Tu n'arrives pas à lâcher cet objet !"), true);
+			}
+		}
+
+		// --- Jambe amputée : au sol on ne peut pas avancer, il faut sauter ---
+		setLegModifier(p, ClientState.has(Disability.AMPUTATED_LEG) && p.onGround());
+
+		// --- Parkinson : tremblement permanent du viseur ---
+		if (ClientState.has(Disability.PARKINSONS)) {
+			p.setYRot(p.getYRot() + (rnd.nextFloat() - 0.5f) * 1.2f);
+			p.setXRot(Mth.clamp(p.getXRot() + (rnd.nextFloat() - 0.5f) * 1.2f, -90.0f, 90.0f));
+		}
+
+		// --- Tourette : secousse de caméra aléatoire ---
+		if (ClientState.has(Disability.TOURETTES) && rnd.nextInt(200) == 0) {
+			float sign = rnd.nextBoolean() ? 1.0f : -1.0f;
+			p.setYRot(p.getYRot() + sign * (30.0f + rnd.nextFloat() * 50.0f));
+			p.setXRot(Mth.clamp(p.getXRot() + (rnd.nextFloat() - 0.5f) * 40.0f, -90.0f, 90.0f));
+		}
+
+		// --- Paralysie cérébrale : poussées involontaires ---
+		if (ClientState.has(Disability.CEREBRAL_PALSY) && rnd.nextInt(100) == 0) {
+			Vec3 v = p.getDeltaMovement();
+			p.setDeltaMovement(v.x + (rnd.nextDouble() - 0.5) * 0.8, v.y, v.z + (rnd.nextDouble() - 0.5) * 0.8);
+		}
+
+		// --- TDAH : l'emplacement sélectionné change au hasard ---
+		if (ClientState.has(Disability.ADHD) && rnd.nextInt(160) == 0) {
+			p.getInventory().setSelectedSlot(rnd.nextInt(9));
+		}
+
+		// --- Vertige : épisodes où le monde tourne ---
+		if (ClientState.has(Disability.VERTIGO)) {
+			if (vertigoTicks > 0) {
+				vertigoTicks--;
+				wobbleTick++;
+				p.setYRot(p.getYRot() + 5.0f);
+				p.setXRot(Mth.clamp(p.getXRot() + Mth.sin(wobbleTick * 0.2f) * 1.5f, -90.0f, 90.0f));
+			} else if (rnd.nextInt(1200) == 0) {
+				vertigoTicks = 100;
+				p.displayClientMessage(Component.literal("Tout tourne autour de toi..."), true);
+			}
+		} else {
+			vertigoTicks = 0;
+		}
+
+		// --- Épilepsie : caméra secouée pendant la crise ---
+		if (ClientState.seizing()) {
+			p.setYRot(p.getYRot() + (rnd.nextFloat() - 0.5f) * 30.0f);
+			p.setXRot(Mth.clamp(p.getXRot() + (rnd.nextFloat() - 0.5f) * 20.0f, -90.0f, 90.0f));
+		}
+
+		// --- Schizophrénie : sons et messages qui n'existent pas ---
+		if (ClientState.has(Disability.SCHIZOPHRENIA) && rnd.nextInt(600) == 0) {
+			if (rnd.nextBoolean()) {
+				SoundEvent[] sounds = {
+					SoundEvents.CREEPER_PRIMED, SoundEvents.ZOMBIE_AMBIENT, SoundEvents.SKELETON_AMBIENT,
+					SoundEvents.ENDERMAN_STARE, SoundEvents.SPIDER_AMBIENT
+				};
+				SoundEvent sound = sounds[rnd.nextInt(sounds.length)];
+				double dx = (rnd.nextDouble() - 0.5) * 12.0;
+				double dz = (rnd.nextDouble() - 0.5) * 12.0;
+				mc.level.playLocalSound(p.getX() + dx, p.getY(), p.getZ() + dz, sound, SoundSource.HOSTILE, 1.0f, 1.0f, false);
+			} else {
+				String name = FAKE_NAMES[rnd.nextInt(FAKE_NAMES.length)];
+				Component msg = rnd.nextBoolean()
+					? Component.translatable("multiplayer.player.joined", name).withStyle(ChatFormatting.YELLOW)
+					: Component.literal("<" + name + "> je te vois");
+				p.displayClientMessage(msg, false);
+			}
+		}
+	}
+
+	private static void restoreSound(Minecraft mc) {
+		if (savedVolume >= 0) {
+			mc.options.getSoundSourceOptionInstance(SoundSource.MASTER).set(savedVolume);
+			savedVolume = -1.0;
+		}
+	}
+
+	/** À appeler quand le jeu se ferme ou quand on quitte un monde. */
+	public static void onShutdown(Minecraft mc) {
+		restoreSound(mc);
+		ClientState.reset();
+		vertigoTicks = 0;
+	}
+
+	private static void setLegModifier(LocalPlayer p, boolean active) {
+		AttributeInstance inst = p.getAttribute(Attributes.MOVEMENT_SPEED);
+		if (inst == null) {
+			return;
+		}
+		boolean present = inst.getModifier(LEG_ID) != null;
+		if (active && !present) {
+			inst.addOrReplacePermanentModifier(
+				new AttributeModifier(LEG_ID, -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+		} else if (!active && present) {
+			inst.removeModifier(LEG_ID);
+		}
+	}
+}
