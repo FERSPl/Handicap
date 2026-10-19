@@ -3,7 +3,8 @@
 	"package": "com.handicap.client.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"client": [
-		"CameraMixin"
+		"CameraMixin",
+		"StringDecomposerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 0

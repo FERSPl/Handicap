@@ -3,6 +3,8 @@ package com.handicap.client;
 import com.handicap.Handicap;
 import com.handicap.HandicapMod;
 
+import java.lang.reflect.Method;
+
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -22,6 +24,11 @@ public final class ClientEffects {
 	private static double savedVolume = -1.0;
 	private static int vertigoTicks = 0;
 	private static int wobbleTick = 0;
+	private static boolean colorBlindOn = false;
+	private static int colorBlindTicks = 0;
+	private static boolean postEffectWarned = false;
+
+	private static final Identifier COLOR_BLIND_EFFECT = HandicapMod.id("colorblind");
 
 	private static final Identifier LEG_ID = HandicapMod.id("amputated_leg_client");
 
@@ -35,6 +42,8 @@ public final class ClientEffects {
 		if (p == null || mc.level == null) {
 			restoreSound(mc);
 			vertigoTicks = 0;
+			colorBlindOn = false;
+			colorBlindTicks = 0;
 			return;
 		}
 		RandomSource rnd = p.getRandom();
@@ -56,6 +65,18 @@ public final class ClientEffects {
 			if (tried) {
 				p.sendOverlayMessage(Component.literal("You can't let go of this item!"));
 			}
+		}
+
+		if (ClientState.has(Handicap.COLOR_BLIND)) {
+			colorBlindTicks++;
+			if (colorBlindTicks % 100 == 1) {
+				setPostEffect(mc, COLOR_BLIND_EFFECT);
+			}
+			colorBlindOn = true;
+		} else if (colorBlindOn) {
+			clearPostEffect(mc);
+			colorBlindOn = false;
+			colorBlindTicks = 0;
 		}
 
 		setLegModifier(p, ClientState.has(Handicap.AMPUTATED_LEG) && p.onGround());
@@ -128,8 +149,40 @@ public final class ClientEffects {
 
 	public static void onShutdown(Minecraft mc) {
 		restoreSound(mc);
+		if (colorBlindOn) {
+			clearPostEffect(mc);
+			colorBlindOn = false;
+			colorBlindTicks = 0;
+		}
 		ClientState.reset();
 		vertigoTicks = 0;
+	}
+
+	private static void setPostEffect(Minecraft mc, Identifier id) {
+		try {
+			Method m = mc.gameRenderer.getClass().getDeclaredMethod("setPostEffect", Identifier.class);
+			m.setAccessible(true);
+			m.invoke(mc.gameRenderer, id);
+		} catch (Throwable t) {
+			warnPostEffect(t);
+		}
+	}
+
+	private static void clearPostEffect(Minecraft mc) {
+		try {
+			Method m = mc.gameRenderer.getClass().getDeclaredMethod("clearPostEffect");
+			m.setAccessible(true);
+			m.invoke(mc.gameRenderer);
+		} catch (Throwable t) {
+			warnPostEffect(t);
+		}
+	}
+
+	private static void warnPostEffect(Throwable t) {
+		if (!postEffectWarned) {
+			postEffectWarned = true;
+			HandicapMod.LOGGER.warn("Color Blind: could not change the post effect", t);
+		}
 	}
 
 	private static void setLegModifier(LocalPlayer p, boolean active) {

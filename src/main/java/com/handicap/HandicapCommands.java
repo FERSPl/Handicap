@@ -1,5 +1,6 @@
 package com.handicap;
 
+import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -10,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 
@@ -23,8 +22,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 public final class HandicapCommands {
-	private static final Pattern DURATION = Pattern.compile("(\\d{1,5}(?:\\.\\d{1,2})?)([smh]?)");
-
 	private static final SuggestionProvider<CommandSourceStack> HANDICAP_SUGGESTIONS = (ctx, builder) -> {
 		List<String> options = new ArrayList<>(List.of("all", "random"));
 		for (Handicap d : Handicap.values()) {
@@ -32,9 +29,6 @@ public final class HandicapCommands {
 		}
 		return SharedSuggestionProvider.suggest(options, builder);
 	};
-
-	private static final SuggestionProvider<CommandSourceStack> TIMER_SUGGESTIONS = (ctx, builder) ->
-		SharedSuggestionProvider.suggest(List.of("off", "1", "5", "10", "30s", "0.5"), builder);
 
 	private HandicapCommands() {
 	}
@@ -67,8 +61,9 @@ public final class HandicapCommands {
 					.executes(HandicapCommands::next)))
 			.then(Commands.literal("timer")
 				.executes(HandicapCommands::timerStatus)
-				.then(Commands.argument("value", StringArgumentType.word())
-					.suggests(TIMER_SUGGESTIONS)
+				.then(Commands.literal("off")
+					.executes(HandicapCommands::timerOff))
+				.then(Commands.argument("minutes", DoubleArgumentType.doubleArg(0.1, 10000.0))
 					.executes(HandicapCommands::timerSet)));
 	}
 
@@ -203,43 +198,32 @@ public final class HandicapCommands {
 		return 1;
 	}
 
+	private static int timerOff(CommandContext<CommandSourceStack> ctx) {
+		if (!ready(ctx)) {
+			return 0;
+		}
+		HandicapState s = HandicapManager.state();
+		s.setTimerEnabled(false);
+		s.save();
+		ctx.getSource().sendSuccess(() -> Component.literal("Timer turned off."), true);
+		return 1;
+	}
+
 	private static int timerSet(CommandContext<CommandSourceStack> ctx) {
 		if (!ready(ctx)) {
 			return 0;
 		}
 		HandicapState s = HandicapManager.state();
-		String value = StringArgumentType.getString(ctx, "value").toLowerCase(Locale.ROOT);
-		if (value.equals("off")) {
-			s.setTimerEnabled(false);
-			s.save();
-			ctx.getSource().sendSuccess(() -> Component.literal("Timer turned off."), true);
-			return 1;
-		}
-		int seconds = parseSeconds(value);
+		double minutes = DoubleArgumentType.getDouble(ctx, "minutes");
+		int seconds = (int) Math.round(minutes * 60.0);
 		if (seconds < 5) {
-			ctx.getSource().sendFailure(Component.literal("Invalid duration (minutes by default: off, 1, 0.5, 30s, 10m, 1h; minimum 5 s)."));
+			ctx.getSource().sendFailure(Component.literal("Invalid duration: enter a number of minutes (minimum 0.1) or off."));
 			return 0;
 		}
 		s.setTimerSeconds(seconds);
 		s.save();
 		ctx.getSource().sendSuccess(() -> Component.literal("A handicap will be given every " + formatDuration(seconds) + "."), true);
 		return 1;
-	}
-
-	private static int parseSeconds(String value) {
-		Matcher m = DURATION.matcher(value);
-		if (!m.matches()) {
-			return -1;
-		}
-		double n = Double.parseDouble(m.group(1));
-		String unit = m.group(2);
-		double seconds = switch (unit) {
-			case "s" -> n;
-			case "h" -> n * 3600;
-			default -> n * 60;
-		};
-		long rounded = Math.round(seconds);
-		return rounded > 1_000_000 ? -1 : (int) rounded;
 	}
 
 	private static String formatDuration(int totalSeconds) {

@@ -29,7 +29,9 @@ public enum Handicap {
 	SCHIZOPHRENIA("schizophrenia", "Schizophrenia", "You see and hear things that aren't real"),
 	ANOSOGNOSIA("anosognosia", "Anosognosia", "You can't see your own handicaps"),
 	DEAF("deaf", "Deaf", "You can't hear anything"),
-	SCOLIOSIS("scoliosis", "Scoliosis", "Your view is permanently tilted");
+	SCOLIOSIS("scoliosis", "Scoliosis", "Your view is permanently tilted"),
+	COLOR_BLIND("color_blind", "Color Blind", "You see in black and white"),
+	DYSLEXIA("dyslexia", "Dyslexia", "Most text becomes hard to read");
 
 	public final String id;
 	public final String displayName;
