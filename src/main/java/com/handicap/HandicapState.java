@@ -17,7 +17,6 @@ import java.util.UUID;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.storage.LevelResource;
 
-/** Données sauvegardées dans le dossier du monde (handicap.json). */
 public final class HandicapState {
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
@@ -69,7 +68,7 @@ public final class HandicapState {
 					}
 				}
 			} catch (Exception e) {
-				HandicapMod.LOGGER.error("Impossible de lire {}", file, e);
+				HandicapMod.LOGGER.error("Could not read {}", file, e);
 			}
 		} else {
 			state.ticksRemaining = state.timerSeconds * 20;
@@ -95,11 +94,9 @@ public final class HandicapState {
 		try {
 			Files.writeString(file, GSON.toJson(data));
 		} catch (IOException e) {
-			HandicapMod.LOGGER.error("Impossible d'écrire {}", file, e);
+			HandicapMod.LOGGER.error("Could not write {}", file, e);
 		}
 	}
-
-	// --- Handicaps ---
 
 	public EnumSet<Handicap> get(UUID id) {
 		EnumSet<Handicap> set = players.get(id);
@@ -126,8 +123,6 @@ public final class HandicapState {
 		resetTimer();
 	}
 
-	// --- Cancer ---
-
 	public int cancerStage(UUID id) {
 		return cancerStage.getOrDefault(id, 0);
 	}
@@ -139,8 +134,6 @@ public final class HandicapState {
 			cancerStage.put(id, stage);
 		}
 	}
-
-	// --- Timer ---
 
 	public boolean timerEnabled() {
 		return timerEnabled;
@@ -168,7 +161,6 @@ public final class HandicapState {
 		this.ticksRemaining = timerSeconds * 20;
 	}
 
-	/** Fait avancer le timer d'un tick. Renvoie true quand il arrive à zéro (et le relance). */
 	public boolean tickTimer() {
 		ticksRemaining--;
 		if (ticksRemaining <= 0) {

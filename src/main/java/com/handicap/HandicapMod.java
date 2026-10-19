@@ -17,7 +17,7 @@ public class HandicapMod implements ModInitializer {
 		PayloadTypeRegistry.clientboundPlay().register(SyncPayload.TYPE, SyncPayload.CODEC);
 		HandicapManager.register();
 		HandicapCommands.register();
-		LOGGER.info("Handicap chargé.");
+		LOGGER.info("Handicap loaded.");
 	}
 
 	public static Identifier id(String path) {

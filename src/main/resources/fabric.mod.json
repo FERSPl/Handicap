@@ -3,7 +3,7 @@
 	"id": "handicap",
 	"version": "${version}",
 	"name": "Handicap",
-	"description": "Gagne un handicap aléatoire à intervalle régulier. / Gain a random handicap at regular intervals.",
+	"description": "Gain a random handicap at regular intervals.",
 	"authors": [
 		"FERSPI"
 	],
@@ -26,5 +26,11 @@
 		"minecraft": "~26.1",
 		"java": ">=25",
 		"fabric-api": "*"
-	}
+	},
+	"mixins": [
+		{
+			"config": "handicap.client.mixins.json",
+			"environment": "client"
+		}
+	]
 }

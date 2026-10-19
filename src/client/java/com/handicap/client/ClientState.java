@@ -2,7 +2,6 @@ package com.handicap.client;
 
 import com.handicap.Handicap;
 
-/** État reçu du serveur (handicaps actifs et crise en cours). */
 public final class ClientState {
 	public static volatile int mask = 0;
 	public static volatile int flags = 0;

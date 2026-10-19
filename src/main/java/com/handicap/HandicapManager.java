@@ -40,30 +40,29 @@ public final class HandicapManager {
 	private static final Map<UUID, Runtime> RUNTIME = new HashMap<>();
 
 	private static final String[] TOURETTE_WORDS = {
-		"BIP !", "OUI OUI OUI", "PATATE !", "AAAAH", "non non non", "BOUM", "HÉ !", "*couinement*"
+		"BEEP!", "YES YES YES", "POTATO!", "AAAAH", "no no no", "BOOM", "HEY!", "*squeak*"
 	};
 
-	/** Compteurs temporaires par joueur (non sauvegardés). */
 	private static final class Runtime {
 		int cancerSeconds;
 		int sprintSeconds;
 		int windedSeconds;
 		int narcoSeconds;
 		boolean blindApplied;
-		// consommation d'objets
+
 		ItemStack useItem;
 		int useRemaining;
-		// épilepsie
+
 		float lastHealth = -1f;
 		int seizureSeconds;
-		// TOC (0 = aucune, 1 = sauter, 2 = s'accroupir)
+
 		int ocdType;
 		int ocdRemaining;
 		int ocdDeadline;
 		int ocdCooldown = 30;
 		boolean lastOnGround = true;
 		boolean lastSneak;
-		// synchronisation client
+
 		int lastMask = -1;
 		int lastFlags = -1;
 	}
@@ -92,29 +91,24 @@ public final class HandicapManager {
 			RUNTIME.clear();
 		});
 		ServerTickEvents.END_SERVER_TICK.register(HandicapManager::onServerTick);
-		// Quand un joueur (re)joint, on renvoie l'état au client
+
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, s) -> RUNTIME.remove(handler.getPlayer().getUUID()));
 
-		// Muet : bloque les messages du chat
 		ServerMessageEvents.ALLOW_CHAT_MESSAGE.register((message, sender, params) -> {
 			if (state != null && state.has(sender.getUUID(), Handicap.MUTE)) {
-				sender.sendOverlayMessage(Component.literal("Tu es muet : impossible de parler."));
+				sender.sendOverlayMessage(Component.literal("You are mute: you can't speak."));
 				return false;
 			}
 			return true;
 		});
 	}
 
-	// ------------------------------------------------------------------
-	// Donner / retirer
-	// ------------------------------------------------------------------
-
 	public static boolean give(ServerPlayer p, Handicap d, boolean announce) {
 		if (!state.give(p.getUUID(), d)) {
 			return false;
 		}
 		if (announce && !state.has(p.getUUID(), Handicap.ANOSOGNOSIA)) {
-			p.sendSystemMessage(Component.literal("Nouveau handicap : " + d.displayName + " — " + d.description)
+			p.sendSystemMessage(Component.literal("New handicap: " + d.displayName + " — " + d.description)
 				.withStyle(ChatFormatting.RED));
 		}
 		refresh(p);
@@ -126,14 +120,13 @@ public final class HandicapManager {
 			return false;
 		}
 		if (announce && !state.has(p.getUUID(), Handicap.ANOSOGNOSIA)) {
-			p.sendSystemMessage(Component.literal("Handicap retiré : " + d.displayName)
+			p.sendSystemMessage(Component.literal("Handicap removed: " + d.displayName)
 				.withStyle(ChatFormatting.GREEN));
 		}
 		refresh(p);
 		return true;
 	}
 
-	/** Donne un handicap aléatoire que le joueur n'a pas encore. Renvoie null s'il les a tous. */
 	public static Handicap giveRandom(ServerPlayer p) {
 		List<Handicap> available = new ArrayList<>();
 		for (Handicap d : Handicap.values()) {
@@ -142,7 +135,7 @@ public final class HandicapManager {
 			}
 		}
 		if (available.isEmpty()) {
-			p.sendSystemMessage(Component.literal("Tu as déjà tous les handicaps !").withStyle(ChatFormatting.GRAY));
+			p.sendSystemMessage(Component.literal("You already have every handicap!").withStyle(ChatFormatting.GRAY));
 			return null;
 		}
 		Handicap d = available.get(p.getRandom().nextInt(available.size()));
@@ -150,7 +143,6 @@ public final class HandicapManager {
 		return d;
 	}
 
-	/** Retire un handicap aléatoire parmi ceux du joueur. Renvoie null s'il n'en a aucun. */
 	public static Handicap removeRandom(ServerPlayer p) {
 		List<Handicap> owned = new ArrayList<>(state.get(p.getUUID()));
 		if (owned.isEmpty()) {
@@ -161,16 +153,11 @@ public final class HandicapManager {
 		return d;
 	}
 
-	/** Réapplique immédiatement les effets (après une commande, par exemple). */
 	public static void refresh(ServerPlayer p) {
 		if (state != null && server != null) {
 			tickPlayer(p);
 		}
 	}
-
-	// ------------------------------------------------------------------
-	// Boucle principale
-	// ------------------------------------------------------------------
 
 	private static void onServerTick(MinecraftServer s) {
 		if (state == null) {
@@ -203,14 +190,12 @@ public final class HandicapManager {
 		}
 	}
 
-	/** Appelé une fois par seconde pour chaque joueur. */
 	private static void tickPlayer(ServerPlayer p) {
 		UUID id = p.getUUID();
 		Set<Handicap> set = state.get(id);
 		Runtime rt = RUNTIME.computeIfAbsent(id, k -> new Runtime());
 		RandomSource rnd = p.getRandom();
 
-		// --- Aveugle ---
 		if (set.contains(Handicap.BLIND)) {
 			MobEffectInstance cur = p.getEffect(MobEffects.BLINDNESS);
 			if (cur == null || cur.getDuration() < 200) {
@@ -222,22 +207,18 @@ public final class HandicapManager {
 			rt.blindApplied = false;
 		}
 
-		// --- Petite taille ---
 		boolean isShort = set.contains(Handicap.SHORT);
 		setModifier(p, Attributes.SCALE, "short_scale", -0.28, AttributeModifier.Operation.ADD_MULTIPLIED_BASE, isShort);
 		setModifier(p, Attributes.BLOCK_INTERACTION_RANGE, "short_block_reach", -1.0, AttributeModifier.Operation.ADD_VALUE, isShort);
 		setModifier(p, Attributes.ENTITY_INTERACTION_RANGE, "short_entity_reach", -0.75, AttributeModifier.Operation.ADD_VALUE, isShort);
 
-		// --- Arthrite ---
 		boolean arthritis = set.contains(Handicap.ARTHRITIS);
 		setModifier(p, Attributes.BLOCK_BREAK_SPEED, "arthritis_mining", -0.5, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, arthritis);
 		setModifier(p, Attributes.ATTACK_SPEED, "arthritis_attack", -0.35, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, arthritis);
 
-		// --- Os fragiles ---
 		setModifier(p, Attributes.FALL_DAMAGE_MULTIPLIER, "brittle_bones", 1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
 			set.contains(Handicap.BRITTLE_BONES));
 
-		// --- Cancer : -1 cœur par minute, il reste au minimum 1 cœur ---
 		int stage = state.cancerStage(id);
 		if (set.contains(Handicap.CANCER)) {
 			rt.cancerSeconds++;
@@ -246,7 +227,7 @@ public final class HandicapManager {
 				if (stage < 9) {
 					stage++;
 					state.setCancerStage(id, stage);
-					p.sendOverlayMessage(Component.literal("Ta santé se dégrade..."));
+					p.sendOverlayMessage(Component.literal("Your health is getting worse..."));
 				}
 			}
 		} else {
@@ -259,7 +240,6 @@ public final class HandicapManager {
 		setModifier(p, Attributes.MAX_HEALTH, "cancer_health", -2.0 * stage, AttributeModifier.Operation.ADD_VALUE,
 			set.contains(Handicap.CANCER) && stage > 0);
 
-		// --- Asthme : après 10 s de sprint, essoufflé pendant 8 s ---
 		if (!set.contains(Handicap.ASTHMA)) {
 			rt.sprintSeconds = 0;
 			rt.windedSeconds = 0;
@@ -272,7 +252,7 @@ public final class HandicapManager {
 				rt.sprintSeconds = 0;
 				rt.windedSeconds = 8;
 				p.setSprinting(false);
-				p.sendOverlayMessage(Component.literal("Tu manques d'air !"));
+				p.sendOverlayMessage(Component.literal("You're out of breath!"));
 			}
 		} else {
 			rt.sprintSeconds = Math.max(0, rt.sprintSeconds - 2);
@@ -280,7 +260,6 @@ public final class HandicapManager {
 		setModifier(p, Attributes.MOVEMENT_SPEED, "asthma_winded", -0.5, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
 			rt.windedSeconds > 0);
 
-		// --- Narcolepsie : s'endort 5 s au hasard (environ toutes les 2 min) ---
 		if (!set.contains(Handicap.NARCOLEPSY)) {
 			rt.narcoSeconds = 0;
 		} else if (rt.narcoSeconds > 0) {
@@ -294,13 +273,11 @@ public final class HandicapManager {
 		setModifier(p, Attributes.MOVEMENT_SPEED, "narcolepsy_move", -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, asleep);
 		setModifier(p, Attributes.JUMP_STRENGTH, "narcolepsy_jump", -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, asleep);
 
-		// --- Insomnie ---
 		if (set.contains(Handicap.INSOMNIA) && p.isSleeping()) {
 			p.stopSleepInBed(true, true);
-			p.sendOverlayMessage(Component.literal("Tu n'arrives pas à dormir."));
+			p.sendOverlayMessage(Component.literal("You can't fall asleep."));
 		}
 
-		// --- Main secondaire amputée ---
 		if (set.contains(Handicap.AMPUTATED_OFFHAND)) {
 			ItemStack off = p.getOffhandItem();
 			if (!off.isEmpty()) {
@@ -312,7 +289,6 @@ public final class HandicapManager {
 			}
 		}
 
-		// --- Démence : échange deux emplacements de temps en temps ---
 		if (set.contains(Handicap.DEMENTIA) && rnd.nextInt(30) == 0) {
 			int a = rnd.nextInt(36);
 			int b = rnd.nextInt(36);
@@ -326,19 +302,17 @@ public final class HandicapManager {
 			}
 		}
 
-		// --- Allergie au pollen : fleurs à moins de 2 blocs ---
 		if (set.contains(Handicap.POLLEN_ALLERGY) && !p.hasEffect(MobEffects.POISON)) {
 			BlockPos base = p.blockPosition();
 			for (BlockPos pos : BlockPos.betweenClosed(base.offset(-2, -1, -2), base.offset(2, 2, 2))) {
 				if (p.level().getBlockState(pos).is(BlockTags.FLOWERS)) {
 					p.addEffect(new MobEffectInstance(MobEffects.POISON, 100, 0));
-					p.sendOverlayMessage(Component.literal("Atchoum ! Le pollen t'empoisonne."));
+					p.sendOverlayMessage(Component.literal("Achoo! The pollen is poisoning you."));
 					break;
 				}
 			}
 		}
 
-		// --- Tourette : dit un mot au hasard dans le chat (environ toutes les 90 s) ---
 		if (set.contains(Handicap.TOURETTES) && rnd.nextInt(90) == 0) {
 			String word = TOURETTE_WORDS[rnd.nextInt(TOURETTE_WORDS.length)];
 			Component msg = Component.translatable("chat.type.text", p.getDisplayName(), Component.literal(word));
@@ -348,14 +322,9 @@ public final class HandicapManager {
 		tickPlayerExtra(p, set, rt);
 	}
 
-	// ------------------------------------------------------------------
-	// Partie « une fois par seconde » supplémentaire (épilepsie, TOC, synchro)
-	// ------------------------------------------------------------------
-
 	private static void tickPlayerExtra(ServerPlayer p, Set<Handicap> set, Runtime rt) {
 		RandomSource rnd = p.getRandom();
 
-		// --- Épilepsie : faim basse ou effet négatif => risque de crise ---
 		if (!set.contains(Handicap.SEIZURES)) {
 			rt.seizureSeconds = 0;
 		} else {
@@ -373,7 +342,6 @@ public final class HandicapManager {
 		setModifier(p, Attributes.MOVEMENT_SPEED, "seizure_move", -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, seizing);
 		setModifier(p, Attributes.JUMP_STRENGTH, "seizure_jump", -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, seizing);
 
-		// --- TOC : une compulsion à la fois ---
 		if (!set.contains(Handicap.OCD)) {
 			rt.ocdType = 0;
 			rt.ocdCooldown = 30;
@@ -383,11 +351,11 @@ public final class HandicapManager {
 				if (rnd.nextBoolean()) {
 					rt.ocdType = 1;
 					rt.ocdRemaining = 5;
-					p.sendSystemMessage(Component.literal("Compulsion : tu dois sauter 5 fois !").withStyle(ChatFormatting.LIGHT_PURPLE));
+					p.sendSystemMessage(Component.literal("Compulsion: you must jump 5 times!").withStyle(ChatFormatting.LIGHT_PURPLE));
 				} else {
 					rt.ocdType = 2;
 					rt.ocdRemaining = 6;
-					p.sendSystemMessage(Component.literal("Compulsion : tu dois t'accroupir 6 fois !").withStyle(ChatFormatting.LIGHT_PURPLE));
+					p.sendSystemMessage(Component.literal("Compulsion: you must sneak 6 times!").withStyle(ChatFormatting.LIGHT_PURPLE));
 				}
 				rt.ocdDeadline = 45;
 			}
@@ -395,13 +363,12 @@ public final class HandicapManager {
 			rt.ocdDeadline--;
 			if (rt.ocdDeadline <= 0) {
 				p.addEffect(new MobEffectInstance(MobEffects.POISON, 100, 0));
-				p.sendSystemMessage(Component.literal("Tu n'as pas pu t'en empêcher... l'angoisse te rend malade.").withStyle(ChatFormatting.RED));
+				p.sendSystemMessage(Component.literal("You couldn't help yourself... the anxiety makes you sick.").withStyle(ChatFormatting.RED));
 				rt.ocdType = 0;
 				rt.ocdCooldown = 60 + rnd.nextInt(60);
 			}
 		}
 
-		// --- Synchronisation avec le client (effets visuels et sonores) ---
 		int mask = 0;
 		for (Handicap d : set) {
 			mask |= d.bit();
@@ -416,18 +383,13 @@ public final class HandicapManager {
 
 	private static void startSeizure(ServerPlayer p, Runtime rt) {
 		rt.seizureSeconds = 6;
-		p.sendOverlayMessage(Component.literal("Crise d'épilepsie !"));
+		p.sendOverlayMessage(Component.literal("Seizure!"));
 	}
-
-	// ------------------------------------------------------------------
-	// Partie « à chaque tick » (consommation, dégâts, compulsions)
-	// ------------------------------------------------------------------
 
 	private static void tickFast(ServerPlayer p) {
 		UUID id = p.getUUID();
 		Runtime rt = RUNTIME.computeIfAbsent(id, k -> new Runtime());
 
-		// --- Détection d'un aliment / d'une boisson consommé (lait, sucre) ---
 		boolean lactose = state.has(id, Handicap.LACTOSE_INTOLERANCE);
 		boolean diabetes = state.has(id, Handicap.DIABETES);
 		if (lactose || diabetes) {
@@ -444,7 +406,6 @@ public final class HandicapManager {
 			rt.useItem = null;
 		}
 
-		// --- Épilepsie : une perte de vie peut déclencher une crise ---
 		float health = p.getHealth();
 		if (state.has(id, Handicap.SEIZURES)) {
 			if (rt.lastHealth >= 0f && health < rt.lastHealth - 0.5f && rt.seizureSeconds == 0 && p.getRandom().nextInt(5) == 0) {
@@ -453,7 +414,6 @@ public final class HandicapManager {
 		}
 		rt.lastHealth = health;
 
-		// --- TOC : suivi des sauts et des accroupissements ---
 		boolean onGround = p.onGround();
 		boolean sneaking = p.isShiftKeyDown();
 		if (state.has(id, Handicap.OCD) && rt.ocdType != 0) {
@@ -465,7 +425,7 @@ public final class HandicapManager {
 			if (rt.ocdRemaining <= 0) {
 				rt.ocdType = 0;
 				rt.ocdCooldown = 60 + p.getRandom().nextInt(120);
-				p.sendSystemMessage(Component.literal("Compulsion satisfaite.").withStyle(ChatFormatting.GREEN));
+				p.sendSystemMessage(Component.literal("Compulsion fulfilled.").withStyle(ChatFormatting.GREEN));
 			}
 		}
 		rt.lastOnGround = onGround;
@@ -474,7 +434,7 @@ public final class HandicapManager {
 
 	private static void onConsumed(ServerPlayer p, ItemStack item, boolean lactose, boolean diabetes) {
 		if (lactose && item.is(Items.MILK_BUCKET)) {
-			p.sendSystemMessage(Component.literal("Ton intolérance au lactose t'a été fatale...").withStyle(ChatFormatting.RED));
+			p.sendSystemMessage(Component.literal("Your lactose intolerance was fatal...").withStyle(ChatFormatting.RED));
 			p.kill((ServerLevel) p.level());
 			return;
 		}
@@ -482,12 +442,11 @@ public final class HandicapManager {
 			int damage = sugarDamage(item);
 			if (damage > 0) {
 				p.setHealth(Math.max(1.0f, p.getHealth() - damage));
-				p.sendOverlayMessage(Component.literal("Trop de sucre..."));
+				p.sendOverlayMessage(Component.literal("Too much sugar..."));
 			}
 		}
 	}
 
-	/** Dégâts (en demi-cœurs) infligés par un aliment sucré pour un diabétique. */
 	private static int sugarDamage(ItemStack item) {
 		if (item.is(Items.HONEY_BOTTLE) || item.is(Items.PUMPKIN_PIE)) {
 			return 4;
@@ -498,7 +457,6 @@ public final class HandicapManager {
 		return 0;
 	}
 
-	/** Ajoute ou retire un modificateur d'attribut permanent selon {@code active}. */
 	private static void setModifier(ServerPlayer p, Holder<Attribute> attribute, String name, double amount,
 			AttributeModifier.Operation operation, boolean active) {
 		AttributeInstance inst = p.getAttribute(attribute);

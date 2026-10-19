@@ -5,7 +5,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-/** Envoyé du serveur au client : handicaps actifs (bits) et états temporaires (bit 0 = crise d'épilepsie). */
 public record SyncPayload(int mask, int flags) implements CustomPacketPayload {
 	public static final CustomPacketPayload.Type<SyncPayload> TYPE = new CustomPacketPayload.Type<>(HandicapMod.id("sync"));
 

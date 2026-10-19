@@ -23,7 +23,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 
 public final class HandicapCommands {
-	private static final Pattern DURATION = Pattern.compile("(\\d{1,6})([smh]?)");
+	private static final Pattern DURATION = Pattern.compile("(\\d{1,5}(?:\\.\\d{1,2})?)([smh]?)");
 
 	private static final SuggestionProvider<CommandSourceStack> HANDICAP_SUGGESTIONS = (ctx, builder) -> {
 		List<String> options = new ArrayList<>(List.of("all", "random"));
@@ -34,7 +34,7 @@ public final class HandicapCommands {
 	};
 
 	private static final SuggestionProvider<CommandSourceStack> TIMER_SUGGESTIONS = (ctx, builder) ->
-		SharedSuggestionProvider.suggest(List.of("off", "5m", "10m", "30m", "1h"), builder);
+		SharedSuggestionProvider.suggest(List.of("off", "1", "5", "10", "30s", "0.5"), builder);
 
 	private HandicapCommands() {
 	}
@@ -53,7 +53,9 @@ public final class HandicapCommands {
 						.suggests(HANDICAP_SUGGESTIONS)
 						.executes(ctx -> modify(ctx, true)))))
 			.then(Commands.literal("remove")
+				.executes(ctx -> removeAll(ctx, List.of(ctx.getSource().getPlayerOrException())))
 				.then(Commands.argument("targets", EntityArgument.players())
+					.executes(ctx -> removeAll(ctx, EntityArgument.getPlayers(ctx, "targets")))
 					.then(Commands.argument("handicap", StringArgumentType.word())
 						.suggests(HANDICAP_SUGGESTIONS)
 						.executes(ctx -> modify(ctx, false)))))
@@ -63,8 +65,6 @@ public final class HandicapCommands {
 			.then(Commands.literal("next")
 				.then(Commands.argument("targets", EntityArgument.players())
 					.executes(HandicapCommands::next)))
-			.then(Commands.literal("reset")
-				.executes(HandicapCommands::reset))
 			.then(Commands.literal("timer")
 				.executes(HandicapCommands::timerStatus)
 				.then(Commands.argument("value", StringArgumentType.word())
@@ -74,7 +74,7 @@ public final class HandicapCommands {
 
 	private static boolean ready(CommandContext<CommandSourceStack> ctx) {
 		if (HandicapManager.state() == null) {
-			ctx.getSource().sendFailure(Component.literal("Le mod n'est pas encore prêt."));
+			ctx.getSource().sendFailure(Component.literal("The mod is not ready yet."));
 			return false;
 		}
 		return true;
@@ -92,7 +92,7 @@ public final class HandicapCommands {
 		if (!all && !random) {
 			single = Handicap.byId(value);
 			if (single == null) {
-				ctx.getSource().sendFailure(Component.literal("Handicap inconnu : " + value));
+				ctx.getSource().sendFailure(Component.literal("Unknown handicap: " + value));
 				return 0;
 			}
 		}
@@ -106,7 +106,7 @@ public final class HandicapCommands {
 						changed++;
 					}
 				}
-				p.sendSystemMessage(Component.literal(give ? "Tu as reçu tous les handicaps." : "Tous tes handicaps ont été retirés."));
+				p.sendSystemMessage(Component.literal(give ? "You received every handicap." : "All your handicaps have been removed."));
 			} else if (random) {
 				Handicap d = give ? HandicapManager.giveRandom(p) : HandicapManager.removeRandom(p);
 				if (d != null) {
@@ -124,7 +124,7 @@ public final class HandicapCommands {
 		final int count = changed;
 		final int players = targets.size();
 		ctx.getSource().sendSuccess(() -> Component.literal(
-			(give ? "Handicaps donnés : " : "Handicaps retirés : ") + count + " (joueurs ciblés : " + players + ")"), true);
+			(give ? "Handicaps given: " : "Handicaps removed: ") + count + " (players targeted: " + players + ")"), true);
 		return count;
 	}
 
@@ -136,7 +136,7 @@ public final class HandicapCommands {
 		ServerPlayer self = ctx.getSource().getPlayer();
 		for (ServerPlayer p : targets) {
 			if (p == self && HandicapManager.state().has(p.getUUID(), Handicap.ANOSOGNOSIA)) {
-				ctx.getSource().sendSuccess(() -> Component.literal("Tu ne vois pas tes handicaps."), false);
+				ctx.getSource().sendSuccess(() -> Component.literal("You can't see your handicaps."), false);
 				continue;
 			}
 			StringBuilder sb = new StringBuilder();
@@ -146,7 +146,7 @@ public final class HandicapCommands {
 				}
 				sb.append(d.displayName);
 			}
-			final String text = p.getName().getString() + " : " + (sb.length() == 0 ? "aucun handicap" : sb);
+			final String text = p.getName().getString() + ": " + (sb.length() == 0 ? "no handicap" : sb);
 			ctx.getSource().sendSuccess(() -> Component.literal(text), false);
 		}
 		return targets.size();
@@ -166,21 +166,29 @@ public final class HandicapCommands {
 		HandicapManager.state().resetTimer();
 		HandicapManager.state().save();
 		final int c = count;
-		ctx.getSource().sendSuccess(() -> Component.literal("Prochain handicap donné à " + c + " joueur(s). Timer relancé."), true);
+		ctx.getSource().sendSuccess(() -> Component.literal("Next handicap given to " + c + " player(s). Timer restarted."), true);
 		return count;
 	}
 
-	private static int reset(CommandContext<CommandSourceStack> ctx) {
+	private static int removeAll(CommandContext<CommandSourceStack> ctx, Collection<ServerPlayer> targets) {
 		if (!ready(ctx)) {
 			return 0;
 		}
-		HandicapManager.state().resetAll();
-		for (ServerPlayer p : ctx.getSource().getServer().getPlayerList().getPlayers()) {
-			HandicapManager.refresh(p);
+		int removed = 0;
+		for (ServerPlayer p : targets) {
+			for (Handicap d : Handicap.values()) {
+				if (HandicapManager.remove(p, d, false)) {
+					removed++;
+				}
+			}
+			p.sendSystemMessage(Component.literal("All your handicaps have been removed."));
 		}
 		HandicapManager.state().save();
-		ctx.getSource().sendSuccess(() -> Component.literal("Tous les handicaps ont été retirés et le timer est relancé."), true);
-		return 1;
+		final int count = removed;
+		final int players = targets.size();
+		ctx.getSource().sendSuccess(() -> Component.literal(
+			"Handicaps removed: " + count + " (players targeted: " + players + ")"), true);
+		return count;
 	}
 
 	private static int timerStatus(CommandContext<CommandSourceStack> ctx) {
@@ -189,8 +197,8 @@ public final class HandicapCommands {
 		}
 		HandicapState s = HandicapManager.state();
 		final String text = s.timerEnabled()
-			? "Prochain handicap dans " + s.secondsRemaining() + " s (intervalle : " + s.timerSeconds() + " s)."
-			: "Le timer est désactivé.";
+			? "Next handicap in " + formatDuration(s.secondsRemaining()) + " (interval: " + formatDuration(s.timerSeconds()) + ")."
+			: "The timer is off.";
 		ctx.getSource().sendSuccess(() -> Component.literal(text), false);
 		return 1;
 	}
@@ -204,17 +212,17 @@ public final class HandicapCommands {
 		if (value.equals("off")) {
 			s.setTimerEnabled(false);
 			s.save();
-			ctx.getSource().sendSuccess(() -> Component.literal("Timer désactivé."), true);
+			ctx.getSource().sendSuccess(() -> Component.literal("Timer turned off."), true);
 			return 1;
 		}
 		int seconds = parseSeconds(value);
 		if (seconds < 5) {
-			ctx.getSource().sendFailure(Component.literal("Durée invalide (exemples : off, 30s, 10m, 1h ; minimum 5 s)."));
+			ctx.getSource().sendFailure(Component.literal("Invalid duration (minutes by default: off, 1, 0.5, 30s, 10m, 1h; minimum 5 s)."));
 			return 0;
 		}
 		s.setTimerSeconds(seconds);
 		s.save();
-		ctx.getSource().sendSuccess(() -> Component.literal("Un handicap sera donné toutes les " + seconds + " secondes."), true);
+		ctx.getSource().sendSuccess(() -> Component.literal("A handicap will be given every " + formatDuration(seconds) + "."), true);
 		return 1;
 	}
 
@@ -223,13 +231,31 @@ public final class HandicapCommands {
 		if (!m.matches()) {
 			return -1;
 		}
-		long n = Long.parseLong(m.group(1));
+		double n = Double.parseDouble(m.group(1));
 		String unit = m.group(2);
-		long seconds = switch (unit) {
-			case "m" -> n * 60;
+		double seconds = switch (unit) {
+			case "s" -> n;
 			case "h" -> n * 3600;
-			default -> n;
+			default -> n * 60;
 		};
-		return seconds > 1_000_000 ? -1 : (int) seconds;
+		long rounded = Math.round(seconds);
+		return rounded > 1_000_000 ? -1 : (int) rounded;
+	}
+
+	private static String formatDuration(int totalSeconds) {
+		int h = totalSeconds / 3600;
+		int m = (totalSeconds % 3600) / 60;
+		int sec = totalSeconds % 60;
+		StringBuilder sb = new StringBuilder();
+		if (h > 0) {
+			sb.append(h).append(" h ");
+		}
+		if (m > 0) {
+			sb.append(m).append(" min ");
+		}
+		if (sec > 0 || sb.length() == 0) {
+			sb.append(sec).append(" s");
+		}
+		return sb.toString().trim();
 	}
 }

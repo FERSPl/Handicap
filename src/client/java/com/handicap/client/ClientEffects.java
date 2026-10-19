@@ -18,7 +18,6 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.phys.Vec3;
 
-/** Effets exécutés uniquement sur le client, à chaque tick. */
 public final class ClientEffects {
 	private static double savedVolume = -1.0;
 	private static int vertigoTicks = 0;
@@ -26,7 +25,7 @@ public final class ClientEffects {
 
 	private static final Identifier LEG_ID = HandicapMod.id("amputated_leg_client");
 
-	private static final String[] FAKE_NAMES = {"Herobrine", "Steve_", "xX_Ombre_Xx", "Entity303"};
+	private static final String[] FAKE_NAMES = {"Herobrine", "Steve_", "xX_Shadow_Xx", "Entity303"};
 
 	private ClientEffects() {
 	}
@@ -40,7 +39,6 @@ public final class ClientEffects {
 		}
 		RandomSource rnd = p.getRandom();
 
-		// --- Sourd : volume général à 0 ---
 		if (ClientState.has(Handicap.DEAF)) {
 			if (savedVolume < 0) {
 				savedVolume = mc.options.getSoundSourceOptionInstance(SoundSource.MASTER).get();
@@ -50,45 +48,38 @@ public final class ClientEffects {
 			restoreSound(mc);
 		}
 
-		// --- Kleptomanie : la touche « jeter » ne fait rien ---
 		if (ClientState.has(Handicap.KLEPTOMANIA)) {
 			boolean tried = false;
 			while (mc.options.keyDrop.consumeClick()) {
 				tried = true;
 			}
 			if (tried) {
-				p.sendOverlayMessage(Component.literal("Tu n'arrives pas à lâcher cet objet !"));
+				p.sendOverlayMessage(Component.literal("You can't let go of this item!"));
 			}
 		}
 
-		// --- Jambe amputée : au sol on ne peut pas avancer, il faut sauter ---
 		setLegModifier(p, ClientState.has(Handicap.AMPUTATED_LEG) && p.onGround());
 
-		// --- Parkinson : tremblement permanent du viseur ---
 		if (ClientState.has(Handicap.PARKINSONS)) {
 			p.setYRot(p.getYRot() + (rnd.nextFloat() - 0.5f) * 1.2f);
 			p.setXRot(Mth.clamp(p.getXRot() + (rnd.nextFloat() - 0.5f) * 1.2f, -90.0f, 90.0f));
 		}
 
-		// --- Tourette : secousse de caméra aléatoire ---
 		if (ClientState.has(Handicap.TOURETTES) && rnd.nextInt(200) == 0) {
 			float sign = rnd.nextBoolean() ? 1.0f : -1.0f;
 			p.setYRot(p.getYRot() + sign * (30.0f + rnd.nextFloat() * 50.0f));
 			p.setXRot(Mth.clamp(p.getXRot() + (rnd.nextFloat() - 0.5f) * 40.0f, -90.0f, 90.0f));
 		}
 
-		// --- Paralysie cérébrale : poussées involontaires ---
 		if (ClientState.has(Handicap.CEREBRAL_PALSY) && rnd.nextInt(100) == 0) {
 			Vec3 v = p.getDeltaMovement();
 			p.setDeltaMovement(v.x + (rnd.nextDouble() - 0.5) * 0.8, v.y, v.z + (rnd.nextDouble() - 0.5) * 0.8);
 		}
 
-		// --- TDAH : l'emplacement sélectionné change au hasard ---
 		if (ClientState.has(Handicap.ADHD) && rnd.nextInt(160) == 0) {
 			p.getInventory().setSelectedSlot(rnd.nextInt(9));
 		}
 
-		// --- Vertige : épisodes où le monde tourne ---
 		if (ClientState.has(Handicap.VERTIGO)) {
 			if (vertigoTicks > 0) {
 				vertigoTicks--;
@@ -97,19 +88,17 @@ public final class ClientEffects {
 				p.setXRot(Mth.clamp(p.getXRot() + Mth.sin(wobbleTick * 0.2f) * 1.5f, -90.0f, 90.0f));
 			} else if (rnd.nextInt(1200) == 0) {
 				vertigoTicks = 100;
-				p.sendOverlayMessage(Component.literal("Tout tourne autour de toi..."));
+				p.sendOverlayMessage(Component.literal("Everything is spinning around you..."));
 			}
 		} else {
 			vertigoTicks = 0;
 		}
 
-		// --- Épilepsie : caméra secouée pendant la crise ---
 		if (ClientState.seizing()) {
 			p.setYRot(p.getYRot() + (rnd.nextFloat() - 0.5f) * 30.0f);
 			p.setXRot(Mth.clamp(p.getXRot() + (rnd.nextFloat() - 0.5f) * 20.0f, -90.0f, 90.0f));
 		}
 
-		// --- Schizophrénie : sons et messages qui n'existent pas ---
 		if (ClientState.has(Handicap.SCHIZOPHRENIA) && rnd.nextInt(600) == 0) {
 			if (rnd.nextBoolean()) {
 				SoundEvent[] sounds = {
@@ -124,7 +113,7 @@ public final class ClientEffects {
 				String name = FAKE_NAMES[rnd.nextInt(FAKE_NAMES.length)];
 				Component msg = rnd.nextBoolean()
 					? Component.translatable("multiplayer.player.joined", name).withStyle(ChatFormatting.YELLOW)
-					: Component.literal("<" + name + "> je te vois");
+					: Component.literal("<" + name + "> I can see you");
 				p.sendSystemMessage(msg);
 			}
 		}
@@ -137,7 +126,6 @@ public final class ClientEffects {
 		}
 	}
 
-	/** À appeler quand le jeu se ferme ou quand on quitte un monde. */
 	public static void onShutdown(Minecraft mc) {
 		restoreSound(mc);
 		ClientState.reset();
