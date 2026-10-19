@@ -1,13 +1,37 @@
-# Random Disabilities (Fabric 26.1)
+# Disabilities
 
-Gagne un handicap aléatoire à intervalle régulier (10 min par défaut). Inspiré du mod « Disabilities ».
+A Minecraft Fabric mod that randomly gives players disabilities at regular intervals.
 
-Commandes (permission : opérateur) :
-- `/disability give <joueurs> <handicap|all|random>`
-- `/disability remove <joueurs> <handicap|all|random>`
-- `/disability list <joueurs>`
-- `/disability next <joueurs>`
-- `/disability reset`
-- `/disability timer [off|30s|10m|1h]`
+## Features
 
-Compilation : JDK 25 puis `./gradlew build`. Le mod est dans `build/libs/` (pas le fichier `-sources`).
+- Random disabilities are assigned every **10 minutes** by default.
+- Choose a specific disability, a random one, or all disabilities using commands.
+- Give or remove disabilities from selected players.
+- Operator permissions required for commands.
+
+## Commands
+
+| Command | Description |
+|---|---|
+| `/disability give <players> <disability\|all\|random>` | Give one or more disabilities to players. |
+| `/disability remove <players> <disability\|all\|random>` | Remove one or more disabilities from players. |
+
+Replace `<players>` with the target player or players, and `<disability>` with the name of a supported disability.
+
+## Requirements
+
+- Minecraft **26.1**
+- Fabric
+
+Make sure you install the versions compatible with your Minecraft installation.
+
+## Installation
+
+1. Install Fabric for the supported Minecraft version.
+2. Download the mod `.jar` file.
+3. Place the `.jar` file in your Minecraft `mods` folder.
+4. Launch Minecraft using the Fabric profile.
+
+## Contributing
+
+Bug reports and suggestions are welcome. Please open an issue in this repository.
