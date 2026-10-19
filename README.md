@@ -84,7 +84,7 @@ You need JDK 25. Run `./gradlew build`; the mod is created in `build/libs/`.
 
 ## Contributing
 
-Bug reports and suggestions are welcome. Please open an [issue](https://github.com/FERSPI/Disabilitiesmod/issues) in this repository.
+Bug reports and suggestions are welcome. Please open an [issue](https://github.com/FERSPl/Handicap/issues) in this repository.
 
 ## License
 
