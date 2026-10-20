@@ -1,5 +1,5 @@
  <p align="center">
-  <img src="assets/images/logo.png" alt="Handicap mod logo" width="180">
+  <img src="src/main/resources/assets/handicap/icon.png" alt="Handicap mod logo" width="180">
 </p>
 
 <h1 align="center">Handicap</h1>
