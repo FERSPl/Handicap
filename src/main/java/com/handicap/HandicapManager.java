@@ -31,6 +31,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 
@@ -50,6 +51,15 @@ public final class HandicapManager {
 		int narcoSeconds;
 		boolean blindApplied;
 		int glutenSeconds;
+		int hypoSeconds;
+		int idleSeconds;
+		int numbSeconds;
+		double lastX;
+		double lastZ;
+		int clumsyCooldown;
+		int phobiaSeconds;
+		int claustroSeconds;
+		int reflexSeconds;
 
 		ItemStack useItem;
 		int useRemaining;
@@ -105,6 +115,13 @@ public final class HandicapManager {
 	}
 
 	public static boolean give(ServerPlayer p, Handicap d, boolean announce) {
+		if (announce && !state.stacking()) {
+			for (Handicap other : state.get(p.getUUID())) {
+				if (other != d) {
+					state.remove(p.getUUID(), other);
+				}
+			}
+		}
 		if (!state.give(p.getUUID(), d)) {
 			return false;
 		}
@@ -265,10 +282,10 @@ public final class HandicapManager {
 			rt.narcoSeconds = 0;
 		} else if (rt.narcoSeconds > 0) {
 			rt.narcoSeconds--;
-		} else if (rnd.nextInt(120) == 0) {
-			rt.narcoSeconds = 5;
-			p.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 120, 0, false, false, false));
-			p.sendOverlayMessage(Component.literal("Zzz..."));
+		} else if (rnd.nextInt(45) == 0) {
+			rt.narcoSeconds = 8;
+			p.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 180, 0, false, false, false));
+			p.sendOverlayMessage(Component.literal("You fall asleep... Zzz..."));
 		}
 		boolean asleep = rt.narcoSeconds > 0;
 		setModifier(p, Attributes.MOVEMENT_SPEED, "narcolepsy_move", -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, asleep);
@@ -314,7 +331,7 @@ public final class HandicapManager {
 			}
 		}
 
-		if (set.contains(Handicap.TOURETTES) && rnd.nextInt(90) == 0) {
+		if (set.contains(Handicap.TOURETTES) && rnd.nextInt(25) == 0) {
 			String word = TOURETTE_WORDS[rnd.nextInt(TOURETTE_WORDS.length)];
 			Component msg = Component.translatable("chat.type.text", p.getDisplayName(), Component.literal(word));
 			server.getPlayerList().broadcastSystemMessage(msg, false);
@@ -325,6 +342,8 @@ public final class HandicapManager {
 
 	private static void tickPlayerExtra(ServerPlayer p, Set<Handicap> set, Runtime rt) {
 		RandomSource rnd = p.getRandom();
+
+		tickMoreHandicaps(p, set, rt, rnd);
 
 		setModifier(p, Attributes.JUMP_STRENGTH, "paraplegia_jump", -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
 			set.contains(Handicap.PARAPLEGIA));
@@ -374,9 +393,18 @@ public final class HandicapManager {
 			}
 		} else {
 			rt.ocdDeadline--;
+			if (rt.ocdDeadline == 15 || rt.ocdDeadline == 5) {
+				p.sendSystemMessage(Component.literal("Warning: obey your compulsion! " + rt.ocdRemaining + " left, "
+					+ rt.ocdDeadline + " seconds before you get hurt.").withStyle(ChatFormatting.GOLD));
+			}
 			if (rt.ocdDeadline <= 0) {
-				p.addEffect(new MobEffectInstance(MobEffects.POISON, 100, 0));
-				p.sendSystemMessage(Component.literal("You couldn't help yourself... the anxiety makes you sick.").withStyle(ChatFormatting.RED));
+				p.sendSystemMessage(Component.literal("You disobeyed your compulsion: -1 heart.").withStyle(ChatFormatting.RED));
+				float newHealth = p.getHealth() - 2.0f;
+				if (newHealth <= 0.0f) {
+					p.kill((ServerLevel) p.level());
+				} else {
+					p.setHealth(newHealth);
+				}
 				rt.ocdType = 0;
 				rt.ocdCooldown = 60 + rnd.nextInt(60);
 			}
@@ -386,12 +414,123 @@ public final class HandicapManager {
 		for (Handicap d : set) {
 			mask |= d.bit();
 		}
-		int flags = seizing ? 1 : 0;
+		int flags = (seizing ? 1 : 0) | (rt.narcoSeconds > 0 ? 2 : 0);
 		if ((mask != rt.lastMask || flags != rt.lastFlags) && ServerPlayNetworking.canSend(p, SyncPayload.TYPE)) {
 			ServerPlayNetworking.send(p, new SyncPayload(mask, flags));
 			rt.lastMask = mask;
 			rt.lastFlags = flags;
 		}
+	}
+
+	private static void tickMoreHandicaps(ServerPlayer p, Set<Handicap> set, Runtime rt, RandomSource rnd) {
+		setModifier(p, Attributes.ATTACK_DAMAGE, "muscle_weakness", -0.5, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+			set.contains(Handicap.MUSCLE_WEAKNESS));
+
+		if (!set.contains(Handicap.HYPOTENSION)) {
+			rt.hypoSeconds = 0;
+		} else if (rt.hypoSeconds > 0) {
+			rt.hypoSeconds--;
+		} else if (rnd.nextInt(60) == 0) {
+			rt.hypoSeconds = 8;
+			p.sendOverlayMessage(Component.literal("Your blood pressure drops... you feel weak."));
+		}
+		setModifier(p, Attributes.MOVEMENT_SPEED, "hypotension_slow", -0.45, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+			rt.hypoSeconds > 0);
+		setModifier(p, Attributes.ATTACK_DAMAGE, "hypotension_weak", -0.3, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+			rt.hypoSeconds > 0);
+
+		if (!set.contains(Handicap.POOR_CIRCULATION)) {
+			rt.idleSeconds = 0;
+			rt.numbSeconds = 0;
+		} else {
+			double dx = p.getX() - rt.lastX;
+			double dz = p.getZ() - rt.lastZ;
+			rt.lastX = p.getX();
+			rt.lastZ = p.getZ();
+			if (dx * dx + dz * dz > 0.04) {
+				rt.idleSeconds = 0;
+			} else {
+				rt.idleSeconds++;
+			}
+			if (rt.numbSeconds > 0) {
+				rt.numbSeconds--;
+			} else if (rt.idleSeconds >= 20) {
+				rt.numbSeconds = 10;
+				rt.idleSeconds = 0;
+				p.sendOverlayMessage(Component.literal("Your legs are numb..."));
+			}
+		}
+		setModifier(p, Attributes.MOVEMENT_SPEED, "poor_circulation", -0.45, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+			rt.numbSeconds > 0);
+
+		if (!set.contains(Handicap.CLUMSINESS)) {
+			rt.clumsyCooldown = 0;
+		} else if (rt.clumsyCooldown > 0) {
+			rt.clumsyCooldown--;
+		} else if (rnd.nextInt(90) == 0) {
+			ItemStack held = p.getMainHandItem();
+			if (!held.isEmpty()) {
+				ItemStack copy = held.copy();
+				p.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+				p.drop(copy, false);
+				p.sendOverlayMessage(Component.literal("Oops! It slipped out of your hand."));
+				rt.clumsyCooldown = 60;
+			}
+		}
+
+		if (!set.contains(Handicap.MONSTER_PHOBIA)) {
+			rt.phobiaSeconds = 0;
+		} else {
+			if (rt.phobiaSeconds > 0) {
+				rt.phobiaSeconds--;
+			}
+			List<Monster> near = p.level().getEntitiesOfClass(Monster.class, p.getBoundingBox().inflate(8.0));
+			if (!near.isEmpty()) {
+				if (rt.phobiaSeconds == 0) {
+					p.sendOverlayMessage(Component.literal("A monster is nearby... you freeze!"));
+				}
+				rt.phobiaSeconds = 3;
+			}
+		}
+		setModifier(p, Attributes.MOVEMENT_SPEED, "monster_phobia_slow", -0.4, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+			rt.phobiaSeconds > 0);
+		setModifier(p, Attributes.ATTACK_DAMAGE, "monster_phobia_weak", -0.4, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+			rt.phobiaSeconds > 0);
+
+		if (!set.contains(Handicap.CLAUSTROPHOBIA)) {
+			rt.claustroSeconds = 0;
+		} else {
+			if (rt.claustroSeconds > 0) {
+				rt.claustroSeconds--;
+			}
+			if (isEnclosed(p)) {
+				if (rt.claustroSeconds == 0) {
+					p.sendOverlayMessage(Component.literal("The walls close in on you..."));
+				}
+				rt.claustroSeconds = 2;
+			}
+		}
+		setModifier(p, Attributes.MOVEMENT_SPEED, "claustrophobia", -0.35, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+			rt.claustroSeconds > 0);
+
+		if (!set.contains(Handicap.SLOW_REFLEXES)) {
+			rt.reflexSeconds = 0;
+		} else if (rt.reflexSeconds > 0) {
+			rt.reflexSeconds--;
+		}
+		setModifier(p, Attributes.MOVEMENT_SPEED, "slow_reflexes", -0.5, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+			rt.reflexSeconds > 0);
+	}
+
+	private static boolean isEnclosed(ServerPlayer p) {
+		BlockPos base = p.blockPosition();
+		int solid = 0;
+		for (BlockPos pos : BlockPos.betweenClosed(base.offset(-2, 0, -2), base.offset(2, 2, 2))) {
+			if (!p.level().getBlockState(pos).getCollisionShape(p.level(), pos).isEmpty()) {
+				solid++;
+			}
+		}
+		return solid >= 52;
 	}
 
 	private static void startSeizure(ServerPlayer p, Runtime rt) {
@@ -406,13 +545,14 @@ public final class HandicapManager {
 		boolean lactose = state.has(id, Handicap.LACTOSE_INTOLERANCE);
 		boolean diabetes = state.has(id, Handicap.DIABETES);
 		boolean celiac = state.has(id, Handicap.CELIAC);
-		if (lactose || diabetes || celiac) {
+		boolean fishAllergy = state.has(id, Handicap.FISH_ALLERGY);
+		if (lactose || diabetes || celiac || fishAllergy) {
 			if (p.isUsingItem()) {
 				rt.useItem = p.getUseItem().copy();
 				rt.useRemaining = p.getUseItemRemainingTicks();
 			} else if (rt.useItem != null) {
 				if (rt.useRemaining <= 2) {
-					onConsumed(p, rt.useItem, lactose, diabetes, celiac);
+					onConsumed(p, rt.useItem, lactose, diabetes, celiac, fishAllergy);
 				}
 				rt.useItem = null;
 			}
@@ -426,7 +566,14 @@ public final class HandicapManager {
 				startSeizure(p, rt);
 			}
 		}
+		if (state.has(id, Handicap.SLOW_REFLEXES) && rt.lastHealth >= 0f && health < rt.lastHealth - 0.01f) {
+			rt.reflexSeconds = 4;
+		}
 		rt.lastHealth = health;
+
+		if (state.has(id, Handicap.RESPIRATORY_FAILURE) && p.isUnderWater() && !p.hasEffect(MobEffects.WATER_BREATHING)) {
+			p.setAirSupply(p.getAirSupply() - 1);
+		}
 
 		boolean onGround = p.onGround();
 		boolean sneaking = p.isShiftKeyDown();
@@ -446,7 +593,14 @@ public final class HandicapManager {
 		rt.lastSneak = sneaking;
 	}
 
-	private static void onConsumed(ServerPlayer p, ItemStack item, boolean lactose, boolean diabetes, boolean celiac) {
+	private static void onConsumed(ServerPlayer p, ItemStack item, boolean lactose, boolean diabetes, boolean celiac,
+			boolean fishAllergy) {
+		if (fishAllergy && (item.is(Items.COD) || item.is(Items.SALMON) || item.is(Items.COOKED_COD)
+			|| item.is(Items.COOKED_SALMON) || item.is(Items.TROPICAL_FISH))) {
+			p.addEffect(new MobEffectInstance(MobEffects.POISON, 200, 0));
+			p.addEffect(new MobEffectInstance(MobEffects.HUNGER, 300, 1));
+			p.sendOverlayMessage(Component.literal("Fish! Your allergy kicks in..."));
+		}
 		if (celiac && (item.is(Items.BREAD) || item.is(Items.COOKIE))) {
 			RUNTIME.computeIfAbsent(p.getUUID(), k -> new Runtime()).glutenSeconds = 30;
 			p.addEffect(new MobEffectInstance(MobEffects.HUNGER, 600, 1));

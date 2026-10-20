@@ -35,7 +35,29 @@ public enum Handicap {
 	PARAPLEGIA("paraplegia", "Paraplegia", "You can't jump or sprint"),
 	REDUCED_MOBILITY("reduced_mobility", "Reduced Mobility", "You move more slowly"),
 	CELIAC("celiac", "Celiac Disease", "Bread and cookies make you sick"),
-	TINNITUS("tinnitus", "Tinnitus", "A ringing noise plays from time to time");
+	TINNITUS("tinnitus", "Tinnitus", "A ringing noise plays from time to time"),
+	MUSCLE_WEAKNESS("muscle_weakness", "Muscle Weakness", "Your melee damage is reduced"),
+	RESPIRATORY_FAILURE("respiratory_failure", "Respiratory Failure", "You run out of air much faster underwater"),
+	HYPOTENSION("hypotension", "Hypotension", "Episodes of weakness and slowness"),
+	POOR_CIRCULATION("poor_circulation", "Poor Circulation", "Standing still for too long slows you down"),
+	CLUMSINESS("clumsiness", "Clumsiness", "You sometimes drop the item in your hand"),
+	FISH_ALLERGY("fish_allergy", "Fish Allergy", "Eating fish makes you sick"),
+	CLAUSTROPHOBIA("claustrophobia", "Claustrophobia", "Tight spaces slow you down"),
+	SLOW_REFLEXES("slow_reflexes", "Slow Reflexes", "You are slowed down after taking damage"),
+	MONSTER_PHOBIA("monster_phobia", "Monster Phobia", "Nearby monsters weaken and slow you"),
+	PARTIAL_DEAFNESS("partial_deafness", "Partial Deafness", "All sounds are at half volume"),
+	INVERTED_VISION("inverted_vision", "Inverted Vision", "Your view is sometimes flipped upside down"),
+	HICCUPS("hiccups", "Hiccups", "Random hiccups jolt your view"),
+	SNEEZING("sneezing", "Sneezing", "Sneezing fits jolt your view and slow you down"),
+	JUMP_CURSE("jump_curse", "Jump Curse", "You jump on your own at random"),
+	MAGNET_FEET("magnet_feet", "Magnet Feet", "You can't jump for a moment after landing"),
+	SLEEPWALKING("sleepwalking", "Sleepwalking", "You sometimes walk forward on your own"),
+	STICKY_HAND("sticky_hand", "Sticky Hand", "You can't switch hotbar slots for a moment after switching"),
+	MYOPIA("myopia", "Myopia", "Your vision is blurry"),
+	HYPEROPIA("hyperopia", "Hyperopia", "Things close to you are blurry"),
+	TUNNEL_VISION("tunnel_vision", "Tunnel Vision", "Your field of view sometimes narrows"),
+	PHANTOM_LIGHT("phantom_light", "Phantom Light", "Brief flashes of light appear"),
+	SPATIAL_DISORIENTATION("spatial_disorientation", "Spatial Disorientation", "Left and right are swapped");
 
 	public final String id;
 	public final String displayName;

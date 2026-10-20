@@ -5,9 +5,13 @@ import com.handicap.HandicapMod;
 
 import java.lang.reflect.Method;
 
+import com.mojang.blaze3d.platform.InputConstants;
+
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
@@ -15,6 +19,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -25,11 +30,29 @@ public final class ClientEffects {
 	private static int vertigoTicks = 0;
 	private static int wobbleTick = 0;
 	private static Boolean savedSubtitles = null;
-	private static boolean colorBlindOn = false;
-	private static int colorBlindTicks = 0;
+	private static Identifier currentEffect = null;
+	private static int effectTicks = 0;
+	private static int invertedTicks = 0;
+	private static int tunnelTicks = 0;
+	private static int flashTicks = 0;
+	private static boolean controlsSwapped = false;
+	private static int jumpCurseCooldown = 200;
+	private static int sleepwalkTicks = 0;
+	private static int sneezeSlowTicks = 0;
+	private static int magnetTicks = 0;
+	private static boolean magnetLastGround = true;
+	private static int stickyLock = 0;
+	private static int lastSlot = -1;
 	private static boolean postEffectWarned = false;
 
 	private static final Identifier COLOR_BLIND_EFFECT = HandicapMod.id("colorblind");
+	private static final Identifier FLIP_EFFECT = HandicapMod.id("flip");
+	private static final Identifier MYOPIA_EFFECT = HandicapMod.id("myopia");
+	private static final Identifier HYPEROPIA_EFFECT = HandicapMod.id("hyperopia");
+	private static final Identifier TUNNEL_EFFECT = HandicapMod.id("tunnel");
+	private static final Identifier FLASH_EFFECT = HandicapMod.id("flash");
+	private static final Identifier SNEEZE_ID = HandicapMod.id("sneezing_client");
+	private static final Identifier MAGNET_ID = HandicapMod.id("magnet_feet_client");
 
 	private static final Identifier LEG_ID = HandicapMod.id("amputated_leg_client");
 
@@ -43,18 +66,30 @@ public final class ClientEffects {
 		if (p == null || mc.level == null) {
 			restoreSound(mc);
 			vertigoTicks = 0;
-			colorBlindOn = false;
-			colorBlindTicks = 0;
+			currentEffect = null;
+			effectTicks = 0;
+			invertedTicks = 0;
+			tunnelTicks = 0;
+			flashTicks = 0;
+			lastSlot = -1;
+			if (controlsSwapped) {
+				swapControls(mc);
+			}
 			return;
 		}
 		RandomSource rnd = p.getRandom();
 
-		if (ClientState.has(Handicap.DEAF)) {
+		boolean deaf = ClientState.has(Handicap.DEAF);
+		boolean partiallyDeaf = ClientState.has(Handicap.PARTIAL_DEAFNESS);
+		if (deaf || partiallyDeaf) {
 			if (savedVolume < 0) {
 				savedVolume = mc.options.getSoundSourceOptionInstance(SoundSource.MASTER).get();
-				mc.options.getSoundSourceOptionInstance(SoundSource.MASTER).set(0.0);
 			}
-			if (savedSubtitles == null) {
+			double target = deaf ? 0.0 : savedVolume * 0.5;
+			if (Math.abs(mc.options.getSoundSourceOptionInstance(SoundSource.MASTER).get() - target) > 0.001) {
+				mc.options.getSoundSourceOptionInstance(SoundSource.MASTER).set(target);
+			}
+			if (deaf && savedSubtitles == null) {
 				savedSubtitles = mc.options.showSubtitles().get();
 				mc.options.showSubtitles().set(true);
 			}
@@ -72,16 +107,67 @@ public final class ClientEffects {
 			}
 		}
 
-		if (ClientState.has(Handicap.COLOR_BLIND)) {
-			colorBlindTicks++;
-			if (colorBlindTicks % 100 == 1) {
-				setPostEffect(mc, COLOR_BLIND_EFFECT);
+		if (ClientState.has(Handicap.INVERTED_VISION)) {
+			if (invertedTicks > 0) {
+				invertedTicks--;
+			} else if (rnd.nextInt(1800) == 0) {
+				invertedTicks = 100;
+				p.sendOverlayMessage(Component.literal("Your world flips upside down!"));
 			}
-			colorBlindOn = true;
-		} else if (colorBlindOn) {
+		} else {
+			invertedTicks = 0;
+		}
+
+		if (ClientState.has(Handicap.TUNNEL_VISION)) {
+			if (tunnelTicks > 0) {
+				tunnelTicks--;
+			} else if (rnd.nextInt(1200) == 0) {
+				tunnelTicks = 200;
+				p.sendOverlayMessage(Component.literal("Your field of view narrows..."));
+			}
+		} else {
+			tunnelTicks = 0;
+		}
+
+		if (ClientState.has(Handicap.PHANTOM_LIGHT)) {
+			if (flashTicks > 0) {
+				flashTicks--;
+			} else if (rnd.nextInt(900) == 0) {
+				flashTicks = 6;
+			}
+		} else {
+			flashTicks = 0;
+		}
+
+		boolean shouldSwap = ClientState.has(Handicap.SPATIAL_DISORIENTATION);
+		if (shouldSwap != controlsSwapped) {
+			swapControls(mc);
+		}
+
+		Identifier desired = null;
+		if (flashTicks > 0) {
+			desired = FLASH_EFFECT;
+		} else if (invertedTicks > 0) {
+			desired = FLIP_EFFECT;
+		} else if (tunnelTicks > 0) {
+			desired = TUNNEL_EFFECT;
+		} else if (ClientState.has(Handicap.COLOR_BLIND)) {
+			desired = COLOR_BLIND_EFFECT;
+		} else if (ClientState.has(Handicap.MYOPIA)) {
+			desired = MYOPIA_EFFECT;
+		} else if (ClientState.has(Handicap.HYPEROPIA)) {
+			desired = HYPEROPIA_EFFECT;
+		}
+		if (desired != null) {
+			effectTicks++;
+			if (!desired.equals(currentEffect) || effectTicks % 100 == 0) {
+				setPostEffect(mc, desired);
+				currentEffect = desired;
+			}
+		} else if (currentEffect != null) {
 			clearPostEffect(mc);
-			colorBlindOn = false;
-			colorBlindTicks = 0;
+			currentEffect = null;
+			effectTicks = 0;
 		}
 
 		if (ClientState.has(Handicap.PARAPLEGIA)) {
@@ -93,6 +179,81 @@ public final class ClientEffects {
 				mc.level.playLocalSound(p.getX(), p.getY(), p.getZ(), SoundEvents.AMETHYST_BLOCK_CHIME,
 					SoundSource.PLAYERS, 0.7f, 1.8f + 0.1f * i, false);
 			}
+		}
+
+		if (ClientState.has(Handicap.HICCUPS) && rnd.nextInt(500) == 0) {
+			p.setXRot(Mth.clamp(p.getXRot() - 6.0f, -90.0f, 90.0f));
+			mc.level.playLocalSound(p.getX(), p.getY(), p.getZ(), SoundEvents.PLAYER_BURP,
+				SoundSource.PLAYERS, 0.5f, 1.8f, false);
+		}
+
+		if (ClientState.has(Handicap.SNEEZING) && rnd.nextInt(900) == 0) {
+			p.setXRot(Mth.clamp(p.getXRot() + 14.0f, -90.0f, 90.0f));
+			sneezeSlowTicks = 10;
+			mc.level.playLocalSound(p.getX(), p.getY(), p.getZ(), SoundEvents.PANDA_SNEEZE,
+				SoundSource.PLAYERS, 0.8f, 1.0f, false);
+		}
+		if (sneezeSlowTicks > 0) {
+			sneezeSlowTicks--;
+		}
+		setLocalModifier(p, Attributes.MOVEMENT_SPEED, SNEEZE_ID, -0.8, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+			ClientState.has(Handicap.SNEEZING) && sneezeSlowTicks > 0);
+
+		if (ClientState.has(Handicap.JUMP_CURSE)) {
+			if (jumpCurseCooldown > 0) {
+				jumpCurseCooldown--;
+			} else if (p.onGround()) {
+				Vec3 v = p.getDeltaMovement();
+				p.setDeltaMovement(v.x, 0.42, v.z);
+				jumpCurseCooldown = 300 + rnd.nextInt(600);
+			}
+		}
+
+		boolean groundNow = p.onGround();
+		if (groundNow && !magnetLastGround) {
+			magnetTicks = 30;
+		}
+		magnetLastGround = groundNow;
+		if (magnetTicks > 0) {
+			magnetTicks--;
+		}
+		setLocalModifier(p, Attributes.JUMP_STRENGTH, MAGNET_ID, -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+			ClientState.has(Handicap.MAGNET_FEET) && magnetTicks > 0);
+
+		if (ClientState.has(Handicap.SLEEPWALKING)) {
+			if (sleepwalkTicks > 0) {
+				sleepwalkTicks--;
+				Vec3 look = p.getLookAngle();
+				double len = Math.sqrt(look.x * look.x + look.z * look.z);
+				if (len > 0.001) {
+					Vec3 v = p.getDeltaMovement();
+					p.setDeltaMovement(look.x / len * 0.15, v.y, look.z / len * 0.15);
+				}
+			} else if (rnd.nextInt(1800) == 0) {
+				sleepwalkTicks = 60;
+				p.sendOverlayMessage(Component.literal("You are sleepwalking..."));
+			}
+		} else {
+			sleepwalkTicks = 0;
+		}
+
+		int slot = p.getInventory().getSelectedSlot();
+		if (lastSlot < 0) {
+			lastSlot = slot;
+		}
+		if (ClientState.has(Handicap.STICKY_HAND)) {
+			if (stickyLock > 0) {
+				stickyLock--;
+				if (slot != lastSlot) {
+					p.getInventory().setSelectedSlot(lastSlot);
+				}
+			} else if (slot != lastSlot) {
+				lastSlot = slot;
+				stickyLock = 60;
+			}
+		} else {
+			lastSlot = slot;
+			stickyLock = 0;
 		}
 
 		setLegModifier(p, ClientState.has(Handicap.AMPUTATED_LEG) && p.onGround());
@@ -129,6 +290,10 @@ public final class ClientEffects {
 			}
 		} else {
 			vertigoTicks = 0;
+		}
+
+		if (ClientState.asleep()) {
+			p.setXRot(p.getXRot() + (80.0f - p.getXRot()) * 0.15f);
 		}
 
 		if (ClientState.seizing()) {
@@ -169,10 +334,17 @@ public final class ClientEffects {
 
 	public static void onShutdown(Minecraft mc) {
 		restoreSound(mc);
-		if (colorBlindOn) {
+		if (currentEffect != null) {
 			clearPostEffect(mc);
-			colorBlindOn = false;
-			colorBlindTicks = 0;
+			currentEffect = null;
+			effectTicks = 0;
+		}
+		invertedTicks = 0;
+		tunnelTicks = 0;
+		flashTicks = 0;
+		lastSlot = -1;
+		if (controlsSwapped) {
+			swapControls(mc);
 		}
 		ClientState.reset();
 		vertigoTicks = 0;
@@ -202,6 +374,35 @@ public final class ClientEffects {
 		if (!postEffectWarned) {
 			postEffectWarned = true;
 			HandicapMod.LOGGER.warn("Color Blind: could not change the post effect", t);
+		}
+	}
+
+	private static void swapControls(Minecraft mc) {
+		try {
+			KeyMapping left = mc.options.keyLeft;
+			KeyMapping right = mc.options.keyRight;
+			InputConstants.Key leftKey = InputConstants.getKey(left.saveString());
+			InputConstants.Key rightKey = InputConstants.getKey(right.saveString());
+			left.setKey(rightKey);
+			right.setKey(leftKey);
+			KeyMapping.resetMapping();
+			controlsSwapped = !controlsSwapped;
+		} catch (Throwable t) {
+			HandicapMod.LOGGER.warn("Spatial Disorientation: could not swap the movement keys", t);
+		}
+	}
+
+	private static void setLocalModifier(LocalPlayer p, Holder<Attribute> attribute, Identifier id, double amount,
+			AttributeModifier.Operation operation, boolean active) {
+		AttributeInstance inst = p.getAttribute(attribute);
+		if (inst == null) {
+			return;
+		}
+		boolean present = inst.getModifier(id) != null;
+		if (active && !present) {
+			inst.addOrReplacePermanentModifier(new AttributeModifier(id, amount, operation));
+		} else if (!active && present) {
+			inst.removeModifier(id);
 		}
 	}
 

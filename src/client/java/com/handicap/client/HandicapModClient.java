@@ -16,7 +16,10 @@ public class HandicapModClient implements ClientModInitializer {
 			ClientState.flags = payload.flags();
 		});
 
+		HandicapHud.register();
+
 		ClientTickEvents.START_CLIENT_TICK.register(ClientEffects::tick);
+		ClientTickEvents.END_CLIENT_TICK.register(client -> HandicapHud.tick());
 
 		ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> ClientEffects.onShutdown(client));
 		ClientLifecycleEvents.CLIENT_STOPPING.register(ClientEffects::onShutdown);

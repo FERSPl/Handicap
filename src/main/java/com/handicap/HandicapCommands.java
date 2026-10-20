@@ -1,5 +1,6 @@
 package com.handicap;
 
+import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -53,7 +54,7 @@ public final class HandicapCommands {
 					.then(Commands.argument("handicap", StringArgumentType.word())
 						.suggests(HANDICAP_SUGGESTIONS)
 						.executes(ctx -> modify(ctx, true)))))
-			.then(Commands.literal("remove")
+			.then(Commands.literal("clear")
 				.executes(ctx -> removeAll(ctx, List.of(ctx.getSource().getPlayerOrException())))
 				.then(Commands.argument("targets", EntityArgument.players())
 					.executes(ctx -> removeAll(ctx, EntityArgument.getPlayers(ctx, "targets")))
@@ -66,6 +67,10 @@ public final class HandicapCommands {
 			.then(Commands.literal("next")
 				.then(Commands.argument("targets", EntityArgument.players())
 					.executes(HandicapCommands::next)))
+			.then(Commands.literal("stacking")
+				.executes(HandicapCommands::stackingStatus)
+				.then(Commands.argument("enabled", BoolArgumentType.bool())
+					.executes(HandicapCommands::stackingSet)))
 			.then(Commands.literal("timer")
 				.executes(HandicapCommands::timerStatus)
 				.then(Commands.literal("off")
@@ -192,6 +197,32 @@ public final class HandicapCommands {
 		ctx.getSource().sendSuccess(() -> Component.literal(
 			"Handicaps removed: " + count + " (players targeted: " + players + ")"), true);
 		return count;
+	}
+
+	private static int stackingStatus(CommandContext<CommandSourceStack> ctx) {
+		if (!ready(ctx)) {
+			return 0;
+		}
+		final String text = HandicapManager.state().stacking()
+			? "Stacking is on: handicaps add up."
+			: "Stacking is off: a new handicap replaces the previous one.";
+		ctx.getSource().sendSuccess(() -> Component.literal(text), false);
+		ctx.getSource().sendSuccess(() -> Component.literal("Usage: /handicap stacking <true|false>"), false);
+		return 1;
+	}
+
+	private static int stackingSet(CommandContext<CommandSourceStack> ctx) {
+		if (!ready(ctx)) {
+			return 0;
+		}
+		boolean enabled = BoolArgumentType.getBool(ctx, "enabled");
+		HandicapManager.state().setStacking(enabled);
+		HandicapManager.state().save();
+		final String text = enabled
+			? "Stacking turned on: handicaps now add up."
+			: "Stacking turned off: a new handicap now replaces the previous one.";
+		ctx.getSource().sendSuccess(() -> Component.literal(text), true);
+		return 1;
 	}
 
 	private static int timerStatus(CommandContext<CommandSourceStack> ctx) {

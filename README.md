@@ -1,6 +1,6 @@
 # Handicap
 
-A Minecraft Fabric mod that randomly gives players a new handicap at regular intervals. Survive as long as you can with 33 different handicaps, or pick the ones you want with commands.
+A Minecraft Fabric mod that randomly gives players a new handicap at regular intervals. Survive as long as you can with 55 different handicaps, or pick the ones you want with commands.
 
 > Inspired by the mod [Disabilities](https://modrinth.com/mod/disabilities) by OddSense. Handicap is an independent implementation with its own code.
 
@@ -10,18 +10,20 @@ A Minecraft Fabric mod that randomly gives players a new handicap at regular int
 - Give, remove or list handicaps for selected players with commands.
 - Pick a specific handicap, a random one, or all of them.
 - Handicaps are saved per world.
-- **Operator permissions are required for commands.**
+- A clean on-screen list of your handicaps (toggle with the `` ` `` key, configurable in Controls). It is hidden when you have Anosognosia.
+- Operator permissions are required for commands.
 
 ## Commands
 
 | Command | Description |
 |---|---|
 | `/handicap give <players> <handicap\|all\|random>` | Give one handicap, a random one, or all of them. |
-| `/handicap remove` | Remove **all** your handicaps. |
-| `/handicap remove <players>` | Remove **all** handicaps from the selected players. |
-| `/handicap remove <players> <handicap\|all\|random>` | Remove one specific handicap, a random one, or all of them. |
+| `/handicap clear` | Remove **all** your handicaps. |
+| `/handicap clear <players>` | Remove **all** handicaps from the selected players. |
+| `/handicap clear <players> <handicap\|all\|random>` | Remove one specific handicap, a random one, or all of them. |
 | `/handicap list <players>` | Show the handicaps of the selected players. |
 | `/handicap next <players>` | Skip the timer and give the next random handicap. |
+| `/handicap stacking [true\|false]` | When off, a new handicap replaces the previous one instead of adding up. `give all` still gives everything. |
 | `/handicap timer [off\|<minutes>]` | Show the timer, turn it off, or set the interval in **minutes** (`1` = every minute, `0.5` = every 30 seconds). Minimum 0.1 minute. |
 
 Replace `<players>` with a player name or a selector such as `@s` or `@a`, and `<handicap>` with an ID from the table below.
@@ -63,6 +65,30 @@ Replace `<players>` with a player name or a selector such as `@s` or `@a`, and `
 | 31 | Reduced Mobility | `reduced_mobility` | You move more slowly | ✅ |
 | 32 | Celiac Disease | `celiac` | Bread and cookies make you sick | ✅ |
 | 33 | Tinnitus | `tinnitus` | A ringing noise plays from time to time | ✅ |
+| 34 | Muscle Weakness | `muscle_weakness` | Your melee damage is reduced | ✅ |
+| 35 | Respiratory Failure | `respiratory_failure` | You run out of air much faster underwater | ✅ |
+| 36 | Hypotension | `hypotension` | Episodes of weakness and slowness | ✅ |
+| 37 | Poor Circulation | `poor_circulation` | Standing still for too long slows you down | ✅ |
+| 38 | Clumsiness | `clumsiness` | You sometimes drop the item in your hand | ✅ |
+| 39 | Fish Allergy | `fish_allergy` | Eating fish makes you sick | ✅ |
+| 40 | Claustrophobia | `claustrophobia` | Tight spaces slow you down | ✅ |
+| 41 | Slow Reflexes | `slow_reflexes` | You are slowed down after taking damage | ✅ |
+| 42 | Monster Phobia | `monster_phobia` | Nearby monsters weaken and slow you | ✅ |
+| 43 | Partial Deafness | `partial_deafness` | All sounds are at half volume | ✅ |
+| 44 | Inverted Vision | `inverted_vision` | Your view is sometimes flipped upside down | ✅ |
+| 45 | Hiccups | `hiccups` | Random hiccups jolt your view | ✅ |
+| 46 | Sneezing | `sneezing` | Sneezing fits jolt your view and slow you down | ✅ |
+| 47 | Jump Curse | `jump_curse` | You jump on your own at random | ✅ |
+| 48 | Magnet Feet | `magnet_feet` | You can't jump for a moment after landing | ✅ |
+| 49 | Sleepwalking | `sleepwalking` | You sometimes walk forward on your own | ✅ |
+| 50 | Sticky Hand | `sticky_hand` | You can't switch hotbar slots for a moment after switching | ✅ |
+| 51 | Myopia | `myopia` | Your vision is blurry | ✅ |
+| 52 | Hyperopia | `hyperopia` | Things close to you are blurry (the bottom of the screen) | ✅ |
+| 53 | Tunnel Vision | `tunnel_vision` | Your field of view sometimes narrows | ✅ |
+| 54 | Phantom Light | `phantom_light` | Brief flashes of light appear | ✅ |
+| 55 | Spatial Disorientation | `spatial_disorientation` | Left and right are swapped | ✅ |
+
+Only one screen filter is shown at a time (a flash wins over a flip, a flip over tunnel vision, then color blindness, myopia and hyperopia).
 
 ## Requirements
 
@@ -79,6 +105,10 @@ Install the mod on the **client**, and also on the **server** if you play multip
 2. Download Fabric API and the mod `.jar` file.
 3. Place both `.jar` files in your Minecraft `mods` folder.
 4. Launch Minecraft using the Fabric profile.
+
+## Building from source
+
+You need JDK 25. Run `./gradlew build`; the mod is created in `build/libs/`.
 
 ## Contributing
 

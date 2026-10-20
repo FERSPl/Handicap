@@ -17,6 +17,10 @@ public final class ClientState {
 		return (flags & 1) != 0;
 	}
 
+	public static boolean asleep() {
+		return (flags & 2) != 0;
+	}
+
 	public static void reset() {
 		mask = 0L;
 		flags = 0;

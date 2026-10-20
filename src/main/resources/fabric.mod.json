@@ -28,6 +28,7 @@
 		"fabric-api": "*"
 	},
 	"mixins": [
+		"handicap.mixins.json",
 		{
 			"config": "handicap.client.mixins.json",
 			"environment": "client"

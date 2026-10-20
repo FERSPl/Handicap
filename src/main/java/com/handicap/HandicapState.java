@@ -22,6 +22,7 @@ public final class HandicapState {
 
 	private static final class Data {
 		boolean timerEnabled = true;
+		boolean stacking = true;
 		int timerSeconds = 600;
 		int ticksRemaining = 600 * 20;
 		Map<String, List<String>> players = new HashMap<>();
@@ -30,6 +31,7 @@ public final class HandicapState {
 
 	private final Path file;
 	private boolean timerEnabled = true;
+	private boolean stacking = true;
 	private int timerSeconds = 600;
 	private int ticksRemaining = 600 * 20;
 	private final Map<UUID, EnumSet<Handicap>> players = new HashMap<>();
@@ -47,6 +49,7 @@ public final class HandicapState {
 				Data data = GSON.fromJson(reader, Data.class);
 				if (data != null) {
 					state.timerEnabled = data.timerEnabled;
+					state.stacking = data.stacking;
 					state.timerSeconds = Math.max(5, data.timerSeconds);
 					state.ticksRemaining = Math.max(1, data.ticksRemaining);
 					if (data.players != null) {
@@ -79,6 +82,7 @@ public final class HandicapState {
 	public void save() {
 		Data data = new Data();
 		data.timerEnabled = timerEnabled;
+		data.stacking = stacking;
 		data.timerSeconds = timerSeconds;
 		data.ticksRemaining = ticksRemaining;
 		for (Map.Entry<UUID, EnumSet<Handicap>> e : players.entrySet()) {
@@ -133,6 +137,14 @@ public final class HandicapState {
 		} else {
 			cancerStage.put(id, stage);
 		}
+	}
+
+	public boolean stacking() {
+		return stacking;
+	}
+
+	public void setStacking(boolean stacking) {
+		this.stacking = stacking;
 	}
 
 	public boolean timerEnabled() {
