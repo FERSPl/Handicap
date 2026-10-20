@@ -36,7 +36,7 @@ You can also choose which handicaps to apply using commands, customize the timer
 
 ## Commands
 
-`**All commands require operator permissions, except where otherwise handled by the mod.**`
+**`All commands require operator permissions, except where otherwise handled by the mod.`**
 
 | Command | Description |
 |---|---|
