@@ -47,6 +47,7 @@ public final class ClientEffects {
 	private static int stickyLock = 0;
 	private static int lastSlot = -1;
 	private static boolean postEffectWarned = false;
+	private static boolean postEffectDumped = false;
 
 	private static final Identifier COLOR_BLIND_EFFECT = HandicapMod.id("colorblind");
 	private static final Identifier FLIP_EFFECT = HandicapMod.id("flip");
@@ -172,9 +173,8 @@ public final class ClientEffects {
 		}
 
 		Identifier desired = null;
-		if (ClientState.has(Handicap.BLIND)) {
-			desired = BLIND_EFFECT;
-		} else if (flashTicks > 0) {
+		// Blind uses the vanilla Blindness effect applied by the server, not a screen filter.
+		if (flashTicks > 0) {
 			desired = glowEffect(flashTicks);
 		} else if (invertedTicks > 0) {
 			desired = FLIP_EFFECT;
@@ -401,23 +401,87 @@ public final class ClientEffects {
 	}
 
 	private static void setPostEffect(Minecraft mc, Identifier id) {
+		for (String name : new String[] {"setPostEffect", "setSpectatedEntityPostEffect"}) {
+			try {
+				Method m = mc.gameRenderer.getClass().getDeclaredMethod(name, Identifier.class);
+				m.setAccessible(true);
+				m.invoke(mc.gameRenderer, id);
+				return;
+			} catch (NoSuchMethodException ignored) {
+				// try the next name
+			} catch (Throwable t) {
+				warnPostEffect(t);
+				return;
+			}
+		}
+		// 26.3 added a player-level post effect API: LocalPlayer#setActivePostEffects.
+		if (mc.player != null && invokePlayerPostEffects(mc.player, id)) {
+			return;
+		}
+		warnPostEffect(new NoSuchMethodException("No usable GameRenderer/LocalPlayer post effect method"));
+		dumpPostEffectMethods(mc);
+	}
+
+	private static boolean invokePlayerPostEffects(LocalPlayer p, Identifier idOrNull) {
 		try {
-			Method m = mc.gameRenderer.getClass().getDeclaredMethod("setPostEffect", Identifier.class);
-			m.setAccessible(true);
-			m.invoke(mc.gameRenderer, id);
+			for (Method m : p.getClass().getMethods()) {
+				if (!m.getName().equals("setActivePostEffects") || m.getParameterCount() != 1) {
+					continue;
+				}
+				Class<?> type = m.getParameterTypes()[0];
+				Object arg;
+				if (type.isAssignableFrom(java.util.ArrayList.class)) {
+					arg = idOrNull == null ? new java.util.ArrayList<Identifier>() : new java.util.ArrayList<>(java.util.List.of(idOrNull));
+				} else if (type.isAssignableFrom(java.util.HashSet.class)) {
+					arg = idOrNull == null ? new java.util.HashSet<Identifier>() : new java.util.HashSet<>(java.util.List.of(idOrNull));
+				} else {
+					continue;
+				}
+				m.invoke(p, arg);
+				return true;
+			}
 		} catch (Throwable t) {
 			warnPostEffect(t);
+		}
+		return false;
+	}
+
+	// Logs every post-effect related method once, so a failed port can be fixed from latest.log.
+	private static void dumpPostEffectMethods(Minecraft mc) {
+		if (postEffectDumped) {
+			return;
+		}
+		postEffectDumped = true;
+		Class<?>[] classes = {mc.gameRenderer.getClass(), LocalPlayer.class};
+		for (Class<?> c : classes) {
+			for (Method m : c.getDeclaredMethods()) {
+				if (m.getName().toLowerCase(java.util.Locale.ROOT).contains("posteffect")) {
+					HandicapMod.LOGGER.warn("[Handicap] candidate: {}#{}{}", c.getSimpleName(), m.getName(),
+						java.util.Arrays.toString(m.getParameterTypes()));
+				}
+			}
 		}
 	}
 
 	private static void clearPostEffect(Minecraft mc) {
-		try {
-			Method m = mc.gameRenderer.getClass().getDeclaredMethod("clearPostEffect");
-			m.setAccessible(true);
-			m.invoke(mc.gameRenderer);
-		} catch (Throwable t) {
-			warnPostEffect(t);
+		// 26.3 renamed clearPostEffect to clearSpectatedEntityPostEffect.
+		for (String name : new String[] {"clearSpectatedEntityPostEffect", "clearPostEffect"}) {
+			try {
+				Method m = mc.gameRenderer.getClass().getDeclaredMethod(name);
+				m.setAccessible(true);
+				m.invoke(mc.gameRenderer);
+				return;
+			} catch (NoSuchMethodException ignored) {
+				// try the next name
+			} catch (Throwable t) {
+				warnPostEffect(t);
+				return;
+			}
 		}
+		if (mc.player != null && invokePlayerPostEffects(mc.player, null)) {
+			return;
+		}
+		warnPostEffect(new NoSuchMethodException("GameRenderer clear post effect method"));
 	}
 
 	private static void warnPostEffect(Throwable t) {

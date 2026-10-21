@@ -27,6 +27,8 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -286,6 +288,14 @@ public final class HandicapManager {
 			p.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 180, 0, false, false, false));
 			p.sendOverlayMessage(Component.literal("You fall asleep... Zzz..."));
 		}
+		if (set.contains(Handicap.BLIND)) {
+			p.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 260, 0, false, false, false));
+			rt.blindApplied = true;
+		} else if (rt.blindApplied) {
+			p.removeEffect(MobEffects.BLINDNESS);
+			rt.blindApplied = false;
+		}
+
 		boolean asleep = rt.narcoSeconds > 0;
 		setModifier(p, Attributes.MOVEMENT_SPEED, "narcolepsy_move", -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, asleep);
 		setModifier(p, Attributes.JUMP_STRENGTH, "narcolepsy_jump", -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, asleep);
@@ -301,7 +311,7 @@ public final class HandicapManager {
 				ItemStack copy = off.copy();
 				p.setItemInHand(InteractionHand.OFF_HAND, ItemStack.EMPTY);
 				if (!p.getInventory().add(copy)) {
-					p.drop(copy, false);
+					dropItem(p, copy);
 				}
 			}
 		}
@@ -314,7 +324,7 @@ public final class HandicapManager {
 					ItemStack copy = worn.copy();
 					p.setItemSlot(slot, ItemStack.EMPTY);
 					if (!p.getInventory().add(copy)) {
-						p.drop(copy, false);
+						dropItem(p, copy);
 					}
 					p.sendOverlayMessage(Component.literal("You can't stand wearing armor!"));
 				}
@@ -517,7 +527,7 @@ public final class HandicapManager {
 			if (!held.isEmpty()) {
 				ItemStack copy = held.copy();
 				p.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-				p.drop(copy, false);
+				dropItem(p, copy);
 				p.sendOverlayMessage(Component.literal("Oops! It slipped out of your hand."));
 				rt.clumsyCooldown = 60;
 			}
@@ -565,6 +575,32 @@ public final class HandicapManager {
 		}
 		setModifier(p, Attributes.MOVEMENT_SPEED, "slow_reflexes", -0.5, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
 			rt.reflexSeconds > 0);
+	}
+
+	// ServerPlayer.drop gained a Prediction parameter in 26.3, so spawn the item ourselves.
+	private static void dropItem(ServerPlayer p, ItemStack stack) {
+		if (stack.isEmpty()) {
+			return;
+		}
+		ServerLevel level = (ServerLevel) p.level();
+		ItemEntity entity = new ItemEntity(level, p.getX(), p.getEyeY() - 0.3, p.getZ(), stack);
+		entity.setPickUpDelay(40);
+		Vec3 look = p.getLookAngle();
+		entity.setDeltaMovement(look.x * 0.3, 0.1, look.z * 0.3);
+		level.addFreshEntity(entity);
+	}
+
+	// Kleptomania safety net: whatever path the drop took (inventory, creative, key), take it back.
+	private static void recoverThrownItems(ServerPlayer p) {
+		ServerLevel level = (ServerLevel) p.level();
+		for (ItemEntity e : level.getEntitiesOfClass(ItemEntity.class, p.getBoundingBox().inflate(5.0),
+				ie -> ie.tickCount < 10 && ie.getOwner() == p)) {
+			ItemStack stack = e.getItem().copy();
+			if (p.getInventory().add(stack)) {
+				e.discard();
+				p.sendOverlayMessage(Component.literal("You can't let go of this item!"));
+			}
+		}
 	}
 
 	private static void restoreArmor(ServerPlayer p) {
@@ -624,6 +660,10 @@ public final class HandicapManager {
 			}
 		} else {
 			rt.useItem = null;
+		}
+
+		if (state.has(id, Handicap.KLEPTOMANIA) && p.isAlive()) {
+			recoverThrownItems(p);
 		}
 
 		float health = p.getHealth();
