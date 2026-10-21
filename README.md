@@ -128,7 +128,7 @@ Only one screen filter is displayed at a time, with Blind taking priority over P
 - [Fabric API](https://modrinth.com/mod/fabric-api)
 - Java 25 (the official Minecraft launcher already includes it)
 
-Install the mod on the **client**, and also on the **server** if you play multiplayer. Some handicaps, such as camera shaking, sound changes, and fake noises, only work when the mod is installed on the client.
+Install the mod on the **client**, and also on the **server** if you play multiplayer.
 
 ## Installation
 
