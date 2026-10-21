@@ -123,7 +123,7 @@ Only one screen filter is displayed at a time, with Blind taking priority over P
 
 ## Requirements
 
-- Minecraft **26.1**
+- Minecraft **26.1** or newer (pick the right Handicap version!)
 - [Fabric Loader](https://fabricmc.net/) 0.19.5 or newer
 - [Fabric API](https://modrinth.com/mod/fabric-api)
 - Java 25 (the official Minecraft launcher already includes it)
@@ -132,7 +132,7 @@ Install the mod on the **client**, and also on the **server** if you play multip
 
 ## Installation
 
-1. Install Fabric Loader for Minecraft 26.1 or newer (pick the right Handicap version!).
+1. Install Fabric Loader for Minecraft 26.1.
 2. Download Fabric API and the Handicap mod `.jar` file.
 3. Place both `.jar` files in your Minecraft `mods` folder.
 4. Launch Minecraft using the Fabric profile.
