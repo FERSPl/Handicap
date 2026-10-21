@@ -33,6 +33,7 @@ public final class ClientEffects {
 	private static Identifier currentEffect = null;
 	private static int effectTicks = 0;
 	private static int invertedTicks = 0;
+	private static int invertedCooldown = 400;
 	private static int tunnelTicks = 0;
 	private static int flashTicks = 0;
 	private static boolean controlsSwapped = false;
@@ -50,7 +51,10 @@ public final class ClientEffects {
 	private static final Identifier MYOPIA_EFFECT = HandicapMod.id("myopia");
 	private static final Identifier HYPEROPIA_EFFECT = HandicapMod.id("hyperopia");
 	private static final Identifier TUNNEL_EFFECT = HandicapMod.id("tunnel");
-	private static final Identifier FLASH_EFFECT = HandicapMod.id("flash");
+	private static final Identifier BLIND_EFFECT = HandicapMod.id("blind");
+	private static final Identifier GLOW_1_EFFECT = HandicapMod.id("glow1");
+	private static final Identifier GLOW_2_EFFECT = HandicapMod.id("glow2");
+	private static final Identifier GLOW_3_EFFECT = HandicapMod.id("glow3");
 	private static final Identifier SNEEZE_ID = HandicapMod.id("sneezing_client");
 	private static final Identifier MAGNET_ID = HandicapMod.id("magnet_feet_client");
 
@@ -110,8 +114,11 @@ public final class ClientEffects {
 		if (ClientState.has(Handicap.INVERTED_VISION)) {
 			if (invertedTicks > 0) {
 				invertedTicks--;
-			} else if (rnd.nextInt(1800) == 0) {
-				invertedTicks = 100;
+			} else if (invertedCooldown > 0) {
+				invertedCooldown--;
+			} else {
+				invertedTicks = 300;
+				invertedCooldown = 400 + rnd.nextInt(400);
 				p.sendOverlayMessage(Component.literal("Your world flips upside down!"));
 			}
 		} else {
@@ -122,7 +129,7 @@ public final class ClientEffects {
 			if (tunnelTicks > 0) {
 				tunnelTicks--;
 			} else if (rnd.nextInt(1200) == 0) {
-				tunnelTicks = 200;
+				tunnelTicks = 600;
 				p.sendOverlayMessage(Component.literal("Your field of view narrows..."));
 			}
 		} else {
@@ -133,7 +140,7 @@ public final class ClientEffects {
 			if (flashTicks > 0) {
 				flashTicks--;
 			} else if (rnd.nextInt(900) == 0) {
-				flashTicks = 6;
+				flashTicks = 90;
 			}
 		} else {
 			flashTicks = 0;
@@ -145,8 +152,10 @@ public final class ClientEffects {
 		}
 
 		Identifier desired = null;
-		if (flashTicks > 0) {
-			desired = FLASH_EFFECT;
+		if (ClientState.has(Handicap.BLIND)) {
+			desired = BLIND_EFFECT;
+		} else if (flashTicks > 0) {
+			desired = glowEffect(flashTicks);
 		} else if (invertedTicks > 0) {
 			desired = FLIP_EFFECT;
 		} else if (tunnelTicks > 0) {
@@ -375,6 +384,17 @@ public final class ClientEffects {
 			postEffectWarned = true;
 			HandicapMod.LOGGER.warn("Color Blind: could not change the post effect", t);
 		}
+	}
+
+	private static Identifier glowEffect(int ticksLeft) {
+		int t = 90 - ticksLeft;
+		if (t < 15 || t >= 75) {
+			return GLOW_1_EFFECT;
+		}
+		if (t < 30 || t >= 60) {
+			return GLOW_2_EFFECT;
+		}
+		return GLOW_3_EFFECT;
 	}
 
 	private static void swapControls(Minecraft mc) {

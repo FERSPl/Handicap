@@ -5,7 +5,7 @@
 <h1 align="center">Handicap</h1>
 
 <p align="center">
-  <strong>Survive Minecraft with 55 random handicaps.</strong>
+  <strong>Survive Minecraft with 56 random handicaps.</strong>
 </p>
 
 <p align="center">
@@ -16,7 +16,7 @@
 
 ## About
 
-**Handicap** is a Minecraft Fabric mod that randomly assigns players handicaps at regular intervals. Survive as long as possible, adapt your playstyle, and discover all 55 unique handicaps.
+**Handicap** is a Minecraft Fabric mod that randomly assigns players handicaps at regular intervals. Survive as long as possible, adapt your playstyle, and discover all 56 unique handicaps.
 
 You can also choose which handicaps to apply using commands, customize the timer, and decide whether handicaps stack.
 
@@ -24,7 +24,7 @@ You can also choose which handicaps to apply using commands, customize the timer
 
 ## Features
 
-- **55 unique handicaps** that change the way you play.
+- **56 unique handicaps** that change the way you play.
 - **Automatic random assignment** every 10 minutes by default.
 - **Customizable timer** — change the interval or turn it off entirely.
 - **Commands** to give, remove, and list handicaps.
@@ -65,7 +65,7 @@ The timer is measured in minutes. For example, `0.5` means every 30 seconds. The
 | 6 | Mute | `mute` | You cannot speak in chat. |
 | 7 | Seizures | `seizures` | Damage, low hunger, or negative effects can trigger seizures. |
 | 8 | Cancer | `cancer` | Your maximum health slowly decreases. |
-| 9 | OCD | `ocd` | You must obey compulsions or you get sick. |
+| 9 | OCD | `ocd` | You must obey compulsions or you lose 5 hearts. |
 | 10 | Amputated Offhand | `amputated_offhand` | Your offhand is gone. |
 | 11 | Amputated Leg | `amputated_leg` | You must jump to move around. |
 | 12 | Dyslexia | `dyslexia` | Most text becomes harder to read. |
@@ -108,12 +108,13 @@ The timer is measured in minutes. For example, `0.5` means every 30 seconds. The
 | 49 | Sleepwalking | `sleepwalking` | You sometimes walk forward on your own. |
 | 50 | Sticky Hand | `sticky_hand` | You cannot switch hotbar slots for a moment after switching. |
 | 51 | Myopia | `myopia` | Your vision is blurry. |
-| 52 | Hyperopia | `hyperopia` | Nearby things are blurry, especially at the bottom of the screen. |
-| 53 | Tunnel Vision | `tunnel_vision` | Your field of view sometimes narrows. |
-| 54 | Phantom Light | `phantom_light` | Brief flashes of light appear. |
+| 52 | Hyperopia | `hyperopia` | The bottom third of your screen is blurry. |
+| 53 | Tunnel Vision | `tunnel_vision` | Your field of view narrows to a small spot for a while. |
+| 54 | Phantom Light | `phantom_light` | Soft, gradual glows of light appear from time to time. |
 | 55 | Spatial Disorientation | `spatial_disorientation` | Left and right are swapped. |
+| 56 | Armor Intolerance | `armor_intolerance` | You cannot wear armor; it is given back when the handicap ends. |
 
-Only one screen filter is displayed at a time, with Phantom Light taking priority over Inverted Vision, Tunnel Vision, Color Blind, Myopia, and Hyperopia.
+Only one screen filter is displayed at a time, with Blind taking priority over Phantom Light, Inverted Vision, Tunnel Vision, Color Blind, Myopia, and Hyperopia.
 
 ## Requirements
 

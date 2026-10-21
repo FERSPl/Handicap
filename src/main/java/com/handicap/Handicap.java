@@ -54,10 +54,11 @@ public enum Handicap {
 	SLEEPWALKING("sleepwalking", "Sleepwalking", "You sometimes walk forward on your own"),
 	STICKY_HAND("sticky_hand", "Sticky Hand", "You can't switch hotbar slots for a moment after switching"),
 	MYOPIA("myopia", "Myopia", "Your vision is blurry"),
-	HYPEROPIA("hyperopia", "Hyperopia", "Things close to you are blurry"),
-	TUNNEL_VISION("tunnel_vision", "Tunnel Vision", "Your field of view sometimes narrows"),
-	PHANTOM_LIGHT("phantom_light", "Phantom Light", "Brief flashes of light appear"),
-	SPATIAL_DISORIENTATION("spatial_disorientation", "Spatial Disorientation", "Left and right are swapped");
+	HYPEROPIA("hyperopia", "Hyperopia", "The bottom third of your screen is blurry"),
+	TUNNEL_VISION("tunnel_vision", "Tunnel Vision", "Your field of view narrows to a small spot for a while"),
+	PHANTOM_LIGHT("phantom_light", "Phantom Light", "Soft glows of light appear from time to time"),
+	SPATIAL_DISORIENTATION("spatial_disorientation", "Spatial Disorientation", "Left and right are swapped"),
+	ARMOR_INTOLERANCE("armor_intolerance", "Armor Intolerance", "You can't wear armor");
 
 	public final String id;
 	public final String displayName;

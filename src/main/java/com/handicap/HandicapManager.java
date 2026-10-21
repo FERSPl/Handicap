@@ -16,6 +16,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -25,6 +26,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -39,6 +41,9 @@ public final class HandicapManager {
 	private static HandicapState state;
 	private static MinecraftServer server;
 	private static final Map<UUID, Runtime> RUNTIME = new HashMap<>();
+	private static final EquipmentSlot[] ARMOR_SLOTS = {
+		EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET
+	};
 
 	private static final String[] TOURETTE_WORDS = {
 		"BEEP!", "YES YES YES", "POTATO!", "AAAAH", "no no no", "BOOM", "HEY!", "*squeak*"
@@ -214,17 +219,6 @@ public final class HandicapManager {
 		Runtime rt = RUNTIME.computeIfAbsent(id, k -> new Runtime());
 		RandomSource rnd = p.getRandom();
 
-		if (set.contains(Handicap.BLIND)) {
-			MobEffectInstance cur = p.getEffect(MobEffects.BLINDNESS);
-			if (cur == null || cur.getDuration() < 200) {
-				p.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 400, 0, false, false, false));
-			}
-			rt.blindApplied = true;
-		} else if (rt.blindApplied) {
-			p.removeEffect(MobEffects.BLINDNESS);
-			rt.blindApplied = false;
-		}
-
 		boolean isShort = set.contains(Handicap.SHORT);
 		setModifier(p, Attributes.SCALE, "short_scale", -0.28, AttributeModifier.Operation.ADD_MULTIPLIED_BASE, isShort);
 		setModifier(p, Attributes.BLOCK_INTERACTION_RANGE, "short_block_reach", -1.0, AttributeModifier.Operation.ADD_VALUE, isShort);
@@ -305,6 +299,23 @@ public final class HandicapManager {
 					p.drop(copy, false);
 				}
 			}
+		}
+
+		if (set.contains(Handicap.ARMOR_INTOLERANCE)) {
+			for (EquipmentSlot slot : ARMOR_SLOTS) {
+				ItemStack worn = p.getItemBySlot(slot);
+				if (!worn.isEmpty()) {
+					state.rememberArmor(id, slot.name(), BuiltInRegistries.ITEM.getKey(worn.getItem()).toString());
+					ItemStack copy = worn.copy();
+					p.setItemSlot(slot, ItemStack.EMPTY);
+					if (!p.getInventory().add(copy)) {
+						p.drop(copy, false);
+					}
+					p.sendOverlayMessage(Component.literal("You can't stand wearing armor!"));
+				}
+			}
+		} else if (!state.armorMemory(id).isEmpty()) {
+			restoreArmor(p);
 		}
 
 		if (set.contains(Handicap.DEMENTIA) && rnd.nextInt(30) == 0) {
@@ -398,8 +409,8 @@ public final class HandicapManager {
 					+ rt.ocdDeadline + " seconds before you get hurt.").withStyle(ChatFormatting.GOLD));
 			}
 			if (rt.ocdDeadline <= 0) {
-				p.sendSystemMessage(Component.literal("You disobeyed your compulsion: -1 heart.").withStyle(ChatFormatting.RED));
-				float newHealth = p.getHealth() - 2.0f;
+				p.sendSystemMessage(Component.literal("You disobeyed your compulsion: -5 hearts.").withStyle(ChatFormatting.RED));
+				float newHealth = p.getHealth() - 10.0f;
 				if (newHealth <= 0.0f) {
 					p.kill((ServerLevel) p.level());
 				} else {
@@ -520,6 +531,27 @@ public final class HandicapManager {
 		}
 		setModifier(p, Attributes.MOVEMENT_SPEED, "slow_reflexes", -0.5, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
 			rt.reflexSeconds > 0);
+	}
+
+	private static void restoreArmor(ServerPlayer p) {
+		UUID id = p.getUUID();
+		Map<String, String> memory = state.armorMemory(id);
+		for (EquipmentSlot slot : ARMOR_SLOTS) {
+			String itemId = memory.get(slot.name());
+			if (itemId == null || !p.getItemBySlot(slot).isEmpty()) {
+				continue;
+			}
+			for (int i = 0; i < 36; i++) {
+				ItemStack stack = p.getInventory().getItem(i);
+				if (!stack.isEmpty() && BuiltInRegistries.ITEM.getKey(stack.getItem()).toString().equals(itemId)) {
+					p.setItemSlot(slot, stack.copy());
+					p.getInventory().setItem(i, ItemStack.EMPTY);
+					break;
+				}
+			}
+		}
+		state.clearArmorMemory(id);
+		p.sendOverlayMessage(Component.literal("Your armor is back on."));
 	}
 
 	private static boolean isEnclosed(ServerPlayer p) {

@@ -8,13 +8,14 @@ out vec4 fragColor;
 
 void main() {
 	vec2 texel = 1.0 / vec2(textureSize(InSampler, 0));
-	float amount = (1.0 - smoothstep(0.0, 0.5, texCoord.y)) * 3.0;
+	float strength = 1.0 - smoothstep(0.30, 0.36, texCoord.y);
+	float spacing = strength * 5.0;
 	vec3 sum = vec3(0.0);
 	float total = 0.0;
-	for (int x = -2; x <= 2; x++) {
-		for (int y = -2; y <= 2; y++) {
+	for (int x = -3; x <= 3; x++) {
+		for (int y = -3; y <= 3; y++) {
 			float w = 1.0 / (1.0 + float(x * x + y * y));
-			sum += texture(InSampler, texCoord + vec2(float(x), float(y)) * texel * amount).rgb * w;
+			sum += texture(InSampler, texCoord + vec2(float(x), float(y)) * texel * spacing).rgb * w;
 			total += w;
 		}
 	}

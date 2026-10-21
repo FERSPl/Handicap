@@ -19,8 +19,8 @@ import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
 public final class HandicapHud {
-	private static final int PADDING = 5;
-	private static final int LINE_HEIGHT = 11;
+	private static final int PADDING = 3;
+	private static final int LINE_HEIGHT = 9;
 	private static final int BACKGROUND = 0xB0141018;
 	private static final int ACCENT = 0xFFD23C4B;
 	private static final int TITLE = 0xFFFF8A94;
@@ -63,16 +63,27 @@ public final class HandicapHud {
 				for (String name : names) {
 					width = Math.max(width, mc.font.width(name));
 				}
-				int x = 6;
-				int y = 6;
+				int screenWidth = mc.getWindow().getGuiScaledWidth();
+				int screenHeight = mc.getWindow().getGuiScaledHeight();
+				int maxLines = Math.max(1, (screenHeight - 24 - PADDING * 2 - LINE_HEIGHT - 2) / LINE_HEIGHT);
+				if (names.size() > maxLines) {
+					int hidden = names.size() - (maxLines - 1);
+					names = new ArrayList<>(names.subList(0, maxLines - 1));
+					names.add("+" + hidden + " more");
+					for (String name : names) {
+						width = Math.max(width, mc.font.width(name));
+					}
+				}
 				int boxWidth = width + PADDING * 2 + 3;
-				int boxHeight = PADDING * 2 + LINE_HEIGHT + 3 + names.size() * LINE_HEIGHT;
+				int boxHeight = PADDING * 2 + LINE_HEIGHT + 2 + names.size() * LINE_HEIGHT;
+				int x = screenWidth - boxWidth - 2;
+				int y = Math.max(2, (screenHeight - boxHeight) / 2);
 				graphics.fill(x, y, x + boxWidth, y + boxHeight, BACKGROUND);
 				graphics.fill(x, y, x + 2, y + boxHeight, ACCENT);
 				int textX = x + PADDING + 3;
 				int textY = y + PADDING;
 				graphics.text(mc.font, title, textX, textY, TITLE, false);
-				textY += LINE_HEIGHT + 3;
+				textY += LINE_HEIGHT + 2;
 				for (String name : names) {
 					graphics.text(mc.font, name, textX, textY, TEXT, false);
 					textY += LINE_HEIGHT;
