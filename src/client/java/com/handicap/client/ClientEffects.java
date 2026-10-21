@@ -34,6 +34,8 @@ public final class ClientEffects {
 	private static int effectTicks = 0;
 	private static int invertedTicks = 0;
 	private static int invertedCooldown = 400;
+	private static int migraineTicks = 0;
+	private static int migraineCooldown = 600;
 	private static int tunnelTicks = 0;
 	private static int flashTicks = 0;
 	private static boolean controlsSwapped = false;
@@ -51,6 +53,9 @@ public final class ClientEffects {
 	private static final Identifier MYOPIA_EFFECT = HandicapMod.id("myopia");
 	private static final Identifier HYPEROPIA_EFFECT = HandicapMod.id("hyperopia");
 	private static final Identifier TUNNEL_EFFECT = HandicapMod.id("tunnel");
+	private static final Identifier AGNOSIA_EFFECT = HandicapMod.id("agnosia");
+	private static final Identifier MIGRAINE_EFFECT = HandicapMod.id("migraine");
+	private static final Identifier ICE_ID = HandicapMod.id("ice_rink_client");
 	private static final Identifier BLIND_EFFECT = HandicapMod.id("blind");
 	private static final Identifier GLOW_1_EFFECT = HandicapMod.id("glow1");
 	private static final Identifier GLOW_2_EFFECT = HandicapMod.id("glow2");
@@ -75,6 +80,7 @@ public final class ClientEffects {
 			invertedTicks = 0;
 			tunnelTicks = 0;
 			flashTicks = 0;
+			migraineTicks = 0;
 			lastSlot = -1;
 			if (controlsSwapped) {
 				swapControls(mc);
@@ -151,6 +157,20 @@ public final class ClientEffects {
 			swapControls(mc);
 		}
 
+		if (ClientState.has(Handicap.MIGRAINE)) {
+			if (migraineTicks > 0) {
+				migraineTicks--;
+			} else if (migraineCooldown > 0) {
+				migraineCooldown--;
+			} else {
+				migraineTicks = 400;
+				migraineCooldown = 800 + rnd.nextInt(800);
+				p.sendOverlayMessage(Component.literal("A migraine is starting..."));
+			}
+		} else {
+			migraineTicks = 0;
+		}
+
 		Identifier desired = null;
 		if (ClientState.has(Handicap.BLIND)) {
 			desired = BLIND_EFFECT;
@@ -160,8 +180,12 @@ public final class ClientEffects {
 			desired = FLIP_EFFECT;
 		} else if (tunnelTicks > 0) {
 			desired = TUNNEL_EFFECT;
+		} else if (migraineTicks > 0) {
+			desired = MIGRAINE_EFFECT;
 		} else if (ClientState.has(Handicap.COLOR_BLIND)) {
 			desired = COLOR_BLIND_EFFECT;
+		} else if (ClientState.has(Handicap.VISUAL_AGNOSIA)) {
+			desired = AGNOSIA_EFFECT;
 		} else if (ClientState.has(Handicap.MYOPIA)) {
 			desired = MYOPIA_EFFECT;
 		} else if (ClientState.has(Handicap.HYPEROPIA)) {
@@ -265,6 +289,22 @@ public final class ClientEffects {
 			stickyLock = 0;
 		}
 
+		boolean iceSlide = false;
+		if (ClientState.has(Handicap.ICE_RINK) && p.onGround()) {
+			float friction = p.getBlockStateOn().getBlock().getFriction();
+			if (friction < 0.9f) {
+				Vec3 v = p.getDeltaMovement();
+				float k = 0.98f / friction;
+				p.setDeltaMovement(v.x * k, v.y, v.z * k);
+				iceSlide = true;
+			}
+		}
+		setLocalModifier(p, Attributes.MOVEMENT_SPEED, ICE_ID, -0.77, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, iceSlide);
+
+		if (ClientState.has(Handicap.HAND_TREMORS) && mc.screen == null && mc.options.keyAttack.isDown() && rnd.nextInt(80) == 0) {
+			mc.options.keyAttack.setDown(false);
+		}
+
 		setLegModifier(p, ClientState.has(Handicap.AMPUTATED_LEG) && p.onGround());
 
 		if (ClientState.has(Handicap.PARKINSONS)) {
@@ -351,6 +391,7 @@ public final class ClientEffects {
 		invertedTicks = 0;
 		tunnelTicks = 0;
 		flashTicks = 0;
+		migraineTicks = 0;
 		lastSlot = -1;
 		if (controlsSwapped) {
 			swapControls(mc);

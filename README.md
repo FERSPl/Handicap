@@ -5,7 +5,7 @@
 <h1 align="center">Handicap</h1>
 
 <p align="center">
-  <strong>Survive Minecraft with 56 random handicaps.</strong>
+  <strong>Survive Minecraft with 61 random handicaps.</strong>
 </p>
 
 <p align="center">
@@ -16,7 +16,7 @@
 
 ## About
 
-**Handicap** is a Minecraft Fabric mod that randomly assigns players handicaps at regular intervals. Survive as long as possible, adapt your playstyle, and discover all 56 unique handicaps.
+**Handicap** is a Minecraft Fabric mod that randomly assigns players handicaps at regular intervals. Survive as long as possible, adapt your playstyle, and discover all 61 unique handicaps.
 
 You can also choose which handicaps to apply using commands, customize the timer, and decide whether handicaps stack.
 
@@ -24,7 +24,7 @@ You can also choose which handicaps to apply using commands, customize the timer
 
 ## Features
 
-- **56 unique handicaps** that change the way you play.
+- **61 unique handicaps** that change the way you play.
 - **Automatic random assignment** every 10 minutes by default.
 - **Customizable timer** — change the interval or turn it off entirely.
 - **Commands** to give, remove, and list handicaps.
@@ -113,8 +113,13 @@ The timer is measured in minutes. For example, `0.5` means every 30 seconds. The
 | 54 | Phantom Light | `phantom_light` | Soft, gradual glows of light appear from time to time. |
 | 55 | Spatial Disorientation | `spatial_disorientation` | Left and right are swapped. |
 | 56 | Armor Intolerance | `armor_intolerance` | You cannot wear armor; it is given back when the handicap ends. |
+| 57 | Ice Rink | `ice_rink` | The ground is as slippery as ice. |
+| 58 | Sleep Apnea | `sleep_apnea` | You sometimes wake up gasping for air and feel slow. |
+| 59 | Hand Tremors | `hand_tremors` | Your hands shake and interrupt mining. |
+| 60 | Visual Agnosia | `visual_agnosia` | Colors blend together, making blocks hard to tell apart. |
+| 61 | Migraine | `migraine` | Migraine episodes blur and brighten the edges of your screen. |
 
-Only one screen filter is displayed at a time, with Blind taking priority over Phantom Light, Inverted Vision, Tunnel Vision, Color Blind, Myopia, and Hyperopia.
+Only one screen filter is displayed at a time, with Blind taking priority over Phantom Light, Inverted Vision, Tunnel Vision, Migraine, Color Blind, Visual Agnosia, Myopia, and Hyperopia.
 
 ## Requirements
 

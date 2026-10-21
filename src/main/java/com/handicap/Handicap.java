@@ -58,7 +58,12 @@ public enum Handicap {
 	TUNNEL_VISION("tunnel_vision", "Tunnel Vision", "Your field of view narrows to a small spot for a while"),
 	PHANTOM_LIGHT("phantom_light", "Phantom Light", "Soft glows of light appear from time to time"),
 	SPATIAL_DISORIENTATION("spatial_disorientation", "Spatial Disorientation", "Left and right are swapped"),
-	ARMOR_INTOLERANCE("armor_intolerance", "Armor Intolerance", "You can't wear armor");
+	ARMOR_INTOLERANCE("armor_intolerance", "Armor Intolerance", "You can't wear armor"),
+	ICE_RINK("ice_rink", "Ice Rink", "The ground is as slippery as ice"),
+	SLEEP_APNEA("sleep_apnea", "Sleep Apnea", "You wake up gasping for air and feel slow"),
+	HAND_TREMORS("hand_tremors", "Hand Tremors", "Your hands shake and interrupt mining"),
+	VISUAL_AGNOSIA("visual_agnosia", "Visual Agnosia", "Colors blend together, making blocks hard to tell apart"),
+	MIGRAINE("migraine", "Migraine", "Migraine episodes blur and brighten the edges of your screen");
 
 	public final String id;
 	public final String displayName;

@@ -65,6 +65,11 @@ public final class HandicapManager {
 		int phobiaSeconds;
 		int claustroSeconds;
 		int reflexSeconds;
+		int sleepSeconds;
+		boolean apneaRolled;
+		boolean apneaWake;
+		int apneaWakeAt;
+		int apneaSlow;
 
 		ItemStack useItem;
 		int useRemaining;
@@ -434,6 +439,35 @@ public final class HandicapManager {
 	}
 
 	private static void tickMoreHandicaps(ServerPlayer p, Set<Handicap> set, Runtime rt, RandomSource rnd) {
+		if (!set.contains(Handicap.SLEEP_APNEA)) {
+			rt.sleepSeconds = 0;
+			rt.apneaRolled = false;
+			rt.apneaSlow = 0;
+		} else {
+			if (p.isSleeping()) {
+				rt.sleepSeconds++;
+				if (!rt.apneaRolled) {
+					rt.apneaRolled = true;
+					rt.apneaWake = rnd.nextInt(10) < 6;
+					rt.apneaWakeAt = 1 + rnd.nextInt(3);
+				}
+				if (rt.apneaWake && rt.sleepSeconds >= rt.apneaWakeAt) {
+					rt.apneaWake = false;
+					p.stopSleepInBed(true, true);
+					rt.apneaSlow = 30;
+					p.sendOverlayMessage(Component.literal("You wake up gasping for air..."));
+				}
+			} else {
+				rt.sleepSeconds = 0;
+				rt.apneaRolled = false;
+			}
+			if (rt.apneaSlow > 0) {
+				rt.apneaSlow--;
+			}
+		}
+		setModifier(p, Attributes.MOVEMENT_SPEED, "sleep_apnea_slow", -0.35, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+			rt.apneaSlow > 0);
+
 		setModifier(p, Attributes.ATTACK_DAMAGE, "muscle_weakness", -0.5, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
 			set.contains(Handicap.MUSCLE_WEAKNESS));
 
