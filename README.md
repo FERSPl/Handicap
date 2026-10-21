@@ -132,7 +132,7 @@ Install the mod on the **client**, and also on the **server** if you play multip
 
 ## Installation
 
-1. Install Fabric Loader for Minecraft 26.1.
+1. Install Fabric Loader for Minecraft 26.1 or newer (pick the right Handicap version!).
 2. Download Fabric API and the Handicap mod `.jar` file.
 3. Place both `.jar` files in your Minecraft `mods` folder.
 4. Launch Minecraft using the Fabric profile.
