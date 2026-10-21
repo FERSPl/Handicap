@@ -301,7 +301,7 @@ public final class ClientEffects {
 		}
 		setLocalModifier(p, Attributes.MOVEMENT_SPEED, ICE_ID, -0.77, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, iceSlide);
 
-		if (ClientState.has(Handicap.HAND_TREMORS) && mc.screen == null && mc.options.keyAttack.isDown() && rnd.nextInt(80) == 0) {
+		if (ClientState.has(Handicap.HAND_TREMORS) && mc.gui.screen() == null && mc.options.keyAttack.isDown() && rnd.nextInt(80) == 0) {
 			mc.options.keyAttack.setDown(false);
 		}
 

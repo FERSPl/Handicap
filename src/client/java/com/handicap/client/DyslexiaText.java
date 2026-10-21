@@ -43,7 +43,7 @@ public final class DyslexiaText {
 		if (mc == null) {
 			return true;
 		}
-		Screen screen = mc.screen;
+		Screen screen = mc.gui.screen();
 		if (screen == null) {
 			return false;
 		}
