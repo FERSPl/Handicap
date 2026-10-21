@@ -288,6 +288,14 @@ public final class HandicapManager {
 			p.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 180, 0, false, false, false));
 			p.sendOverlayMessage(Component.literal("You fall asleep... Zzz..."));
 		}
+		if (set.contains(Handicap.BLIND)) {
+			p.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 260, 0, false, false, false));
+			rt.blindApplied = true;
+		} else if (rt.blindApplied) {
+			p.removeEffect(MobEffects.BLINDNESS);
+			rt.blindApplied = false;
+		}
+
 		boolean asleep = rt.narcoSeconds > 0;
 		setModifier(p, Attributes.MOVEMENT_SPEED, "narcolepsy_move", -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, asleep);
 		setModifier(p, Attributes.JUMP_STRENGTH, "narcolepsy_jump", -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, asleep);
@@ -582,6 +590,19 @@ public final class HandicapManager {
 		level.addFreshEntity(entity);
 	}
 
+	// Kleptomania safety net: whatever path the drop took (inventory, creative, key), take it back.
+	private static void recoverThrownItems(ServerPlayer p) {
+		ServerLevel level = (ServerLevel) p.level();
+		for (ItemEntity e : level.getEntitiesOfClass(ItemEntity.class, p.getBoundingBox().inflate(5.0),
+				ie -> ie.tickCount < 10 && ie.getOwner() == p)) {
+			ItemStack stack = e.getItem().copy();
+			if (p.getInventory().add(stack)) {
+				e.discard();
+				p.sendOverlayMessage(Component.literal("You can't let go of this item!"));
+			}
+		}
+	}
+
 	private static void restoreArmor(ServerPlayer p) {
 		UUID id = p.getUUID();
 		Map<String, String> memory = state.armorMemory(id);
@@ -639,6 +660,10 @@ public final class HandicapManager {
 			}
 		} else {
 			rt.useItem = null;
+		}
+
+		if (state.has(id, Handicap.KLEPTOMANIA) && p.isAlive()) {
+			recoverThrownItems(p);
 		}
 
 		float health = p.getHealth();
