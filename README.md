@@ -139,7 +139,7 @@ Install the mod on the **client**, and also on the **server** if you play multip
 
 ## Contributing
 
-Bug reports and suggestions are welcome. Please open an [issue](https://github.com/FERSPI/Disabilitiesmod/issues) in this repository.
+Bug reports and suggestions are welcome. Please open an [issue](https://github.com/FERSPl/Handicap/issues) in this repository.
 
 ## License
 
