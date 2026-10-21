@@ -411,13 +411,21 @@ public final class ClientEffects {
 	}
 
 	private static void clearPostEffect(Minecraft mc) {
-		try {
-			Method m = mc.gameRenderer.getClass().getDeclaredMethod("clearPostEffect");
-			m.setAccessible(true);
-			m.invoke(mc.gameRenderer);
-		} catch (Throwable t) {
-			warnPostEffect(t);
+		// 26.3 renamed clearPostEffect to clearSpectatedEntityPostEffect.
+		for (String name : new String[] {"clearSpectatedEntityPostEffect", "clearPostEffect"}) {
+			try {
+				Method m = mc.gameRenderer.getClass().getDeclaredMethod(name);
+				m.setAccessible(true);
+				m.invoke(mc.gameRenderer);
+				return;
+			} catch (NoSuchMethodException ignored) {
+				// try the next name
+			} catch (Throwable t) {
+				warnPostEffect(t);
+				return;
+			}
 		}
+		warnPostEffect(new NoSuchMethodException("GameRenderer clear post effect method"));
 	}
 
 	private static void warnPostEffect(Throwable t) {

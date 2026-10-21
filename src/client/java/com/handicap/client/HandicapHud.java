@@ -16,9 +16,10 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 
-import org.lwjgl.glfw.GLFW;
-
 public final class HandicapHud {
+	// Minecraft 26.3 replaced GLFW with SDL: this is SDL_SCANCODE_GRAVE (the backtick key).
+	private static final int SDL_SCANCODE_GRAVE = 53;
+
 	private static final int PADDING = 3;
 	private static final int LINE_HEIGHT = 9;
 	private static final int BACKGROUND = 0xB0141018;
@@ -36,8 +37,8 @@ public final class HandicapHud {
 		KeyMapping.Category category = KeyMapping.Category.register(HandicapMod.id("main"));
 		toggleKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
 			"key.handicap.toggle_list",
-			InputConstants.Type.KEYSYM,
-			GLFW.GLFW_KEY_GRAVE_ACCENT,
+			InputConstants.Type.KEYBOARD,
+			SDL_SCANCODE_GRAVE,
 			category));
 
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, HandicapMod.id("list"),
