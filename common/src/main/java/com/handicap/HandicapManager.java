@@ -423,12 +423,7 @@ public final class HandicapManager {
 			}
 		}
 		if (rt.ocdPunishing && rt.ocdType != 0) {
-			float newHealth = p.getHealth() - 1.0f;
-			if (newHealth <= 0.0f) {
-				p.kill((ServerLevel) p.level());
-			} else {
-				p.setHealth(newHealth);
-			}
+			p.hurt(p.damageSources().generic(), 1.0f);
 		}
 
 		long mask = 0L;
