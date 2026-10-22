@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "handicap",
+	"version": "${version}",
+	"name": "Handicap",
+	"description": "Gain a random handicap at regular intervals.",
+	"authors": [
+		"FERSPI"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/"
+	},
+	"license": "MIT",
+	"icon": "assets/handicap/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.handicap.fabric.HandicapFabric"
+		],
+		"client": [
+			"com.handicap.fabric.client.HandicapFabricClient"
+		]
+	},
+	"depends": {
+		"fabricloader": ">=0.19.5",
+		"minecraft": "${minecraft_range}",
+		"java": ">=25",
+		"fabric-api": "*"
+	},
+	"mixins": [
+		"handicap.mixins.json",
+		{
+			"config": "handicap.client.mixins.json",
+			"environment": "client"
+		}
+	]
+}

@@ -1,0 +1,13 @@
+#version 330
+#extension GL_ARB_separate_shader_objects : require
+
+uniform sampler2D InSampler;
+
+layout(location = 0) in vec2 texCoord;
+
+layout(location = 0) out vec4 fragColor;
+
+void main() {
+	vec4 color = texture(InSampler, vec2(texCoord.x, 1.0 - texCoord.y));
+	fragColor = vec4(color.rgb, 1.0);
+}
