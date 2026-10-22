@@ -1,0 +1,11 @@
+{
+	"required": false,
+	"package": "com.handicap.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"mixins": [
+		"ContainerMenuMixin"
+	],
+	"injectors": {
+		"defaultRequire": 0
+	}
+}

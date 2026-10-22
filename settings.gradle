@@ -4,10 +4,16 @@ pluginManagement {
 			name = 'Fabric'
 			url = 'https://maven.fabricmc.net/'
 		}
+		maven {
+			name = 'NeoForged'
+			url = 'https://maven.neoforged.net/releases'
+		}
 		mavenCentral()
 		gradlePluginPortal()
 	}
 }
 
-// Should match your modid
+// Shared code lives in common/ (compiled into both loader jars); each loader has its own module.
 rootProject.name = 'handicap'
+include 'fabric'
+include 'neoforge'
