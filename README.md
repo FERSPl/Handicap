@@ -39,11 +39,10 @@ You can also choose which handicaps to apply using commands, customize the timer
 - **61 unique handicaps** that change the way you play.
 - **Automatic random assignment** every 10 minutes by default.
 - **Customizable timer** — change the interval or turn it off entirely.
-- **Commands** to give, remove, and list handicaps.
+- **Commands** to give, clear, and list handicaps.
 - **Stacking control** — choose whether handicaps accumulate or replace one another.
-- **Persistent data** — handicaps are saved per world.
-- **On-screen handicap list** — toggle it with the backtick (`) key, configurable in Controls.
-- **Anosognosia** — hides your own handicap list.
+- **Persistent data** — handicaps are saved per world: if you leave and rejoin, you keep them.
+- **On-screen handicap list** — toggle the HUD with the backtick (`) key, configurable in Controls.
 - **Multiplayer support** — install the mod on both client and server for the full experience.
 
 ## Commands
