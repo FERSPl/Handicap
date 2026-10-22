@@ -1,8 +1,6 @@
- <p align="center">
-  <img src="common/src/main/resources/assets/handicap/icon.png" alt="Handicap mod logo" width="180">
-</p>
-
-<h1 align="center">Handicap</h1>
+<div align="center">
+  <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/handicap-header.png" alt="Bannière Handicap">
+</div>
 
 <p align="center">
   <strong>Survive Minecraft with 61 random handicaps.</strong>
