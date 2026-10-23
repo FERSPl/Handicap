@@ -32,14 +32,11 @@ public final class ClientEffects {
 	private static Boolean savedSubtitles = null;
 	private static Identifier currentEffect = null;
 	private static int effectTicks = 0;
-	private static int invertedTicks = 0;
-	private static int invertedCooldown = 400;
 	private static int migraineTicks = 0;
 	private static int migraineCooldown = 600;
-	private static int tunnelTicks = 0;
 	private static int flashTicks = 0;
 	private static boolean controlsSwapped = false;
-	private static int jumpCurseCooldown = 200;
+	private static int jumpCurseCooldown = 80;
 	private static int sleepwalkTicks = 0;
 	private static int sneezeSlowTicks = 0;
 	private static int magnetTicks = 0;
@@ -56,7 +53,7 @@ public final class ClientEffects {
 	private static final Identifier TUNNEL_EFFECT = HandicapMod.id("tunnel");
 	private static final Identifier AGNOSIA_EFFECT = HandicapMod.id("agnosia");
 	private static final Identifier MIGRAINE_EFFECT = HandicapMod.id("migraine");
-	private static final Identifier ICE_ID = HandicapMod.id("ice_rink_client");
+	private static final Identifier DRUNK_ID = HandicapMod.id("drunk_client");
 	private static final Identifier BLIND_EFFECT = HandicapMod.id("blind");
 	private static final Identifier GLOW_1_EFFECT = HandicapMod.id("glow1");
 	private static final Identifier GLOW_2_EFFECT = HandicapMod.id("glow2");
@@ -78,8 +75,6 @@ public final class ClientEffects {
 			vertigoTicks = 0;
 			currentEffect = null;
 			effectTicks = 0;
-			invertedTicks = 0;
-			tunnelTicks = 0;
 			flashTicks = 0;
 			migraineTicks = 0;
 			lastSlot = -1;
@@ -96,7 +91,7 @@ public final class ClientEffects {
 			if (savedVolume < 0) {
 				savedVolume = mc.options.getSoundSourceOptionInstance(SoundSource.MASTER).get();
 			}
-			double target = deaf ? 0.0 : savedVolume * 0.5;
+			double target = deaf ? 0.0 : savedVolume * 0.2;
 			if (Math.abs(mc.options.getSoundSourceOptionInstance(SoundSource.MASTER).get() - target) > 0.001) {
 				mc.options.getSoundSourceOptionInstance(SoundSource.MASTER).set(target);
 			}
@@ -116,31 +111,6 @@ public final class ClientEffects {
 			if (tried) {
 				p.sendOverlayMessage(Component.literal("You can't let go of this item!"));
 			}
-		}
-
-		if (ClientState.has(Handicap.INVERTED_VISION)) {
-			if (invertedTicks > 0) {
-				invertedTicks--;
-			} else if (invertedCooldown > 0) {
-				invertedCooldown--;
-			} else {
-				invertedTicks = 300;
-				invertedCooldown = 400 + rnd.nextInt(400);
-				p.sendOverlayMessage(Component.literal("Your world flips upside down!"));
-			}
-		} else {
-			invertedTicks = 0;
-		}
-
-		if (ClientState.has(Handicap.TUNNEL_VISION)) {
-			if (tunnelTicks > 0) {
-				tunnelTicks--;
-			} else if (rnd.nextInt(1200) == 0) {
-				tunnelTicks = 600;
-				p.sendOverlayMessage(Component.literal("Your field of view narrows..."));
-			}
-		} else {
-			tunnelTicks = 0;
 		}
 
 		if (ClientState.has(Handicap.PHANTOM_LIGHT)) {
@@ -176,9 +146,9 @@ public final class ClientEffects {
 		// Blind uses the vanilla Blindness effect applied by the server, not a screen filter.
 		if (flashTicks > 0) {
 			desired = glowEffect(flashTicks);
-		} else if (invertedTicks > 0) {
+		} else if (ClientState.has(Handicap.INVERTED_VISION)) {
 			desired = FLIP_EFFECT;
-		} else if (tunnelTicks > 0) {
+		} else if (ClientState.has(Handicap.TUNNEL_VISION)) {
 			desired = TUNNEL_EFFECT;
 		} else if (migraineTicks > 0) {
 			desired = MIGRAINE_EFFECT;
@@ -207,10 +177,10 @@ public final class ClientEffects {
 			p.setSprinting(false);
 		}
 
-		if (ClientState.has(Handicap.TINNITUS) && rnd.nextInt(900) == 0) {
+		if (ClientState.has(Handicap.TINNITUS) && rnd.nextInt(200) == 0) {
 			for (int i = 0; i < 3; i++) {
 				mc.level.playLocalSound(p.getX(), p.getY(), p.getZ(), SoundEvents.AMETHYST_BLOCK_CHIME,
-					SoundSource.PLAYERS, 0.7f, 1.8f + 0.1f * i, false);
+					SoundSource.PLAYERS, 0.12f, 1.8f + 0.1f * i, false);
 			}
 		}
 
@@ -238,7 +208,7 @@ public final class ClientEffects {
 			} else if (p.onGround()) {
 				Vec3 v = p.getDeltaMovement();
 				p.setDeltaMovement(v.x, 0.42, v.z);
-				jumpCurseCooldown = 300 + rnd.nextInt(600);
+				jumpCurseCooldown = 100 + rnd.nextInt(200);
 			}
 		}
 
@@ -289,17 +259,21 @@ public final class ClientEffects {
 			stickyLock = 0;
 		}
 
-		boolean iceSlide = false;
-		if (ClientState.has(Handicap.ICE_RINK) && p.onGround()) {
+		boolean drunkSlide = false;
+		if (ClientState.has(Handicap.DRUNK) && p.onGround()) {
 			float friction = p.getBlockStateOn().getBlock().getFriction();
 			if (friction < 0.9f) {
 				Vec3 v = p.getDeltaMovement();
-				float k = 0.98f / friction;
+				float k = 1.04f / friction;
 				p.setDeltaMovement(v.x * k, v.y, v.z * k);
-				iceSlide = true;
+				drunkSlide = true;
 			}
 		}
-		setLocalModifier(p, Attributes.MOVEMENT_SPEED, ICE_ID, -0.77, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, iceSlide);
+		setLocalModifier(p, Attributes.MOVEMENT_SPEED, DRUNK_ID, -0.77, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, drunkSlide);
+		if (ClientState.has(Handicap.DRUNK) && rnd.nextInt(25) == 0) {
+			p.setYRot(p.getYRot() + (rnd.nextFloat() - 0.5f) * 5.0f);
+			p.setXRot(Mth.clamp(p.getXRot() + (rnd.nextFloat() - 0.5f) * 3.0f, -90.0f, 90.0f));
+		}
 
 		if (ClientState.has(Handicap.HAND_TREMORS) && mc.screen == null && mc.options.keyAttack.isDown() && rnd.nextInt(80) == 0) {
 			mc.options.keyAttack.setDown(false);
@@ -333,8 +307,8 @@ public final class ClientEffects {
 				wobbleTick++;
 				p.setYRot(p.getYRot() + 5.0f);
 				p.setXRot(Mth.clamp(p.getXRot() + Mth.sin(wobbleTick * 0.2f) * 1.5f, -90.0f, 90.0f));
-			} else if (rnd.nextInt(1200) == 0) {
-				vertigoTicks = 100;
+			} else if (rnd.nextInt(400) == 0) {
+				vertigoTicks = 140;
 				p.sendOverlayMessage(Component.literal("Everything is spinning around you..."));
 			}
 		} else {
@@ -388,8 +362,6 @@ public final class ClientEffects {
 			currentEffect = null;
 			effectTicks = 0;
 		}
-		invertedTicks = 0;
-		tunnelTicks = 0;
 		flashTicks = 0;
 		migraineTicks = 0;
 		lastSlot = -1;

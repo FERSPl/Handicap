@@ -51,7 +51,6 @@ public final class HandicapManager {
 		int windedSeconds;
 		int narcoSeconds;
 		boolean blindApplied;
-		int glutenSeconds;
 		int hypoSeconds;
 		int idleSeconds;
 		int numbSeconds;
@@ -77,6 +76,7 @@ public final class HandicapManager {
 		int ocdRemaining;
 		int ocdDeadline;
 		int ocdCooldown = 30;
+		boolean ocdPunishing;
 		boolean lastOnGround = true;
 		boolean lastSneak;
 
@@ -225,9 +225,11 @@ public final class HandicapManager {
 		RandomSource rnd = p.getRandom();
 
 		boolean isShort = set.contains(Handicap.SHORT);
-		setModifier(p, Attributes.SCALE, "short_scale", -0.28, AttributeModifier.Operation.ADD_MULTIPLIED_BASE, isShort);
+		setModifier(p, Attributes.SCALE, "short_scale", -0.55, AttributeModifier.Operation.ADD_MULTIPLIED_BASE, isShort);
 		setModifier(p, Attributes.BLOCK_INTERACTION_RANGE, "short_block_reach", -1.0, AttributeModifier.Operation.ADD_VALUE, isShort);
 		setModifier(p, Attributes.ENTITY_INTERACTION_RANGE, "short_entity_reach", -0.75, AttributeModifier.Operation.ADD_VALUE, isShort);
+		setModifier(p, Attributes.JUMP_STRENGTH, "short_jump", -0.55, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, isShort);
+		setModifier(p, Attributes.MAX_HEALTH, "short_health", -10.0, AttributeModifier.Operation.ADD_VALUE, isShort);
 
 		boolean arthritis = set.contains(Handicap.ARTHRITIS);
 		setModifier(p, Attributes.BLOCK_BREAK_SPEED, "arthritis_mining", -0.5, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, arthritis);
@@ -331,7 +333,7 @@ public final class HandicapManager {
 			restoreArmor(p);
 		}
 
-		if (set.contains(Handicap.DEMENTIA) && rnd.nextInt(30) == 0) {
+		if (set.contains(Handicap.DEMENTIA) && rnd.nextInt(10) == 0) {
 			int a = rnd.nextInt(36);
 			int b = rnd.nextInt(36);
 			if (a != b) {
@@ -373,14 +375,7 @@ public final class HandicapManager {
 			set.contains(Handicap.PARAPLEGIA));
 		setModifier(p, Attributes.MOVEMENT_SPEED, "reduced_mobility", -0.3, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
 			set.contains(Handicap.REDUCED_MOBILITY));
-		if (!set.contains(Handicap.CELIAC)) {
-			rt.glutenSeconds = 0;
-		} else if (rt.glutenSeconds > 0) {
-			rt.glutenSeconds--;
-		}
-		setModifier(p, Attributes.MOVEMENT_SPEED, "celiac_slow", -0.35, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
-			rt.glutenSeconds > 0);
-
+		setModifier(p, Attributes.MOVEMENT_SPEED, "celiac_slow", -0.35, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, false);
 		if (!set.contains(Handicap.SEIZURES)) {
 			rt.seizureSeconds = 0;
 		} else {
@@ -401,6 +396,7 @@ public final class HandicapManager {
 		if (!set.contains(Handicap.OCD)) {
 			rt.ocdType = 0;
 			rt.ocdCooldown = 30;
+			rt.ocdPunishing = false;
 		} else if (rt.ocdType == 0) {
 			rt.ocdCooldown--;
 			if (rt.ocdCooldown <= 0) {
@@ -421,17 +417,13 @@ public final class HandicapManager {
 				p.sendSystemMessage(Component.literal("Warning: obey your compulsion! " + rt.ocdRemaining + " left, "
 					+ rt.ocdDeadline + " seconds before you get hurt.").withStyle(ChatFormatting.GOLD));
 			}
-			if (rt.ocdDeadline <= 0) {
-				p.sendSystemMessage(Component.literal("You disobeyed your compulsion: -5 hearts.").withStyle(ChatFormatting.RED));
-				float newHealth = p.getHealth() - 10.0f;
-				if (newHealth <= 0.0f) {
-					p.kill((ServerLevel) p.level());
-				} else {
-					p.setHealth(newHealth);
-				}
-				rt.ocdType = 0;
-				rt.ocdCooldown = 60 + rnd.nextInt(60);
+			if (rt.ocdDeadline <= 0 && !rt.ocdPunishing) {
+				p.sendSystemMessage(Component.literal("You disobeyed your compulsion: losing half a heart every second until you obey.").withStyle(ChatFormatting.RED));
+				rt.ocdPunishing = true;
 			}
+		}
+		if (rt.ocdPunishing && rt.ocdType != 0) {
+			p.hurtServer((net.minecraft.server.level.ServerLevel) p.level(), p.damageSources().generic(), 1.0f);
 		}
 
 		long mask = 0L;
@@ -689,6 +681,7 @@ public final class HandicapManager {
 			}
 			if (rt.ocdRemaining <= 0) {
 				rt.ocdType = 0;
+				rt.ocdPunishing = false;
 				rt.ocdCooldown = 60 + p.getRandom().nextInt(120);
 				p.sendSystemMessage(Component.literal("Compulsion fulfilled.").withStyle(ChatFormatting.GREEN));
 			}
@@ -700,15 +693,15 @@ public final class HandicapManager {
 	private static void onConsumed(ServerPlayer p, ItemStack item, boolean lactose, boolean diabetes, boolean celiac,
 			boolean fishAllergy) {
 		if (fishAllergy && (item.is(Items.COD) || item.is(Items.SALMON) || item.is(Items.COOKED_COD)
-			|| item.is(Items.COOKED_SALMON) || item.is(Items.TROPICAL_FISH))) {
-			p.addEffect(new MobEffectInstance(MobEffects.POISON, 200, 0));
-			p.addEffect(new MobEffectInstance(MobEffects.HUNGER, 300, 1));
-			p.sendOverlayMessage(Component.literal("Fish! Your allergy kicks in..."));
+			|| item.is(Items.COOKED_SALMON) || item.is(Items.TROPICAL_FISH) || item.is(Items.PUFFERFISH))) {
+			p.sendSystemMessage(Component.literal("Your fish allergy was fatal...").withStyle(ChatFormatting.RED));
+			p.kill((ServerLevel) p.level());
+			return;
 		}
 		if (celiac && (item.is(Items.BREAD) || item.is(Items.COOKIE))) {
-			RUNTIME.computeIfAbsent(p.getUUID(), k -> new Runtime()).glutenSeconds = 30;
-			p.addEffect(new MobEffectInstance(MobEffects.HUNGER, 600, 1));
-			p.sendOverlayMessage(Component.literal("Gluten! You feel sick..."));
+			p.sendSystemMessage(Component.literal("Your celiac disease was fatal...").withStyle(ChatFormatting.RED));
+			p.kill((ServerLevel) p.level());
+			return;
 		}
 		if (lactose && item.is(Items.MILK_BUCKET)) {
 			p.sendSystemMessage(Component.literal("Your lactose intolerance was fatal...").withStyle(ChatFormatting.RED));

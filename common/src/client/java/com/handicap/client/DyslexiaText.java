@@ -9,11 +9,9 @@ import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 
 public final class DyslexiaText {
-	private static final Pattern WORD = Pattern.compile("(?<!\u00a7)\\p{L}{4,}");
+	private static final Pattern WORD = Pattern.compile("(?<![\\p{L}\\p{N}\u00a7])(?:\\p{L}{3,}|\\d+)(?![\\p{L}\\p{N}])");
 
 	private static final Map<String, String> CACHE = Collections.synchronizedMap(
 		new LinkedHashMap<String, String>(256, 0.75f, true) {
@@ -27,7 +25,7 @@ public final class DyslexiaText {
 	}
 
 	public static String apply(String text) {
-		if (text == null || text.length() < 4 || !ClientState.has(Handicap.DYSLEXIA) || exempt()) {
+		if (text == null || text.length() < 2 || !ClientState.has(Handicap.DYSLEXIA)) {
 			return text;
 		}
 		String cached = CACHE.get(text);
@@ -36,18 +34,6 @@ public final class DyslexiaText {
 			CACHE.put(text, cached);
 		}
 		return cached;
-	}
-
-	private static boolean exempt() {
-		Minecraft mc = Minecraft.getInstance();
-		if (mc == null) {
-			return true;
-		}
-		Screen screen = mc.screen;
-		if (screen == null) {
-			return false;
-		}
-		return !screen.getClass().getName().contains(".inventory.");
 	}
 
 	private static String scramble(String text) {
@@ -59,8 +45,9 @@ public final class DyslexiaText {
 			String word = m.group();
 			char[] chars = word.toCharArray();
 			Random rnd = new Random(word.hashCode());
-			for (int i = chars.length - 1; i > 1; i--) {
-				int j = 1 + rnd.nextInt(i);
+			boolean number = word.chars().allMatch(Character::isDigit);
+			for (int i = chars.length - 1; i > (number ? 0 : 1); i--) {
+				int j = number ? rnd.nextInt(i + 1) : 1 + rnd.nextInt(i);
 				char tmp = chars[i];
 				chars[i] = chars[j];
 				chars[j] = tmp;
