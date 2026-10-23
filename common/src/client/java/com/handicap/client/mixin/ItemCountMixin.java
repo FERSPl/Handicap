@@ -20,7 +20,7 @@ public abstract class ItemCountMixin {
 			value = "INVOKE",
 			target = "Lnet/minecraft/client/gui/GuiGraphicsExtractor;text(Lnet/minecraft/client/gui/Font;Ljava/lang/String;IIIZ)V"
 		),
-		require = 1
+		require = 0
 	)
 	private void handicap$obfuscateCount(GuiGraphicsExtractor graphics, Font font, String text,
 			int x, int y, int color, boolean shadow) {
