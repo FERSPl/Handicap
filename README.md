@@ -3,7 +3,7 @@
 </div>
 
 <p align="center">
-  <strong>Survive Minecraft with 61 random handicaps.</strong>
+  <strong>Survive Minecraft with 60+ random handicaps.</strong>
 </p>
 
 <p align="center">
