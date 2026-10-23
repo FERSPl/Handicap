@@ -74,10 +74,10 @@ The timer is measured in minutes. For example, `0.5` means every 30 seconds. The
 | 6 | Mute | `mute` | You cannot speak in chat. |
 | 7 | Seizures | `seizures` | Damage, low hunger, or negative effects can trigger seizures. |
 | 8 | Cancer | `cancer` | Your maximum health slowly decreases. |
-| 9 | OCD | `ocd` | You must obey compulsions or you lose 5 hearts. |
+| 9 | OCD | `ocd` | You must obey compulsions or you will get punish. |
 | 10 | Amputated Offhand | `amputated_offhand` | Your offhand is gone. |
 | 11 | Amputated Leg | `amputated_leg` | You must jump to move around. |
-| 12 | Dyslexia | `dyslexia` | Most text becomes harder to read. |
+| 12 | Dyslexia | `dyslexia` | You can't read. |
 | 13 | Short | `short` | You are smaller and your reach is shorter. |
 | 14 | Dementia | `dementia` | Items move around in your inventory. |
 | 15 | Asthma | `asthma` | Sprinting for too long leaves you out of breath. |
@@ -109,7 +109,7 @@ The timer is measured in minutes. For example, `0.5` means every 30 seconds. The
 | 41 | Slow Reflexes | `slow_reflexes` | You are slowed down after taking damage. |
 | 42 | Monster Phobia | `monster_phobia` | Nearby monsters weaken and slow you down. |
 | 43 | Partial Deafness | `partial_deafness` | All sounds are played at half volume. |
-| 44 | Inverted Vision | `inverted_vision` | Your view is sometimes flipped upside down. |
+| 44 | Inverted Vision | `inverted_vision` | Your view is flipped upside down. |
 | 45 | Hiccups | `hiccups` | Random hiccups jolt your view. |
 | 46 | Sneezing | `sneezing` | Sneezing fits jolt your view and slow you down. |
 | 47 | Jump Curse | `jump_curse` | You jump on your own at random. |
@@ -118,11 +118,11 @@ The timer is measured in minutes. For example, `0.5` means every 30 seconds. The
 | 50 | Sticky Hand | `sticky_hand` | You cannot switch hotbar slots for a moment after switching. |
 | 51 | Myopia | `myopia` | Your vision is blurry. |
 | 52 | Hyperopia | `hyperopia` | The bottom third of your screen is blurry. |
-| 53 | Tunnel Vision | `tunnel_vision` | Your field of view narrows to a small spot for a while. |
+| 53 | Tunnel Vision | `tunnel_vision` | Your field of view narrows to a small spot. |
 | 54 | Phantom Light | `phantom_light` | Soft, gradual glows of light appear from time to time. |
 | 55 | Spatial Disorientation | `spatial_disorientation` | Left and right are swapped. |
 | 56 | Armor Intolerance | `armor_intolerance` | You cannot wear armor; it is given back when the handicap ends. |
-| 57 | Ice Rink | `ice_rink` | The ground is as slippery as ice. |
+| 57 | Drunk | `drunk` | Your movement feels unsteady. |
 | 58 | Sleep Apnea | `sleep_apnea` | You sometimes wake up gasping for air and feel slow. |
 | 59 | Hand Tremors | `hand_tremors` | Your hands shake and interrupt mining. |
 | 60 | Visual Agnosia | `visual_agnosia` | Colors blend together, making blocks hard to tell apart. |
