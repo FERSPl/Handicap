@@ -423,9 +423,8 @@ public final class HandicapManager {
 			}
 		}
 		if (rt.ocdPunishing && rt.ocdType != 0) {
-			p.hurt(p.damageSources().generic(), 1.0f);
+			p.hurtServer((net.minecraft.server.level.ServerLevel) p.level(), p.damageSources().generic(), 1.0f);
 		}
-
 		long mask = 0L;
 		for (Handicap d : set) {
 			mask |= d.bit();
