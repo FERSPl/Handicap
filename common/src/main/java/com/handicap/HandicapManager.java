@@ -151,8 +151,11 @@ public final class HandicapManager {
 	}
 
 	private static void announceNew(ServerPlayer p, Handicap d) {
-		p.sendOverlayMessage(Component.literal(d.displayName).withStyle(ChatFormatting.RED, ChatFormatting.BOLD)
-			.append(Component.literal(" - " + d.description).withStyle(ChatFormatting.GRAY)));
+		MutableComponent message = Component.literal(d.displayName).withStyle(ChatFormatting.RED, ChatFormatting.BOLD);
+		if (HandicapConfig.showDescriptions()) {
+			message.append(Component.literal(" - " + d.description).withStyle(ChatFormatting.GRAY));
+		}
+		p.sendOverlayMessage(message);
 	}
 
 	public static boolean remove(ServerPlayer p, Handicap d, boolean announce) {
