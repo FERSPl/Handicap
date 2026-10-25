@@ -1,5 +1,8 @@
 package com.handicap;
 
+import java.nio.file.Path;
+
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -19,7 +22,9 @@ public final class HandicapMod {
 		/** True if the player's client has the mod (can receive {@link SyncPayload}). */
 		boolean canSend(ServerPlayer player);
 
-		void send(ServerPlayer player, SyncPayload payload);
+		void send(ServerPlayer player, CustomPacketPayload payload);
+
+		Path configDir();
 	}
 
 	private static Platform platform;
@@ -29,6 +34,7 @@ public final class HandicapMod {
 
 	public static void init(Platform p) {
 		platform = p;
+		HandicapConfig.load(p.configDir());
 		LOGGER.info("Handicap loaded.");
 	}
 

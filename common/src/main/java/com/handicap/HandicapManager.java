@@ -21,6 +21,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -82,6 +83,7 @@ public final class HandicapManager {
 
 		long lastMask = -1L;
 		int lastFlags = -1;
+		int lastLimbs = -1;
 	}
 
 	private HandicapManager() {
@@ -113,6 +115,9 @@ public final class HandicapManager {
 
 	public static void onPlayerJoin(ServerPlayer player) {
 		RUNTIME.remove(player.getUUID());
+		for (Runtime other : RUNTIME.values()) {
+			other.lastLimbs = -1;
+		}
 	}
 
 	/** Returns false if the chat message must be blocked (Mute). */
@@ -135,12 +140,19 @@ public final class HandicapManager {
 		if (!state.give(p.getUUID(), d)) {
 			return false;
 		}
+		if (d == Handicap.AMPUTATED_LEG) {
+			state.setLegSide(p.getUUID(), p.getRandom().nextInt(2));
+		}
 		if (announce && !state.has(p.getUUID(), Handicap.ANOSOGNOSIA)) {
-			p.sendSystemMessage(Component.literal("New handicap: " + d.displayName + " — " + d.description)
-				.withStyle(ChatFormatting.RED));
+			announceNew(p, d);
 		}
 		refresh(p);
 		return true;
+	}
+
+	private static void announceNew(ServerPlayer p, Handicap d) {
+		p.sendOverlayMessage(Component.literal(d.displayName).withStyle(ChatFormatting.RED, ChatFormatting.BOLD)
+			.append(Component.literal(" - " + d.description).withStyle(ChatFormatting.GRAY)));
 	}
 
 	public static boolean remove(ServerPlayer p, Handicap d, boolean announce) {
@@ -148,8 +160,7 @@ public final class HandicapManager {
 			return false;
 		}
 		if (announce && !state.has(p.getUUID(), Handicap.ANOSOGNOSIA)) {
-			p.sendSystemMessage(Component.literal("Handicap removed: " + d.displayName)
-				.withStyle(ChatFormatting.GREEN));
+			p.sendOverlayMessage(Component.literal("Handicap removed: " + d.displayName).withStyle(ChatFormatting.GREEN));
 		}
 		refresh(p);
 		return true;
@@ -425,6 +436,7 @@ public final class HandicapManager {
 		if (rt.ocdPunishing && rt.ocdType != 0) {
 			p.hurtServer((net.minecraft.server.level.ServerLevel) p.level(), p.damageSources().generic(), 1.0f);
 		}
+
 		long mask = 0L;
 		for (Handicap d : set) {
 			mask |= d.bit();
@@ -435,9 +447,41 @@ public final class HandicapManager {
 			rt.lastMask = mask;
 			rt.lastFlags = flags;
 		}
+
+		int limbs = limbsFor(p, set);
+		if (limbs != rt.lastLimbs) {
+			rt.lastLimbs = limbs;
+			broadcastLimbs(p, limbs);
+		}
+	}
+
+	private static int limbsFor(ServerPlayer p, Set<Handicap> set) {
+		int limbs = 0;
+		if (set.contains(Handicap.AMPUTATED_OFFHAND)) {
+			limbs |= p.getMainArm() == HumanoidArm.RIGHT ? LimbsPayload.LEFT_ARM : LimbsPayload.RIGHT_ARM;
+		}
+		if (set.contains(Handicap.AMPUTATED_LEG)) {
+			limbs |= state.legSide(p.getUUID()) == 0 ? LimbsPayload.LEFT_LEG : LimbsPayload.RIGHT_LEG;
+		}
+		return limbs;
+	}
+
+	private static void broadcastLimbs(ServerPlayer owner, int limbs) {
+		if (server == null) {
+			return;
+		}
+		LimbsPayload payload = new LimbsPayload(owner.getUUID(), limbs);
+		for (ServerPlayer other : server.getPlayerList().getPlayers()) {
+			if (HandicapMod.platform().canSend(other)) {
+				HandicapMod.platform().send(other, payload);
+			}
+		}
 	}
 
 	private static void tickMoreHandicaps(ServerPlayer p, Set<Handicap> set, Runtime rt, RandomSource rnd) {
+		setModifier(p, Attributes.BLOCK_BREAK_SPEED, "broken_arm", -0.65, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+			set.contains(Handicap.BROKEN_ARM));
+
 		if (!set.contains(Handicap.SLEEP_APNEA)) {
 			rt.sleepSeconds = 0;
 			rt.apneaRolled = false;

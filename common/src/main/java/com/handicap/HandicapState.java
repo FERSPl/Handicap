@@ -28,6 +28,7 @@ public final class HandicapState {
 		Map<String, List<String>> players = new HashMap<>();
 		Map<String, Integer> cancerStage = new HashMap<>();
 		Map<String, Map<String, String>> armor = new HashMap<>();
+		Map<String, Integer> legSide = new HashMap<>();
 	}
 
 	private final Path file;
@@ -38,6 +39,7 @@ public final class HandicapState {
 	private final Map<UUID, EnumSet<Handicap>> players = new HashMap<>();
 	private final Map<UUID, Integer> cancerStage = new HashMap<>();
 	private final Map<UUID, Map<String, String>> armor = new HashMap<>();
+	private final Map<UUID, Integer> legSide = new HashMap<>();
 
 	private HandicapState(Path file) {
 		this.file = file;
@@ -64,6 +66,11 @@ public final class HandicapState {
 								}
 							}
 							state.players.put(UUID.fromString(e.getKey()), set);
+						}
+					}
+					if (data.legSide != null) {
+						for (Map.Entry<String, Integer> e : data.legSide.entrySet()) {
+							state.legSide.put(UUID.fromString(e.getKey()), e.getValue());
 						}
 					}
 					if (data.armor != null) {
@@ -98,6 +105,9 @@ public final class HandicapState {
 				ids.add(d.id);
 			}
 			data.players.put(e.getKey().toString(), ids);
+		}
+		for (Map.Entry<UUID, Integer> e : legSide.entrySet()) {
+			data.legSide.put(e.getKey().toString(), e.getValue());
 		}
 		for (Map.Entry<UUID, Map<String, String>> e : armor.entrySet()) {
 			data.armor.put(e.getKey().toString(), new HashMap<>(e.getValue()));
@@ -148,6 +158,14 @@ public final class HandicapState {
 
 	public void clearArmorMemory(UUID id) {
 		armor.remove(id);
+	}
+
+	public int legSide(UUID id) {
+		return legSide.getOrDefault(id, 0);
+	}
+
+	public void setLegSide(UUID id, int side) {
+		legSide.put(id, side);
 	}
 
 	public int cancerStage(UUID id) {

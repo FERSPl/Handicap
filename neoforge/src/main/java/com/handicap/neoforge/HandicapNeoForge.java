@@ -3,13 +3,19 @@ package com.handicap.neoforge;
 import com.handicap.HandicapCommands;
 import com.handicap.HandicapManager;
 import com.handicap.HandicapMod;
+import com.handicap.LimbsPayload;
 import com.handicap.SyncPayload;
+import com.handicap.client.ClientLimbs;
 import com.handicap.client.ClientState;
 
+import java.nio.file.Path;
+
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.ServerChatEvent;
@@ -31,8 +37,13 @@ public class HandicapNeoForge {
 			}
 
 			@Override
-			public void send(ServerPlayer player, SyncPayload payload) {
+			public void send(ServerPlayer player, CustomPacketPayload payload) {
 				PacketDistributor.sendToPlayer(player, payload);
+			}
+
+			@Override
+			public Path configDir() {
+				return FMLPaths.CONFIGDIR.get();
 			}
 		});
 
@@ -49,10 +60,13 @@ public class HandicapNeoForge {
 
 	private void registerPayloads(RegisterPayloadHandlersEvent event) {
 		// Optional: the mod also works when the other side does not have it.
-		event.registrar("1").optional().playToClient(SyncPayload.TYPE, SyncPayload.CODEC, (payload, context) -> {
+		var registrar = event.registrar("1").optional();
+		registrar.playToClient(SyncPayload.TYPE, SyncPayload.CODEC, (payload, context) -> {
 			ClientState.mask = payload.mask();
 			ClientState.flags = payload.flags();
 		});
+		registrar.playToClient(LimbsPayload.TYPE, LimbsPayload.CODEC, (payload, context) ->
+			ClientLimbs.set(payload.player(), payload.limbs()));
 	}
 
 	private void onServerStarted(ServerStartedEvent event) {
