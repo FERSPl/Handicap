@@ -16,12 +16,14 @@ public final class HandicapConfig {
 	private static final class Data {
 		String info = "permissionLevel: 0 = everyone can use /handicap, 2 = operators only. "
 			+ "Without operator permission (cheats off, level 0) a player can only target themselves by name "
-			+ "(no @a, @s...), but can still manage the timer and stacking.";
+			+ "(no @a, @s...), but can still manage the timer and stacking. "
+			+ "showDescriptions: false hides the handicap description when you receive one.";
 		int permissionLevel = 2;
 		boolean showDescriptions = true;
 	}
 
 	private static int permissionLevel = 2;
+	private static boolean showDescriptions = true;
 	private static Path file;
 
 	private HandicapConfig() {
@@ -35,6 +37,7 @@ public final class HandicapConfig {
 					Data data = GSON.fromJson(reader, Data.class);
 					if (data != null) {
 						permissionLevel = Math.max(0, Math.min(4, data.permissionLevel));
+						showDescriptions = data.showDescriptions;
 					}
 				}
 			} else {
@@ -50,6 +53,10 @@ public final class HandicapConfig {
 		permissionLevel = Math.max(0, Math.min(4, level));
 	}
 
+	public static void setShowDescriptions(boolean value) {
+		showDescriptions = value;
+	}
+
 	public static void save() {
 		if (file == null) {
 			return;
@@ -57,6 +64,7 @@ public final class HandicapConfig {
 		try {
 			Data data = new Data();
 			data.permissionLevel = permissionLevel;
+			data.showDescriptions = showDescriptions;
 			Files.writeString(file, GSON.toJson(data));
 		} catch (Exception e) {
 			HandicapMod.LOGGER.error("Could not write {}", file, e);
@@ -67,6 +75,10 @@ public final class HandicapConfig {
 		return permissionLevel;
 	}
 
+	public static boolean showDescriptions() {
+		return showDescriptions;
+	}
+
 	public static boolean allows(CommandSourceStack source) {
 		return switch (permissionLevel) {
 			case 0 -> true;
@@ -75,14 +87,5 @@ public final class HandicapConfig {
 			case 3 -> Commands.hasPermission(Commands.LEVEL_ADMINS).test(source);
 			default -> Commands.hasPermission(Commands.LEVEL_OWNERS).test(source);
 		};
-	}
-	private static boolean showDescriptions = true;
-
-	public static boolean showDescriptions() {
-		return showDescriptions;
-	}
-	
-	public static void setShowDescriptions(boolean value) {
-		showDescriptions = value;
 	}
 }
