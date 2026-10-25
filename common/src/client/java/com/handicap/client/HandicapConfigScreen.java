@@ -21,6 +21,10 @@ public class HandicapConfigScreen extends Screen {
 		addRenderableWidget(Button.builder(levelLabel(), button -> {
 			HandicapConfig.setPermissionLevel(HandicapConfig.permissionLevel() == 0 ? 2 : 0);
 			button.setMessage(levelLabel());
+		}).bounds(centerX - 100, this.height / 2 - 48, 200, 20).build());
+		addRenderableWidget(Button.builder(descriptionsLabel(), button -> {
+			HandicapConfig.setShowDescriptions(!HandicapConfig.showDescriptions());
+			button.setMessage(descriptionsLabel());
 		}).bounds(centerX - 100, this.height / 2 - 24, 200, 20).build());
 		addRenderableWidget(Button.builder(Component.literal("Done"), button -> onClose())
 			.bounds(centerX - 100, this.height / 2 + 4, 200, 20).build());
@@ -28,7 +32,8 @@ public class HandicapConfigScreen extends Screen {
 		String[] notes = {
 			"Player: everyone can use /handicap. Op: operators only.",
 			"With 'allow cheats' off and permission = Player, you can only",
-			"target yourself (by name, no @a / @s), and still manage the timer."
+			"target yourself (by name, no @a / @s), and still manage the timer.",
+			"Descriptions Off: only the handicap name is shown when you get one."
 		};
 		for (int i = 0; i < notes.length; i++) {
 			addRenderableWidget(new StringWidget(centerX - 160, this.height / 2 + 36 + i * 12, 320, 10,
@@ -46,5 +51,9 @@ public class HandicapConfigScreen extends Screen {
 		int level = HandicapConfig.permissionLevel();
 		String name = level == 0 ? "Player" : level == 2 ? "Operator" : "Other level: " + level;
 		return Component.literal("Command permission: " + name);
+	}
+
+	private static Component descriptionsLabel() {
+		return Component.literal("Descriptions: " + (HandicapConfig.showDescriptions() ? "On" : "Off"));
 	}
 }
