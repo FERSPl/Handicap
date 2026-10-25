@@ -45,6 +45,11 @@ jobs:
           name: jars-${{ matrix.mc }}
           path: dist/*.jar
 
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          path: tag-source
+
       - uses: Kir-Antipov/mc-publish@v3.3
         with:
           #modrinth-id: 
@@ -57,8 +62,7 @@ jobs:
           version-type: release
           game-versions: ${{ matrix.mc }}
           java: 25
-          changelog-file: CHANGELOG.md
-
+          changelog-file: tag-source/CHANGELOG.md
   release:
     needs: build
     runs-on: ubuntu-latest
