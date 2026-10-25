@@ -13,6 +13,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -151,8 +152,11 @@ public final class HandicapManager {
 	}
 
 	private static void announceNew(ServerPlayer p, Handicap d) {
-		p.sendOverlayMessage(Component.literal(d.displayName).withStyle(ChatFormatting.RED, ChatFormatting.BOLD)
-			.append(Component.literal(" - " + d.description).withStyle(ChatFormatting.GRAY)));
+		MutableComponent message = Component.literal(d.displayName).withStyle(ChatFormatting.RED, ChatFormatting.BOLD);
+		if (HandicapConfig.showDescriptions()) {
+			message.append(Component.literal(" - " + d.description).withStyle(ChatFormatting.GRAY));
+		}
+		p.sendOverlayMessage(message);
 	}
 
 	public static boolean remove(ServerPlayer p, Handicap d, boolean announce) {
