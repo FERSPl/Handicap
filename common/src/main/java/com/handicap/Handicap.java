@@ -62,7 +62,7 @@ public enum Handicap {
 	DRUNK("drunk", "Drunk", "The ground is slippery and your movement feels unsteady"),
 	SLEEP_APNEA("sleep_apnea", "Sleep Apnea", "You wake up gasping for air and feel slow"),
 	HAND_TREMORS("hand_tremors", "Hand Tremors", "Your hands shake and interrupt mining"),
-	VISUAL_AGNOSIA("visual_agnosia", "Visual Agnosia", "Colors blend together, making blocks hard to tell apart"),
+	VISUAL_AGNOSIA("visual_agnosia", "Visual Agnosia", "Colors blend together"),
 	MIGRAINE("migraine", "Migraine", "Migraine episodes blur and brighten the edges of your screen"),
 	BROKEN_ARM("broken_arm", "Broken Arm", "Breaking blocks takes much longer");
 
