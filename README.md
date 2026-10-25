@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  A Fabric and Neoforge mod that makes every 10 minutes a new challenge.
+  A Fabric, Neoforge & Quilt mod that makes every 10 minutes a new challenge.
 </p>
 
 ---
@@ -26,7 +26,7 @@
 
 ## About
 
-**Handicap** is a Minecraft mod that randomly assigns players handicaps at regular intervals. Survive as long as possible, adapt your playstyle, and discover all 61 unique handicaps.
+**Handicap** is a Minecraft mod that randomly assigns players handicaps at regular intervals. Survive as long as possible, adapt your playstyle, and discover all 62 unique handicaps.
 
 You can also choose which handicaps to apply using commands, customize the timer, and decide whether handicaps stack.
 
@@ -34,10 +34,11 @@ You can also choose which handicaps to apply using commands, customize the timer
 
 ## Features
 
-- **61 unique handicaps** that change the way you play.
+- **62 unique handicaps** that change the way you play.
 - **Automatic random assignment** every 10 minutes by default.
 - **Customizable timer** — change the interval or turn it off entirely.
 - **Commands** to give, clear, and list handicaps.
+- **In-game config screen** — choose who can use the commands and whether handicap descriptions are shown.
 - **Stacking control** — choose whether handicaps accumulate or replace one another.
 - **Persistent data** — handicaps are saved per world: if you leave and rejoin, you keep them.
 - **On-screen handicap list** — toggle the HUD with the backtick (`) key, configurable in Controls.
@@ -45,7 +46,7 @@ You can also choose which handicaps to apply using commands, customize the timer
 
 ## Commands
 
-**`All commands require operator permissions, except where otherwise handled by the mod.`**
+By default, only **operators** can use `/handicap`. You can change this in the config screen or in `handicap.json` (see [Configuration](#configuration)).
 
 | Command | Description |
 |---|---|
@@ -58,9 +59,14 @@ You can also choose which handicaps to apply using commands, customize the timer
 | `/handicap stacking [true\|false]` | Enable or disable stacking. When disabled, a new handicap replaces the previous one. `give all` still gives every handicap. |
 | `/handicap timer [off\|<minutes>]` | Show the timer, turn it off, or set the interval in minutes. |
 
-Replace `<players>` with a player name or a target selector such as `@s` or `@a`. Replace `<handicap>` with an ID from the table below.
+Replace `<handicap>` with an ID from the table below.
 
 The timer is measured in minutes. For example, `0.5` means every 30 seconds. The minimum interval is 0.1 minute (6 seconds).
+ 
+`<players>` is a player name or a target selector such as `@s`, `@a`, `@p` or `@r`.
+ 
+- **With operator permission**: you can use every command on any player, with or without selectors.
+- **Without operator permission** (the command permission is set to *Player*, for example in singleplayer with cheats off): you can only target **yourself**, by typing your own player name. Selectors like `@s` and `@a` are refused by Minecraft for players who are not operators. You can still manage the timer and stacking as usual.
 
 ## Handicaps
 
@@ -127,13 +133,29 @@ The timer is measured in minutes. For example, `0.5` means every 30 seconds. The
 | 59 | Hand Tremors | `hand_tremors` | Your hands shake and interrupt mining. |
 | 60 | Visual Agnosia | `visual_agnosia` | Colors blend together, making blocks hard to tell apart. |
 | 61 | Migraine | `migraine` | Migraine episodes blur and brighten the edges of your screen. |
+| 62 | Broken Arm | `broken_arm` | Breaking blocks takes much longer. |
 
 Only one screen filter is displayed at a time, with Blind taking priority over Phantom Light, Inverted Vision, Tunnel Vision, Migraine, Color Blind, Visual Agnosia, Myopia, and Hyperopia.
+
+## Configuration
+ 
+Handicap has a small config screen:
+ 
+- **Fabric and Quilt**: install [Mod Menu](https://modrinth.com/mod/modmenu), then select Handicap and click *Configure*.
+- **NeoForge**: open the *Mods* screen, select Handicap and click *Config*.
+The settings are saved in `config/handicap.json`, which you can also edit by hand (restart the game or server afterwards):
+ 
+| Option | Values | Description |
+|---|---|---|
+| `permissionLevel` | `0` or `2` | `2`: only operators can use `/handicap` (default). `0`: everyone can, but without operator permission players can only target themselves. |
+| `showDescriptions` | `true` or `false` | `true` (default): the announcement shows the handicap name and what it does. `false`: only the name is shown, so you have to find out the effects yourself. |
+ 
+On a dedicated server, `handicap.json` of the server decides.
 
 ## Requirements
 
 - Minecraft **26.1** or newer (pick the right Handicap version!)
-- **Fabric**: [Fabric Loader](https://fabricmc.net/) 0.19.5 or newer (latest version recommended) and [Fabric API](https://modrinth.com/mod/fabric-api)
+- **Fabric** or **Quilt**: [Fabric Loader](https://fabricmc.net/) 0.19.5 or newer (latest version recommended) or Quilt Loader, and [Fabric API](https://modrinth.com/mod/fabric-api).
 - **NeoForge**: [NeoForge](https://neoforged.net/) 26.1.0.19-beta or newer
 - Java 25 (the official Minecraft launcher already includes it)
 
