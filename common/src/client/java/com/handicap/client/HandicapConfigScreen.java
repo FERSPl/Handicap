@@ -38,7 +38,7 @@ public class HandicapConfigScreen extends Screen {
 	@Override
 	public void onClose() {
 		HandicapConfig.save();
-		this.minecraft.setScreen(parent);
+		this.minecraft.gui.setScreen(parent);
 	}
 
 	private static Component levelLabel() {
