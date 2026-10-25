@@ -27,8 +27,7 @@ public class HandicapConfigScreen extends Screen {
 
 		String[] notes = {
 			"Player: everyone can use /handicap. Op: operators only.",
-			"With cheats off and permission = Player, you can only target",
-			"yourself (by name, no @a / @s), and still manage the timer."
+			"With 'allow cheats' off and permission = Player, you can only target yourself (by name, no @a / @s), and still manage the timer."
 		};
 		for (int i = 0; i < notes.length; i++) {
 			addRenderableWidget(new StringWidget(centerX - 160, this.height / 2 + 36 + i * 12, 320, 10,
@@ -44,7 +43,7 @@ public class HandicapConfigScreen extends Screen {
 
 	private static Component levelLabel() {
 		int level = HandicapConfig.permissionLevel();
-		String name = level == 0 ? "Player" : level == 2 ? "Op" : "Level " + level;
+		String name = level == 0 ? "Player" : level == 2 ? "Operator" : "Other: level " + level;
 		return Component.literal("Command permission: " + name);
 	}
 }
