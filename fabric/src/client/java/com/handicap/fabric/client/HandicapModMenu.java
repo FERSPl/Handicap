@@ -1,5 +1,6 @@
 package com.handicap.fabric.client;
 
+import com.handicap.client.HandicapConfigScreen;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 
