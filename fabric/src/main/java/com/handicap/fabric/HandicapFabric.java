@@ -3,7 +3,10 @@ package com.handicap.fabric;
 import com.handicap.HandicapCommands;
 import com.handicap.HandicapManager;
 import com.handicap.HandicapMod;
+import com.handicap.LimbsPayload;
 import com.handicap.SyncPayload;
+
+import java.nio.file.Path;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -13,13 +16,16 @@ import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.loader.api.FabricLoader;
 
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 
 public class HandicapFabric implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		PayloadTypeRegistry.clientboundPlay().register(SyncPayload.TYPE, SyncPayload.CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(LimbsPayload.TYPE, LimbsPayload.CODEC);
 
 		HandicapMod.init(new HandicapMod.Platform() {
 			@Override
@@ -28,8 +34,13 @@ public class HandicapFabric implements ModInitializer {
 			}
 
 			@Override
-			public void send(ServerPlayer player, SyncPayload payload) {
+			public void send(ServerPlayer player, CustomPacketPayload payload) {
 				ServerPlayNetworking.send(player, payload);
+			}
+
+			@Override
+			public Path configDir() {
+				return FabricLoader.getInstance().getConfigDir();
 			}
 		});
 

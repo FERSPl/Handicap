@@ -5,7 +5,8 @@
 	"client": [
 		"CameraMixin",
 		"StringDecomposerMixin",
-		"ItemCountMixin"
+		"ItemCountMixin",
+		"PlayerModelMixin"
 	],
 	"injectors": {
 		"defaultRequire": 0

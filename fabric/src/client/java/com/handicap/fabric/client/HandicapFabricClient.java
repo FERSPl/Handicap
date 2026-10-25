@@ -1,8 +1,10 @@
 package com.handicap.fabric.client;
 
 import com.handicap.HandicapMod;
+import com.handicap.LimbsPayload;
 import com.handicap.SyncPayload;
 import com.handicap.client.ClientEffects;
+import com.handicap.client.ClientLimbs;
 import com.handicap.client.ClientState;
 import com.handicap.client.HandicapHud;
 
@@ -24,6 +26,9 @@ public class HandicapFabricClient implements ClientModInitializer {
 			ClientState.mask = payload.mask();
 			ClientState.flags = payload.flags();
 		});
+
+		ClientPlayNetworking.registerGlobalReceiver(LimbsPayload.TYPE, (payload, context) ->
+			ClientLimbs.set(payload.player(), payload.limbs()));
 
 		KeyMapping.Category category = KeyMapping.Category.register(HandicapMod.id("main"));
 		KeyMappingHelper.registerKeyMapping(HandicapHud.createKey(category));

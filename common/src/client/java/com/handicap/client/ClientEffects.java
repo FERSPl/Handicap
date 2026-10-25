@@ -143,7 +143,6 @@ public final class ClientEffects {
 		}
 
 		Identifier desired = null;
-		// Blind uses the vanilla Blindness effect applied by the server, not a screen filter.
 		if (flashTicks > 0) {
 			desired = glowEffect(flashTicks);
 		} else if (ClientState.has(Handicap.INVERTED_VISION)) {
@@ -270,10 +269,6 @@ public final class ClientEffects {
 			}
 		}
 		setLocalModifier(p, Attributes.MOVEMENT_SPEED, DRUNK_ID, -0.77, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, drunkSlide);
-		if (ClientState.has(Handicap.DRUNK) && rnd.nextInt(25) == 0) {
-			p.setYRot(p.getYRot() + (rnd.nextFloat() - 0.5f) * 5.0f);
-			p.setXRot(Mth.clamp(p.getXRot() + (rnd.nextFloat() - 0.5f) * 3.0f, -90.0f, 90.0f));
-		}
 
 		if (ClientState.has(Handicap.HAND_TREMORS) && mc.screen == null && mc.options.keyAttack.isDown() && rnd.nextInt(80) == 0) {
 			mc.options.keyAttack.setDown(false);
@@ -356,6 +351,7 @@ public final class ClientEffects {
 	}
 
 	public static void onShutdown(Minecraft mc) {
+		ClientLimbs.clear();
 		restoreSound(mc);
 		if (currentEffect != null) {
 			clearPostEffect(mc);

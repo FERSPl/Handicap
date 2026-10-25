@@ -7,6 +7,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ public final class HandicapCommands {
 
 	private static LiteralArgumentBuilder<CommandSourceStack> build() {
 		return Commands.literal("handicap")
-			.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+			.requires(HandicapConfig::allows)
 			.then(Commands.literal("give")
 				.then(Commands.argument("targets", EntityArgument.players())
 					.then(Commands.argument("handicap", StringArgumentType.word())
@@ -55,7 +56,7 @@ public final class HandicapCommands {
 			.then(Commands.literal("clear")
 				.executes(ctx -> removeAll(ctx, List.of(ctx.getSource().getPlayerOrException())))
 				.then(Commands.argument("targets", EntityArgument.players())
-					.executes(ctx -> removeAll(ctx, EntityArgument.getPlayers(ctx, "targets")))
+					.executes(ctx -> removeAll(ctx, targets(ctx)))
 					.then(Commands.argument("handicap", StringArgumentType.word())
 						.suggests(HANDICAP_SUGGESTIONS)
 						.executes(ctx -> modify(ctx, false)))))
@@ -78,6 +79,21 @@ public final class HandicapCommands {
 					.executes(HandicapCommands::timerSet)));
 	}
 
+	private static Collection<ServerPlayer> targets(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		Collection<ServerPlayer> found = EntityArgument.getPlayers(ctx, "targets");
+		CommandSourceStack source = ctx.getSource();
+		if (!Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(source)) {
+			ServerPlayer self = source.getPlayer();
+			for (ServerPlayer p : found) {
+				if (self == null || !p.getUUID().equals(self.getUUID())) {
+					throw new SimpleCommandExceptionType(
+						Component.literal("Without operator permission you can only target yourself (use your own name).")).create();
+				}
+			}
+		}
+		return found;
+	}
+
 	private static boolean ready(CommandContext<CommandSourceStack> ctx) {
 		if (HandicapManager.state() == null) {
 			ctx.getSource().sendFailure(Component.literal("The mod is not ready yet."));
@@ -90,7 +106,7 @@ public final class HandicapCommands {
 		if (!ready(ctx)) {
 			return 0;
 		}
-		Collection<ServerPlayer> targets = EntityArgument.getPlayers(ctx, "targets");
+		Collection<ServerPlayer> targets = targets(ctx);
 		String value = StringArgumentType.getString(ctx, "handicap").toLowerCase(Locale.ROOT);
 		boolean all = value.equals("all");
 		boolean random = value.equals("random");
@@ -138,7 +154,7 @@ public final class HandicapCommands {
 		if (!ready(ctx)) {
 			return 0;
 		}
-		Collection<ServerPlayer> targets = EntityArgument.getPlayers(ctx, "targets");
+		Collection<ServerPlayer> targets = targets(ctx);
 		ServerPlayer self = ctx.getSource().getPlayer();
 		for (ServerPlayer p : targets) {
 			if (p == self && HandicapManager.state().has(p.getUUID(), Handicap.ANOSOGNOSIA)) {
@@ -162,7 +178,7 @@ public final class HandicapCommands {
 		if (!ready(ctx)) {
 			return 0;
 		}
-		Collection<ServerPlayer> targets = EntityArgument.getPlayers(ctx, "targets");
+		Collection<ServerPlayer> targets = targets(ctx);
 		int count = 0;
 		for (ServerPlayer p : targets) {
 			if (HandicapManager.giveRandom(p) != null) {

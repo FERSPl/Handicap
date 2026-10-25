@@ -19,10 +19,13 @@
 		],
 		"client": [
 			"com.handicap.fabric.client.HandicapFabricClient"
+		],
+		"modmenu": [
+			"com.handicap.fabric.client.HandicapModMenu"
 		]
 	},
 	"depends": {
-		"fabricloader": ">=0.19.5",
+		"fabricloader": "*",
 		"minecraft": "${minecraft_range}",
 		"java": ">=25",
 		"fabric-api": "*"
