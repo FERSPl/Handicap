@@ -10,7 +10,7 @@
 	"contact": {
 		"homepage": "https://fabricmc.net/"
 	},
-	"license": "MIT",
+	"license": "LGPLv3",
 	"icon": "assets/handicap/icon.png",
 	"environment": "*",
 	"entrypoints": {
