@@ -49,30 +49,6 @@ jobs:
         with:
           ref: ${{ github.sha }}
           path: tag-source
-
-      - uses: Kir-Antipov/mc-publish@v3.3
-        with:
-          curseforge-id: 1758595
-          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          files: dist/handicap-fabric-*.jar
-          name: v${{ github.ref_name }}
-          version: ${{ github.ref_name }}+mc${{ matrix.mc }}
-          version-type: release
-          game-versions: ${{ matrix.mc }}
-          java: 25
-          changelog-file: tag-source/CHANGELOG.md
-
-      - uses: Kir-Antipov/mc-publish@v3.3
-        with:
-          curseforge-id: 1758595
-          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
-          files: dist/handicap-neoforge-*.jar
-          name: v${{ github.ref_name }}
-          version: ${{ github.ref_name }}+mc${{ matrix.mc }}
-          version-type: release
-          game-versions: ${{ matrix.mc }}
-          java: 25
-          changelog-file: tag-source/CHANGELOG.md
   release:
     needs: build
     runs-on: ubuntu-latest
