@@ -18,6 +18,7 @@ public final class HandicapConfig {
 			+ "Without operator permission (cheats off, level 0) a player can only target themselves by name "
 			+ "(no @a, @s...), but can still manage the timer and stacking.";
 		int permissionLevel = 2;
+		boolean showDescriptions = true;
 	}
 
 	private static int permissionLevel = 2;
@@ -74,5 +75,15 @@ public final class HandicapConfig {
 			case 3 -> Commands.hasPermission(Commands.LEVEL_ADMINS).test(source);
 			default -> Commands.hasPermission(Commands.LEVEL_OWNERS).test(source);
 		};
+	}
+
+	private static boolean showDescriptions = true;
+
+	public static boolean showDescriptions() {
+		return showDescriptions;
+	}
+	
+	public static void setShowDescriptions(boolean value) {
+		showDescriptions = value;
 	}
 }
