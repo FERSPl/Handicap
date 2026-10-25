@@ -33,7 +33,7 @@ public class HandicapConfigScreen extends Screen {
 			"Player: everyone can use /handicap. Op: operators only.",
 			"With 'allow cheats' off and permission = Player, you can only",
 			"target yourself (by name, no @a / @s), and still manage the timer.",
-			"Descriptions Off: only the handicap name is shown when you get one."
+			"Descriptions: show the handicap explanation."
 		};
 		for (int i = 0; i < notes.length; i++) {
 			addRenderableWidget(new StringWidget(centerX - 160, this.height / 2 + 36 + i * 12, 320, 10,
