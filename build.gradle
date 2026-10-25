@@ -1,0 +1,2 @@
+// Intentionally empty: the build lives in fabric/build.gradle and neoforge/build.gradle.
+// Shared sources are in common/src (added to both modules' source sets).
