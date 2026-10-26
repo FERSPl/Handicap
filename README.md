@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/handicap-header.png" alt="Bannière Handicap">
+  <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/handicap-header.png" alt="Handicap banner">
 </div>
 
 <p align="center">
@@ -25,7 +25,7 @@
 
 </center></div>
 
-## <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/about.png" alt="Bannière Handicap">
+## <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/about.png" alt="About">
 
 **Handicap** is a Minecraft mod that randomly assigns players handicaps at regular intervals. Survive as long as possible, adapt your playstyle, and discover all 62 unique handicaps.
 
@@ -33,7 +33,7 @@ You can also choose which handicaps to apply using commands, customize the timer
 
 > Inspired by [Disabilities](https://modrinth.com/mod/disabilities) by OddSense. Handicap is an independent implementation with its own code.
 
-## Features
+### Features
 
 - 🎭 **62 unique handicaps** that change the way you play.
 - ⏳ **Automatic random assignment** every 10 minutes by default.
@@ -45,7 +45,7 @@ You can also choose which handicaps to apply using commands, customize the timer
 - 📊 **On-screen handicap list** — toggle the HUD with the backtick (`) key, configurable in Controls.
 - 🌐 **Multiplayer support** — install the mod on both client and server for the full experience.
 
-##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/commands.png" alt="Bannière Handicap">
+##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/commands.png" alt="Commands">
 
 By default, only **operators** can use `/handicap`. You can change this in the config screen or in `handicap.json` (see [Configuration](#configuration)).
 
@@ -69,7 +69,7 @@ The timer is measured in minutes. For example, `0.5` means every 30 seconds. The
 - **With operator permission**: you can use every command on any player, with or without selectors.
 - **Without operator permission** (the command permission is set to *Player*, for example in singleplayer with cheats off): you can only target **yourself**, by typing your own player name. Selectors like `@s` and `@a` are refused by Minecraft for players who are not operators. You can still manage the timer and stacking as usual.
 
-##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/handicaps.png" alt="Bannière Handicap">
+##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/handicaps.png" alt="Handicaps">
 
 | # | Handicap | ID | Effect |
 |---:|---|---|---|
@@ -138,8 +138,8 @@ The timer is measured in minutes. For example, `0.5` means every 30 seconds. The
 
 ⚠️ Only one screen filter is displayed at a time, with Blind taking priority over Phantom Light, Inverted Vision, Tunnel Vision, Migraine, Color Blind, Visual Agnosia, Myopia, and Hyperopia.
 
-## Configuration
- 
+##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/configuration.png" alt="Configuration">
+
 Handicap has a small config screen:
  
 - **Fabric and Quilt**: install [Mod Menu](https://modrinth.com/mod/modmenu), then select Handicap and click *Configure*.
@@ -153,7 +153,7 @@ The settings are saved in `config/handicap.json`, which you can also edit by han
  
 On a dedicated server, `handicap.json` of the server decides.
 
-## Requirements
+### Requirements
 
 - Minecraft **26.1** or newer (pick the right Handicap version!)
 - **Fabric** or **Quilt**: [Fabric Loader](https://fabricmc.net/) 0.19.5 or newer (latest version recommended) or Quilt Loader, and [Fabric API](https://modrinth.com/mod/fabric-api).
@@ -162,7 +162,7 @@ On a dedicated server, `handicap.json` of the server decides.
 
 Install the mod on the **client**, and also on the **server** if you play multiplayer.
 
-## Installation
+### Installation
 
 1. 💻 Install your loader for the Minecraft version you want to play.
 2. 📥 Download the Handicap mod `.jar` file (and Fabric API).
@@ -170,7 +170,7 @@ Install the mod on the **client**, and also on the **server** if you play multip
 4. 🚀 Launch Minecraft using your loader's profile.
 5. 🎉 Enjoy my mod!
 
-## Contributing & License
+##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/contributing.png" alt="Contributing-License">
 
 Bug reports and suggestions are welcome. Please open an [issue](https://github.com/FERSPl/Handicap/issues) in this repository.
 
