@@ -35,15 +35,15 @@ You can also choose which handicaps to apply using commands, customize the timer
 
 ## Features
 
-- **62 unique handicaps** that change the way you play.
-- **Automatic random assignment** every 10 minutes by default.
-- **Customizable timer** — change the interval or turn it off entirely.
-- **Commands** to give, clear, and list handicaps.
-- **In-game config screen** — choose who can use the commands and whether handicap descriptions are shown.
-- **Stacking control** — choose whether handicaps accumulate or replace one another.
-- **Persistent data** — handicaps are saved per world: if you leave and rejoin, you keep them.
-- **On-screen handicap list** — toggle the HUD with the backtick (`) key, configurable in Controls.
-- **Multiplayer support** — install the mod on both client and server for the full experience.
+- 🎭 **62 unique handicaps** that change the way you play.
+- ⏳ **Automatic random assignment** every 10 minutes by default.
+- ⚙️ **Customizable timer** — change the interval or turn it off entirely.
+- 💬 **Commands** to give, clear, and list handicaps.
+- 🖥️ **In-game config screen** — choose who can use the commands and whether handicap descriptions are shown.
+- 📚 **Stacking control** — choose whether handicaps accumulate or replace one another.
+- 💾 **Persistent data** — handicaps are saved per world: if you leave and rejoin, you keep them.
+- 📊 **On-screen handicap list** — toggle the HUD with the backtick (`) key, configurable in Controls.
+- 🌐 **Multiplayer support** — install the mod on both client and server for the full experience.
 
 ## Commands
 
@@ -136,7 +136,7 @@ The timer is measured in minutes. For example, `0.5` means every 30 seconds. The
 | 61 | Migraine | `migraine` | Migraine episodes blur and brighten the edges of your screen. |
 | 62 | Broken Arm | `broken_arm` | Breaking blocks takes much longer. |
 
-Only one screen filter is displayed at a time, with Blind taking priority over Phantom Light, Inverted Vision, Tunnel Vision, Migraine, Color Blind, Visual Agnosia, Myopia, and Hyperopia.
+⚠️ Only one screen filter is displayed at a time, with Blind taking priority over Phantom Light, Inverted Vision, Tunnel Vision, Migraine, Color Blind, Visual Agnosia, Myopia, and Hyperopia.
 
 ## Configuration
  
@@ -164,11 +164,11 @@ Install the mod on the **client**, and also on the **server** if you play multip
 
 ## Installation
 
-1. Install your loader for the Minecraft version you want to play.
-2. Download the Handicap mod `.jar` file (and Fabric API).
-3. Place (both) `.jar` file(s) in your Minecraft `mods` folder.
-4. Launch Minecraft using your loader's profile.
-5. Enjoy my mod!
+1. 💻 Install your loader for the Minecraft version you want to play.
+2. 📥 Download the Handicap mod `.jar` file (and Fabric API).
+3. 📁 Place (both) `.jar` file(s) in your Minecraft `mods` folder.
+4. 🚀 Launch Minecraft using your loader's profile.
+5. 🎉 Enjoy my mod!
 
 ## Contributing
 
