@@ -25,7 +25,7 @@
 
 </center></div>
 
-## About
+## <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/about.png" alt="Bannière Handicap">
 
 **Handicap** is a Minecraft mod that randomly assigns players handicaps at regular intervals. Survive as long as possible, adapt your playstyle, and discover all 62 unique handicaps.
 
@@ -45,7 +45,7 @@ You can also choose which handicaps to apply using commands, customize the timer
 - 📊 **On-screen handicap list** — toggle the HUD with the backtick (`) key, configurable in Controls.
 - 🌐 **Multiplayer support** — install the mod on both client and server for the full experience.
 
-## Commands
+##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/commands.png" alt="Bannière Handicap">
 
 By default, only **operators** can use `/handicap`. You can change this in the config screen or in `handicap.json` (see [Configuration](#configuration)).
 
@@ -69,7 +69,7 @@ The timer is measured in minutes. For example, `0.5` means every 30 seconds. The
 - **With operator permission**: you can use every command on any player, with or without selectors.
 - **Without operator permission** (the command permission is set to *Player*, for example in singleplayer with cheats off): you can only target **yourself**, by typing your own player name. Selectors like `@s` and `@a` are refused by Minecraft for players who are not operators. You can still manage the timer and stacking as usual.
 
-## Handicaps
+##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/handicaps.png" alt="Bannière Handicap">
 
 | # | Handicap | ID | Effect |
 |---:|---|---|---|
@@ -170,10 +170,8 @@ Install the mod on the **client**, and also on the **server** if you play multip
 4. 🚀 Launch Minecraft using your loader's profile.
 5. 🎉 Enjoy my mod!
 
-## Contributing
+## Contributing & License
 
 Bug reports and suggestions are welcome. Please open an [issue](https://github.com/FERSPl/Handicap/issues) in this repository.
-
-## License
 
 Handicap is released under the [LGPLv3 License](LICENSE).
