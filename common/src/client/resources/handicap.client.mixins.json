@@ -6,7 +6,16 @@
 		"CameraMixin",
 		"StringDecomposerMixin",
 		"ItemCountMixin",
-		"PlayerModelMixin"
+		"PlayerModelMixin",
+		"ContainerScreenMixin",
+		"AvatarRendererMixin",
+		"LivingEntityRendererAccessor",
+		"WalkAnimationAccessor",
+		"EntityRenderDispatcherMixin",
+		"AbstractClientPlayerMixin",
+		"PlayerInfoMixin",
+		"KeyboardInputMixin",
+		"ClientInputAccessor"
 	],
 	"injectors": {
 		"defaultRequire": 0

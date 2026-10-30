@@ -8,6 +8,7 @@ import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +30,9 @@ public final class HandicapState {
 		Map<String, Integer> cancerStage = new HashMap<>();
 		Map<String, Map<String, String>> armor = new HashMap<>();
 		Map<String, Integer> legSide = new HashMap<>();
+		int maxHandicaps = 0;
+		int durationSeconds = 0;
+		Map<String, Map<String, Integer>> ages = new HashMap<>();
 	}
 
 	private final Path file;
@@ -40,6 +44,9 @@ public final class HandicapState {
 	private final Map<UUID, Integer> cancerStage = new HashMap<>();
 	private final Map<UUID, Map<String, String>> armor = new HashMap<>();
 	private final Map<UUID, Integer> legSide = new HashMap<>();
+	private int maxHandicaps = 0;
+	private int durationSeconds = 0;
+	private final Map<UUID, Map<Handicap, Integer>> ages = new HashMap<>();
 
 	private HandicapState(Path file) {
 		this.file = file;
@@ -76,6 +83,20 @@ public final class HandicapState {
 					if (data.armor != null) {
 						for (Map.Entry<String, Map<String, String>> e : data.armor.entrySet()) {
 							state.armor.put(UUID.fromString(e.getKey()), new HashMap<>(e.getValue()));
+						}
+					}
+					state.maxHandicaps = Math.max(0, data.maxHandicaps);
+					state.durationSeconds = Math.max(0, data.durationSeconds);
+					if (data.ages != null) {
+						for (Map.Entry<String, Map<String, Integer>> e : data.ages.entrySet()) {
+							Map<Handicap, Integer> map = new EnumMap<>(Handicap.class);
+							for (Map.Entry<String, Integer> a : e.getValue().entrySet()) {
+								Handicap d = Handicap.byId(a.getKey());
+								if (d != null) {
+									map.put(d, a.getValue());
+								}
+							}
+							state.ages.put(UUID.fromString(e.getKey()), map);
 						}
 					}
 					if (data.cancerStage != null) {
@@ -115,6 +136,15 @@ public final class HandicapState {
 		for (Map.Entry<UUID, Integer> e : cancerStage.entrySet()) {
 			data.cancerStage.put(e.getKey().toString(), e.getValue());
 		}
+		data.maxHandicaps = maxHandicaps;
+		data.durationSeconds = durationSeconds;
+		for (Map.Entry<UUID, Map<Handicap, Integer>> e : ages.entrySet()) {
+			Map<String, Integer> map = new HashMap<>();
+			for (Map.Entry<Handicap, Integer> a : e.getValue().entrySet()) {
+				map.put(a.getKey().id, a.getValue());
+			}
+			data.ages.put(e.getKey().toString(), map);
+		}
 		try {
 			Files.writeString(file, GSON.toJson(data));
 		} catch (IOException e) {
@@ -133,16 +163,70 @@ public final class HandicapState {
 	}
 
 	public boolean give(UUID id, Handicap d) {
-		return players.computeIfAbsent(id, k -> EnumSet.noneOf(Handicap.class)).add(d);
+		boolean added = players.computeIfAbsent(id, k -> EnumSet.noneOf(Handicap.class)).add(d);
+		if (added) {
+			ages.computeIfAbsent(id, k -> new EnumMap<>(Handicap.class)).put(d, 0);
+		}
+		return added;
 	}
 
 	public boolean remove(UUID id, Handicap d) {
+		Map<Handicap, Integer> map = ages.get(id);
+		if (map != null) {
+			map.remove(d);
+		}
 		EnumSet<Handicap> set = players.get(id);
 		return set != null && set.remove(d);
 	}
 
+	public int age(UUID id, Handicap d) {
+		Map<Handicap, Integer> map = ages.get(id);
+		return map == null ? 0 : map.getOrDefault(d, 0);
+	}
+
+	public void ageAll(UUID id) {
+		EnumSet<Handicap> set = players.get(id);
+		if (set == null || set.isEmpty()) {
+			return;
+		}
+		Map<Handicap, Integer> map = ages.computeIfAbsent(id, k -> new EnumMap<>(Handicap.class));
+		for (Handicap d : set) {
+			map.merge(d, 1, Integer::sum);
+		}
+	}
+
+	public Handicap oldest(UUID id, Handicap except) {
+		Handicap found = null;
+		int best = -1;
+		for (Handicap d : get(id)) {
+			int a = age(id, d);
+			if (d != except && a > best) {
+				best = a;
+				found = d;
+			}
+		}
+		return found;
+	}
+
+	public int maxHandicaps() {
+		return maxHandicaps;
+	}
+
+	public void setMaxHandicaps(int max) {
+		this.maxHandicaps = Math.max(0, max);
+	}
+
+	public int durationSeconds() {
+		return durationSeconds;
+	}
+
+	public void setDurationSeconds(int seconds) {
+		this.durationSeconds = Math.max(0, seconds);
+	}
+
 	public void resetAll() {
 		players.clear();
+		ages.clear();
 		cancerStage.clear();
 		resetTimer();
 	}
@@ -204,6 +288,10 @@ public final class HandicapState {
 		this.timerSeconds = seconds;
 		this.timerEnabled = true;
 		resetTimer();
+	}
+
+	public int ticksRemaining() {
+		return ticksRemaining;
 	}
 
 	public int secondsRemaining() {

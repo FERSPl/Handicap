@@ -60,10 +60,11 @@ public class HandicapNeoForge {
 
 	private void registerPayloads(RegisterPayloadHandlersEvent event) {
 		// Optional: the mod also works when the other side does not have it.
-		var registrar = event.registrar("1").optional();
+		var registrar = event.registrar("2").optional();
 		registrar.playToClient(SyncPayload.TYPE, SyncPayload.CODEC, (payload, context) -> {
 			ClientState.mask = payload.mask();
 			ClientState.flags = payload.flags();
+			ClientState.timer = payload.timer();
 		});
 		registrar.playToClient(LimbsPayload.TYPE, LimbsPayload.CODEC, (payload, context) ->
 			ClientLimbs.set(payload.player(), payload.limbs()));

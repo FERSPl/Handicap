@@ -13,7 +13,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -82,8 +81,6 @@ public final class HandicapManager {
 		boolean lastOnGround = true;
 		boolean lastSneak;
 
-		long lastMask = -1L;
-		int lastFlags = -1;
 		int lastLimbs = -1;
 	}
 
@@ -141,6 +138,9 @@ public final class HandicapManager {
 		if (!state.give(p.getUUID(), d)) {
 			return false;
 		}
+		if (announce) {
+			enforceMax(p, d);
+		}
 		if (d == Handicap.AMPUTATED_LEG) {
 			state.setLegSide(p.getUUID(), p.getRandom().nextInt(2));
 		}
@@ -150,13 +150,38 @@ public final class HandicapManager {
 		refresh(p);
 		return true;
 	}
-	
-	private static void announceNew(ServerPlayer p, Handicap d) {
-		MutableComponent message = Component.literal(d.displayName).withStyle(ChatFormatting.RED, ChatFormatting.BOLD);
-		if (HandicapConfig.showDescriptions()) {
-			message.append(Component.literal(" - " + d.description).withStyle(ChatFormatting.GRAY));
+
+	private static void enforceMax(ServerPlayer p, Handicap keep) {
+		if (state.maxHandicaps() > 0) {
+			trim(p, state.maxHandicaps(), keep);
 		}
-		p.sendOverlayMessage(message);
+	}
+
+	private static void trim(ServerPlayer p, int max, Handicap keep) {
+		while (state.get(p.getUUID()).size() > max) {
+			Handicap oldest = state.oldest(p.getUUID(), keep);
+			if (oldest == null || !state.remove(p.getUUID(), oldest)) {
+				return;
+			}
+		}
+	}
+
+	private static void tickDurations(ServerPlayer p) {
+		UUID id = p.getUUID();
+		state.ageAll(id);
+		int duration = state.durationSeconds();
+		if (duration <= 0) {
+			return;
+		}
+		for (Handicap d : state.get(id)) {
+			if (state.age(id, d) >= duration) {
+				remove(p, d, true);
+			}
+		}
+	}
+
+	private static void announceNew(ServerPlayer p, Handicap d) {
+		p.sendOverlayMessage(Component.literal(d.displayName).withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
 	}
 
 	public static boolean remove(ServerPlayer p, Handicap d, boolean announce) {
@@ -171,6 +196,10 @@ public final class HandicapManager {
 	}
 
 	public static Handicap giveRandom(ServerPlayer p) {
+		int limit = state.stacking() ? state.maxHandicaps() : 1;
+		if (limit > 0) {
+			trim(p, limit - 1, null);
+		}
 		List<Handicap> available = new ArrayList<>();
 		for (Handicap d : Handicap.values()) {
 			if (!state.has(p.getUUID(), d)) {
@@ -225,6 +254,7 @@ public final class HandicapManager {
 		int tick = s.getTickCount();
 		if (tick % 20 == 0) {
 			for (ServerPlayer p : new ArrayList<>(players)) {
+				tickDurations(p);
 				tickPlayer(p);
 			}
 		}
@@ -445,11 +475,11 @@ public final class HandicapManager {
 		for (Handicap d : set) {
 			mask |= d.bit();
 		}
-		int flags = (seizing ? 1 : 0) | (rt.narcoSeconds > 0 ? 2 : 0);
-		if ((mask != rt.lastMask || flags != rt.lastFlags) && HandicapMod.platform().canSend(p)) {
-			HandicapMod.platform().send(p, new SyncPayload(mask, flags));
-			rt.lastMask = mask;
-			rt.lastFlags = flags;
+		int flags = (seizing ? 1 : 0) | (rt.narcoSeconds > 0 ? 2 : 0) | (HandicapConfig.showDescriptions() ? 4 : 0)
+			| (state.stacking() ? 8 : 0);
+		int timer = state.timerEnabled() ? state.ticksRemaining() : -1;
+		if (HandicapMod.platform().canSend(p)) {
+			HandicapMod.platform().send(p, new SyncPayload(mask, flags, timer));
 		}
 
 		int limbs = limbsFor(p, set);
@@ -466,6 +496,9 @@ public final class HandicapManager {
 		}
 		if (set.contains(Handicap.AMPUTATED_LEG)) {
 			limbs |= state.legSide(p.getUUID()) == 0 ? LimbsPayload.LEFT_LEG : LimbsPayload.RIGHT_LEG;
+		}
+		if (set.contains(Handicap.BROKEN_ARM)) {
+			limbs |= p.getMainArm() == HumanoidArm.RIGHT ? LimbsPayload.CAST_RIGHT_ARM : LimbsPayload.CAST_LEFT_ARM;
 		}
 		return limbs;
 	}

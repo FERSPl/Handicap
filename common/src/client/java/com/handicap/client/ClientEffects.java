@@ -5,10 +5,7 @@ import com.handicap.HandicapMod;
 
 import java.lang.reflect.Method;
 
-import com.mojang.blaze3d.platform.InputConstants;
-
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Holder;
@@ -35,7 +32,6 @@ public final class ClientEffects {
 	private static int migraineTicks = 0;
 	private static int migraineCooldown = 600;
 	private static int flashTicks = 0;
-	private static boolean controlsSwapped = false;
 	private static int jumpCurseCooldown = 80;
 	private static int sleepwalkTicks = 0;
 	private static int sneezeSlowTicks = 0;
@@ -45,6 +41,7 @@ public final class ClientEffects {
 	private static int lastSlot = -1;
 	private static boolean postEffectWarned = false;
 	private static boolean postEffectDumped = false;
+	private static boolean textAltered = false;
 
 	private static final Identifier COLOR_BLIND_EFFECT = HandicapMod.id("colorblind");
 	private static final Identifier FLIP_EFFECT = HandicapMod.id("flip");
@@ -71,6 +68,7 @@ public final class ClientEffects {
 	public static void tick(Minecraft mc) {
 		LocalPlayer p = mc.player;
 		if (p == null || mc.level == null) {
+			refreshText(mc, false);
 			restoreSound(mc);
 			vertigoTicks = 0;
 			currentEffect = null;
@@ -78,12 +76,11 @@ public final class ClientEffects {
 			flashTicks = 0;
 			migraineTicks = 0;
 			lastSlot = -1;
-			if (controlsSwapped) {
-				swapControls(mc);
-			}
 			return;
 		}
 		RandomSource rnd = p.getRandom();
+		Prosopagnosia.tick(mc);
+		refreshText(mc, ClientState.has(Handicap.DYSLEXIA) || Prosopagnosia.active());
 
 		boolean deaf = ClientState.has(Handicap.DEAF);
 		boolean partiallyDeaf = ClientState.has(Handicap.PARTIAL_DEAFNESS);
@@ -121,11 +118,6 @@ public final class ClientEffects {
 			}
 		} else {
 			flashTicks = 0;
-		}
-
-		boolean shouldSwap = ClientState.has(Handicap.SPATIAL_DISORIENTATION);
-		if (shouldSwap != controlsSwapped) {
-			swapControls(mc);
 		}
 
 		if (ClientState.has(Handicap.MIGRAINE)) {
@@ -260,11 +252,18 @@ public final class ClientEffects {
 
 		boolean drunkSlide = false;
 		if (ClientState.has(Handicap.DRUNK) && p.onGround()) {
-			float friction = p.getBlockStateOn().getBlock().getFriction();
-			if (friction < 0.9f) {
+			float friction = mc.level.getBlockState(p.getBlockPosBelowThatAffectsMyMovement()).getBlock().getFriction();
+			if (friction > 0.1f && friction < 0.9f) {
 				Vec3 v = p.getDeltaMovement();
 				float k = 1.04f / friction;
-				p.setDeltaMovement(v.x * k, v.y, v.z * k);
+				double x = v.x * k;
+				double z = v.z * k;
+				double speed = Math.sqrt(x * x + z * z);
+				if (speed > 0.6) {
+					x = x / speed * 0.6;
+					z = z / speed * 0.6;
+				}
+				p.setDeltaMovement(x, v.y, z);
 				drunkSlide = true;
 			}
 		}
@@ -319,6 +318,11 @@ public final class ClientEffects {
 			p.setXRot(Mth.clamp(p.getXRot() + (rnd.nextFloat() - 0.5f) * 20.0f, -90.0f, 90.0f));
 		}
 
+		Vec3 motion = p.getDeltaMovement();
+		if (!Double.isFinite(motion.x) || !Double.isFinite(motion.y) || !Double.isFinite(motion.z)) {
+			p.setDeltaMovement(Vec3.ZERO);
+		}
+
 		if (ClientState.has(Handicap.SCHIZOPHRENIA) && rnd.nextInt(600) == 0) {
 			if (rnd.nextBoolean()) {
 				SoundEvent[] sounds = {
@@ -336,6 +340,13 @@ public final class ClientEffects {
 					: Component.literal("<" + name + "> I can see you");
 				p.sendSystemMessage(msg);
 			}
+		}
+	}
+
+	private static void refreshText(Minecraft mc, boolean altered) {
+		if (altered != textAltered) {
+			textAltered = altered;
+			mc.getLanguageManager().onResourceManagerReload(mc.getResourceManager());
 		}
 	}
 
@@ -361,9 +372,6 @@ public final class ClientEffects {
 		flashTicks = 0;
 		migraineTicks = 0;
 		lastSlot = -1;
-		if (controlsSwapped) {
-			swapControls(mc);
-		}
 		ClientState.reset();
 		vertigoTicks = 0;
 	}
@@ -468,21 +476,6 @@ public final class ClientEffects {
 			return GLOW_2_EFFECT;
 		}
 		return GLOW_3_EFFECT;
-	}
-
-	private static void swapControls(Minecraft mc) {
-		try {
-			KeyMapping left = mc.options.keyLeft;
-			KeyMapping right = mc.options.keyRight;
-			InputConstants.Key leftKey = InputConstants.getKey(left.saveString());
-			InputConstants.Key rightKey = InputConstants.getKey(right.saveString());
-			left.setKey(rightKey);
-			right.setKey(leftKey);
-			KeyMapping.resetMapping();
-			controlsSwapped = !controlsSwapped;
-		} catch (Throwable t) {
-			HandicapMod.LOGGER.warn("Spatial Disorientation: could not swap the movement keys", t);
-		}
 	}
 
 	private static void setLocalModifier(LocalPlayer p, Holder<Attribute> attribute, Identifier id, double amount,
