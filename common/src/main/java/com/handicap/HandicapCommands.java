@@ -2,6 +2,7 @@ package com.handicap;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -66,17 +67,33 @@ public final class HandicapCommands {
 			.then(Commands.literal("next")
 				.then(Commands.argument("targets", EntityArgument.players())
 					.executes(HandicapCommands::next)))
-			.then(Commands.literal("stacking")
-				.executes(HandicapCommands::stackingStatus)
-				.then(Commands.argument("enabled", BoolArgumentType.bool())
-					.executes(HandicapCommands::stackingSet)))
-			.then(Commands.literal("timer")
-				.executes(HandicapCommands::timerStatus)
-				.then(Commands.literal("off")
-					.executes(HandicapCommands::timerOff))
-				.then(Commands.argument("minutes", DoubleArgumentType.doubleArg(0.1, 10000.0))
-					.suggests(MINUTES_SUGGESTIONS)
-					.executes(HandicapCommands::timerSet)));
+			.then(Commands.literal("settings")
+				.executes(HandicapCommands::settingsStatus)
+				.then(Commands.literal("stacking")
+					.executes(HandicapCommands::stackingStatus)
+					.then(Commands.argument("enabled", BoolArgumentType.bool())
+						.executes(HandicapCommands::stackingSet)))
+				.then(Commands.literal("timer")
+					.executes(HandicapCommands::timerStatus)
+					.then(Commands.literal("off")
+						.executes(HandicapCommands::timerOff))
+					.then(Commands.argument("minutes", DoubleArgumentType.doubleArg(0.1, 10000.0))
+						.suggests(MINUTES_SUGGESTIONS)
+						.executes(HandicapCommands::timerSet)))
+				.then(Commands.literal("max")
+					.executes(HandicapCommands::maxStatus)
+					.then(Commands.literal("off")
+						.executes(ctx -> maxSet(ctx, 0)))
+					.then(Commands.argument("count", IntegerArgumentType.integer(1, Handicap.values().length))
+						.executes(ctx -> maxSet(ctx, IntegerArgumentType.getInteger(ctx, "count")))))
+				.then(Commands.literal("duration")
+					.executes(HandicapCommands::durationStatus)
+					.then(Commands.literal("off")
+						.executes(ctx -> durationSet(ctx, 0)))
+					.then(Commands.argument("minutes", DoubleArgumentType.doubleArg(0.1, 10000.0))
+						.suggests(MINUTES_SUGGESTIONS)
+						.executes(ctx -> durationSet(ctx,
+							(int) Math.round(DoubleArgumentType.getDouble(ctx, "minutes") * 60.0))))));
 	}
 
 	private static Collection<ServerPlayer> targets(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
@@ -213,6 +230,76 @@ public final class HandicapCommands {
 		return count;
 	}
 
+	private static int settingsStatus(CommandContext<CommandSourceStack> ctx) {
+		if (!ready(ctx)) {
+			return 0;
+		}
+		HandicapState s = HandicapManager.state();
+		String timer = s.timerEnabled() ? "every " + formatDuration(s.timerSeconds()) : "off";
+		String max = s.maxHandicaps() > 0 ? String.valueOf(s.maxHandicaps()) : "off";
+		String duration = s.durationSeconds() > 0 ? formatDuration(s.durationSeconds()) : "off";
+		final String text = "Timer: " + timer + " | Stacking: " + s.stacking() + " | Max: " + max + " | Duration: " + duration;
+		ctx.getSource().sendSuccess(() -> Component.literal(text), false);
+		ctx.getSource().sendSuccess(() -> Component.literal("Usage: /handicap settings <timer|stacking|max|duration>"), false);
+		return 1;
+	}
+
+	private static int maxStatus(CommandContext<CommandSourceStack> ctx) {
+		if (!ready(ctx)) {
+			return 0;
+		}
+		int max = HandicapManager.state().maxHandicaps();
+		final String text = max > 0
+			? "Max: " + max + " handicaps. When a new one goes over it, the oldest is removed."
+			: "Max is off: there is no limit.";
+		ctx.getSource().sendSuccess(() -> Component.literal(text), false);
+		ctx.getSource().sendSuccess(() -> Component.literal("Usage: /handicap settings max <count|off>"), false);
+		return 1;
+	}
+
+	private static int maxSet(CommandContext<CommandSourceStack> ctx, int max) {
+		if (!ready(ctx)) {
+			return 0;
+		}
+		HandicapManager.state().setMaxHandicaps(max);
+		HandicapManager.state().save();
+		final String text = max > 0
+			? "Max set to " + max + " handicaps: the oldest is removed when a new one goes over it."
+			: "Max turned off: there is no limit.";
+		ctx.getSource().sendSuccess(() -> Component.literal(text), true);
+		return 1;
+	}
+
+	private static int durationStatus(CommandContext<CommandSourceStack> ctx) {
+		if (!ready(ctx)) {
+			return 0;
+		}
+		int seconds = HandicapManager.state().durationSeconds();
+		final String text = seconds > 0
+			? "Duration: each handicap wears off after " + formatDuration(seconds) + "."
+			: "Duration is off: handicaps never wear off.";
+		ctx.getSource().sendSuccess(() -> Component.literal(text), false);
+		ctx.getSource().sendSuccess(() -> Component.literal("Usage: /handicap settings duration <minutes|off>"), false);
+		return 1;
+	}
+
+	private static int durationSet(CommandContext<CommandSourceStack> ctx, int seconds) {
+		if (!ready(ctx)) {
+			return 0;
+		}
+		if (seconds != 0 && seconds < 5) {
+			ctx.getSource().sendFailure(Component.literal("Invalid duration: enter a number of minutes (minimum 0.1), or off."));
+			return 0;
+		}
+		HandicapManager.state().setDurationSeconds(seconds);
+		HandicapManager.state().save();
+		final String text = seconds > 0
+			? "Each handicap now wears off after " + formatDuration(seconds) + "."
+			: "Duration turned off: handicaps never wear off.";
+		ctx.getSource().sendSuccess(() -> Component.literal(text), true);
+		return 1;
+	}
+
 	private static int stackingStatus(CommandContext<CommandSourceStack> ctx) {
 		if (!ready(ctx)) {
 			return 0;
@@ -221,7 +308,7 @@ public final class HandicapCommands {
 			? "Stacking is on: handicaps add up."
 			: "Stacking is off: a new handicap replaces the previous one.";
 		ctx.getSource().sendSuccess(() -> Component.literal(text), false);
-		ctx.getSource().sendSuccess(() -> Component.literal("Usage: /handicap stacking <true|false>"), false);
+		ctx.getSource().sendSuccess(() -> Component.literal("Usage: /handicap settings stacking <true|false>"), false);
 		return 1;
 	}
 
@@ -247,7 +334,7 @@ public final class HandicapCommands {
 		final String text = s.timerEnabled()
 			? "Next handicap in " + formatDuration(s.secondsRemaining()) + " (interval: " + formatDuration(s.timerSeconds()) + ")."
 			: "The timer is off.";
-		final String usage = "Usage: /handicap timer <minutes> or /handicap timer off";
+		final String usage = "Usage: /handicap settings timer <minutes|off>";
 		ctx.getSource().sendSuccess(() -> Component.literal(text), false);
 		ctx.getSource().sendSuccess(() -> Component.literal(usage), false);
 		return 1;
