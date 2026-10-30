@@ -1,7 +1,6 @@
 package com.handicap.client;
 
 import com.handicap.Handicap;
-import com.handicap.HandicapMod;
 
 import com.mojang.blaze3d.platform.InputConstants;
 
@@ -10,18 +9,22 @@ import java.util.List;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.resources.Identifier;
+import net.minecraft.network.chat.Component;
 
 import org.lwjgl.glfw.GLFW;
 
 public final class HandicapHud {
-	private static final int PADDING = 3;
-	private static final int LINE_HEIGHT = 9;
-	private static final int BACKGROUND = 0xB0141018;
+	private static final int PADDING = 5;
+	private static final int MAX_LINES = 12;
+	private static final float SCALE = 0.75f;
+	private static final int LINE_HEIGHT = 10;
+	private static final int BACKGROUND = 0xC0141018;
+	private static final int BORDER = 0xFF2E2433;
 	private static final int ACCENT = 0xFFD23C4B;
 	private static final int TITLE = 0xFFFF8A94;
-	private static final int TEXT = 0xFFEDEDED;
+	private static final int MUTED = 0xFF9A90A0;
 
 	private static boolean visible = true;
 	private static KeyMapping toggleKey;
@@ -29,7 +32,6 @@ public final class HandicapHud {
 	private HandicapHud() {
 	}
 
-	/** Creates (and remembers) the toggle key. The loader module registers it and its category. */
 	public static KeyMapping createKey(KeyMapping.Category category) {
 		toggleKey = new KeyMapping(
 			"key.handicap.toggle_list",
@@ -39,57 +41,83 @@ public final class HandicapHud {
 		return toggleKey;
 	}
 
-	/** Draws the handicap list. Called by the loader's HUD hook. */
 	public static void render(GuiGraphicsExtractor graphics) {
-		if (!visible || ClientState.has(Handicap.ANOSOGNOSIA)) {
-			return;
-		}
 		Minecraft mc = Minecraft.getInstance();
-		if (mc.player == null) {
+		if (!visible || mc.player == null || InventoryPanel.supports(mc.gui.screen())) {
 			return;
 		}
-		List<String> names = new ArrayList<>();
+		if (ClientState.has(Handicap.ANOSOGNOSIA)) {
+			return;
+		}
+		List<Handicap> owned = new ArrayList<>();
 		for (Handicap d : Handicap.values()) {
 			if (ClientState.has(d)) {
-				names.add(d.displayName);
+				owned.add(d);
 			}
 		}
-		if (names.isEmpty()) {
+		boolean timerOn = ClientState.timer >= 0;
+		if (owned.isEmpty() && !timerOn) {
 			return;
 		}
-		String title = "Handicaps (" + names.size() + ")";
-		int width = mc.font.width(title);
-		for (String name : names) {
-			width = Math.max(width, mc.font.width(name));
+		Font font = mc.font;
+		int screenWidth = (int) (graphics.guiWidth() / SCALE);
+		int screenHeight = (int) (graphics.guiHeight() / SCALE);
+		int footer = timerOn ? LINE_HEIGHT + 4 : 0;
+		int maxLines = Math.max(1, Math.min(MAX_LINES, (screenHeight - 24 - PADDING * 2 - LINE_HEIGHT - 3 - footer) / LINE_HEIGHT));
+		int more = 0;
+		if (owned.size() > maxLines) {
+			more = owned.size() - (maxLines - 1);
+			owned = new ArrayList<>(owned.subList(0, maxLines - 1));
 		}
-		int screenWidth = mc.getWindow().getGuiScaledWidth();
-		int screenHeight = mc.getWindow().getGuiScaledHeight();
-		int maxLines = Math.max(1, (screenHeight - 24 - PADDING * 2 - LINE_HEIGHT - 2) / LINE_HEIGHT);
-		if (names.size() > maxLines) {
-			int hidden = names.size() - (maxLines - 1);
-			names = new ArrayList<>(names.subList(0, maxLines - 1));
-			names.add("+" + hidden + " more");
-			for (String name : names) {
-				width = Math.max(width, mc.font.width(name));
-			}
+
+		String title = "Handicaps (" + (owned.size() + more) + ")";
+		Component timer = InventoryPanel.timerLine();
+		int width = font.width(title);
+		for (Handicap d : owned) {
+			width = Math.max(width, font.width(d.displayName) + 6);
 		}
-		int boxWidth = width + PADDING * 2 + 3;
-		int boxHeight = PADDING * 2 + LINE_HEIGHT + 2 + names.size() * LINE_HEIGHT;
-		int x = screenWidth - boxWidth - 2;
-		int y = Math.max(2, (screenHeight - boxHeight) / 2);
+		if (more > 0) {
+			width = Math.max(width, font.width("+" + more + " more"));
+		}
+		if (timerOn) {
+			width = Math.max(width, font.width(timer));
+		}
+		int lines = owned.size() + (more > 0 ? 1 : 0);
+		int boxWidth = width + PADDING * 2 + 2;
+		int boxHeight = PADDING * 2 + LINE_HEIGHT + 3 + lines * LINE_HEIGHT + footer;
+		int x = screenWidth - boxWidth - 4;
+		int y = Math.max(4, (screenHeight - boxHeight) / 2);
+
+		graphics.pose().pushMatrix();
+		graphics.pose().scale(SCALE, SCALE);
 		graphics.fill(x, y, x + boxWidth, y + boxHeight, BACKGROUND);
+		graphics.outline(x, y, boxWidth, boxHeight, BORDER);
 		graphics.fill(x, y, x + 2, y + boxHeight, ACCENT);
-		int textX = x + PADDING + 3;
+		int textX = x + PADDING + 2;
 		int textY = y + PADDING;
 		graphics.text(mc.font, title, textX, textY, TITLE, false);
-		textY += LINE_HEIGHT + 2;
-		for (String name : names) {
-			graphics.text(mc.font, name, textX, textY, TEXT, false);
+		textY += LINE_HEIGHT + 3;
+		for (Handicap d : owned) {
+			int color = InventoryPanel.color(d);
+			graphics.fill(textX, textY + 3, textX + 2, textY + 5, color);
+			graphics.text(font, d.displayName, textX + 6, textY, color, false);
 			textY += LINE_HEIGHT;
 		}
+		if (more > 0) {
+			graphics.text(font, "+" + more + " more", textX, textY, MUTED, false);
+			textY += LINE_HEIGHT;
+		}
+		if (timerOn) {
+			graphics.horizontalLine(x + PADDING, x + boxWidth - PADDING, textY + 1, BORDER);
+			graphics.text(font, timer, textX, textY + 4, MUTED, false);
+		}
+		graphics.pose().popMatrix();
 	}
 
 	public static void tick() {
+		if (ClientState.timer > 0 && !Minecraft.getInstance().isPaused()) {
+			ClientState.timer--;
+		}
 		if (toggleKey == null) {
 			return;
 		}

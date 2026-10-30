@@ -64,7 +64,8 @@ public enum Handicap {
 	HAND_TREMORS("hand_tremors", "Hand Tremors", "Your hands shake and interrupt mining"),
 	VISUAL_AGNOSIA("visual_agnosia", "Visual Agnosia", "Colors blend together"),
 	MIGRAINE("migraine", "Migraine", "Migraine episodes blur and brighten the edges of your screen"),
-	BROKEN_ARM("broken_arm", "Broken Arm", "Breaking blocks takes much longer");
+	BROKEN_ARM("broken_arm", "Broken Arm", "Breaking blocks takes much longer"),
+	PROSOPAGNOSIA("prosopagnosia", "Prosopagnosia", "You can't recognize faces: players, villagers and monsters all look alike");
 
 	public final String id;
 	public final String displayName;

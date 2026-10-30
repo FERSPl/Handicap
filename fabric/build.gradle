@@ -32,6 +32,16 @@ sourceSets {
 	}
 }
 
+fabricApi {
+	configureTests {
+		createSourceSet = true
+		modId = "handicap-gametest"
+		enableGameTests = false
+		enableClientGameTests = true
+		eula = true
+	}
+}
+
 repositories {
 	maven {
 		name = "Terraformers"

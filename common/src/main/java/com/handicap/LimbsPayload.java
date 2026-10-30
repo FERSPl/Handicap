@@ -13,6 +13,8 @@ public record LimbsPayload(UUID player, int limbs) implements CustomPacketPayloa
 	public static final int RIGHT_ARM = 2;
 	public static final int LEFT_LEG = 4;
 	public static final int RIGHT_LEG = 8;
+	public static final int CAST_LEFT_ARM = 16;
+	public static final int CAST_RIGHT_ARM = 32;
 
 	public static final CustomPacketPayload.Type<LimbsPayload> TYPE = new CustomPacketPayload.Type<>(HandicapMod.id("limbs"));
 

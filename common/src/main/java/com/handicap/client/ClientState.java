@@ -5,6 +5,7 @@ import com.handicap.Handicap;
 public final class ClientState {
 	public static volatile long mask = 0L;
 	public static volatile int flags = 0;
+	public static volatile int timer = -1;
 
 	private ClientState() {
 	}
@@ -21,8 +22,17 @@ public final class ClientState {
 		return (flags & 2) != 0;
 	}
 
+	public static boolean showDescriptions() {
+		return (flags & 4) != 0;
+	}
+
+	public static boolean stacking() {
+		return (flags & 8) != 0;
+	}
+
 	public static void reset() {
 		mask = 0L;
 		flags = 0;
+		timer = -1;
 	}
 }

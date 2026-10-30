@@ -1,0 +1,17 @@
+{
+	"schemaVersion": 1,
+	"id": "handicap-gametest",
+	"version": "1.0.0",
+	"name": "Handicap Visual Tests",
+	"environment": "*",
+	"entrypoints": {
+		"fabric-client-gametest": [
+			"com.handicap.fabric.gametest.HandicapVisualTest",
+			"com.handicap.fabric.gametest.ProsopagnosiaVisualTest",
+			"com.handicap.fabric.gametest.SettingsTest",
+			"com.handicap.fabric.gametest.ProsopagnosiaMultiplayerTest",
+			"com.handicap.fabric.gametest.DyslexiaMenuTest",
+			"com.handicap.fabric.gametest.PermissionTest"
+		]
+	}
+}

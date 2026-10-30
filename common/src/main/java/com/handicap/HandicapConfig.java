@@ -9,6 +9,7 @@ import java.nio.file.Path;
 
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.server.level.ServerPlayer;
 
 public final class HandicapConfig {
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
@@ -17,7 +18,7 @@ public final class HandicapConfig {
 		String info = "permissionLevel: 0 = everyone can use /handicap, 2 = operators only. "
 			+ "Without operator permission (cheats off, level 0) a player can only target themselves by name "
 			+ "(no @a, @s...), but can still manage the timer and stacking. "
-			+ "showDescriptions: false hides the handicap description when you receive one.";
+			+ "showDescriptions: false hides the handicap descriptions shown when hovering a handicap in the inventory.";
 		int permissionLevel = 2;
 		boolean showDescriptions = true;
 	}
@@ -80,6 +81,10 @@ public final class HandicapConfig {
 	}
 
 	public static boolean allows(CommandSourceStack source) {
+		ServerPlayer player = source.getPlayer();
+		if (player != null && source.getServer().isSingleplayerOwner(player.nameAndId())) {
+			return true;
+		}
 		return switch (permissionLevel) {
 			case 0 -> true;
 			case 1 -> Commands.hasPermission(Commands.LEVEL_MODERATORS).test(source);
