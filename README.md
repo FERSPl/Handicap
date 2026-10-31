@@ -139,7 +139,7 @@ The timer and the duration are measured in minutes. For example, `0.5` means eve
 | 60 | Visual Agnosia | `visual_agnosia` | Colors blend together, making blocks hard to tell apart. |
 | 61 | Migraine | `migraine` | Migraine episodes blur and brighten the edges of your screen. |
 | 62 | Broken Arm | `broken_arm` | Breaking blocks takes much longer, and your arm is in a cast. |
-| 63 | Prosopagnosia | `prosopagnosia` | You can't recognize faces: players and villagers look like Steve, names are hidden and monsters are disguised as other monsters. |
+| 63 | Prosopagnosia | `prosopagnosia` | You can't recognize faces, mixing up all the players and mobs. |
 
 ⚠️ Only one screen filter is displayed at a time, with Blind taking priority over Phantom Light, Inverted Vision, Tunnel Vision, Migraine, Color Blind, Visual Agnosia, Myopia, and Hyperopia.
 
