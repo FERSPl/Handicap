@@ -1,26 +1,43 @@
-## v1.4.0 changelog
+## v1.5.0 changelog
 
 ### *Critical bug fix*
-* **Neoforge 26.1 version crash**
-  * Fixed a critical bug that caused the 26.1 NeoForge version to crash every time on launch.
+* **Drunk crash**
+  * Fixed a critical bug where the drunk handicap could make your speed go infinite, crashing the game.
 
 ### *Whats's new?*
-* **Config screen**
-  * Added a config screen: Mod Menu on Fabric and Quilt, the built-in Mods screen on NeoForge.
-  * You can choose who can use the commands (players or operators) there or in `handicap.json`.
-  * With "allow cheats" off and the permission set to player, you can only target yourself by name, and you can still manage the timer.
-  * New option to hide handicap descriptions: you only see the name when you receive a handicap, so you have to find out what it does.
+* **Inventory panel**
+  * Added a panel next to your inventory (survival and creative) with all your handicaps.
+  * Hover a handicap to see what it does.
+  * Shows the time left before the next handicap and if stacking is on or off (hover it to see what it means).
+  * Added a *Next handicap* button, it follows the same permission as `/handicap next`.
+  * The list scrolls with the mouse wheel when you have a lot of handicaps.
 * **New Handicap**: 
-  * Added `broken_arm`, which makes mining significantly slower.
-* **Quilt support**
-  * The Fabric version now natively supports Quilt.
+  * Added `prosopagnosia`, you can't recognize faces anymore: players and villagers look like Steve, names are hidden (above heads, in the tchat and in the Tab list) and monsters are disguised as other monsters.
+* **Max and duration**
+  * Added `max`: limit how many handicaps a player can have, the oldest one is removed when you go over it.
+  * Added `duration`: each handicap wears off on its own after some time.
+  * Both are off by default.
 
 ### *Changes & Balancing*
+* **Commands**
+  * All the settings are now in `/handicap settings`: `timer`, `stacking`, `max` and `duration`.
+  * `/handicap timer` and `/handicap stacking` don't exist anymore, use `/handicap settings timer` and `/handicap settings stacking` instead.
+  * `/handicap settings` alone shows every setting at once.
+  * In singleplayer, the player hosting the world can now always use `/handicap`, even with "allow cheats" off.
+* **HUD**
+  * New look, smaller, and it now shows the timer.
+  * It hides when your inventory is open and when you have anosognosia.
 * **Visuals**
-  * Amputated limbs as legs and hand now are hidden from everyone's POV.
+  * Broken arm now puts your arm in a white cast, visible from everyone's POV.
+  * Anosognosia now scrambles the handicap names in the inventory panel, you can see how many you have but not which ones.
 * **Announcement when getting an handicap**
-  * Moved the mod notifications from the tchat to the action bar.
+  * The action bar only shows the handicap name now, the description is in the inventory panel.
+  * The "hide descriptions" option now hides the descriptions in the inventory panel.
 
 ### *Fixes*
-* **Vision overhauls**
-  * Fixed a bug where staying afk with drunk handicap made player's camera to tremble.
+* **Spatial disorientation**
+  * Fixed a bug where your left and right keys could stay swapped in your settings after the handicap was gone. If it happened to you, go to Options > Controls and set them back once.
+* **Dyslexia**
+  * Fixed a bug where the menus stayed scrambled after losing dyslexia.
+* **Max and stacking**
+  * Fixed `next` doing nothing when you already had every handicap with stacking off.
