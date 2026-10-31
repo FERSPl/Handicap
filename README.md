@@ -27,7 +27,7 @@
 
 ## <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/about.png" alt="About">
 
-**Handicap** is a Minecraft mod that randomly assigns players handicaps at regular intervals. Survive as long as possible, adapt your playstyle, and discover all 62 unique handicaps.
+**Handicap** is a Minecraft mod that randomly assigns players handicaps at regular intervals. Survive as long as possible, adapt your playstyle, and discover all 63 unique handicaps.
 
 You can also choose which handicaps to apply using commands, customize the timer, and decide whether handicaps stack.
 
@@ -35,19 +35,20 @@ You can also choose which handicaps to apply using commands, customize the timer
 
 ### Features
 
-- 🎭 **62 unique handicaps** that change the way you play.
+- 🎭 **63 unique handicaps** that change the way you play.
 - ⏳ **Automatic random assignment** every 10 minutes by default.
 - ⚙️ **Customizable timer** — change the interval or turn it off entirely.
 - 💬 **Commands** to give, clear, and list handicaps.
 - 🖥️ **In-game config screen** — choose who can use the commands and whether handicap descriptions are shown.
 - 📚 **Stacking control** — choose whether handicaps accumulate or replace one another.
 - 💾 **Persistent data** — handicaps are saved per world: if you leave and rejoin, you keep them.
-- 📊 **On-screen handicap list** — toggle the HUD with the backtick (`) key, configurable in Controls.
+- 🎒 **Inventory panel** — your handicaps next to your inventory: hover one to see what it does, see the time left before the next one and if stacking is on, and get the next handicap with a button.
+- 📊 **On-screen handicap list** — shows your handicaps and the timer, toggle it with the backtick (`) key, configurable in Controls.
 - 🌐 **Multiplayer support** — install the mod on both client and server for the full experience.
 
 ##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/commands.png" alt="Commands">
 
-By default, only **operators** can use `/handicap`. You can change this in the config screen or in `handicap.json` (see [Configuration](#configuration)).
+By default, only **operators** can use `/handicap`, except in singleplayer where the host always can. You can change this in the config screen or in `handicap.json` (see [Configuration](#configuration)).
 
 | Command | Description |
 |---|---|
@@ -57,17 +58,20 @@ By default, only **operators** can use `/handicap`. You can change this in the c
 | `/handicap clear <players> <handicap\|all\|random>` | Remove a specific handicap, a random handicap, or all handicaps. |
 | `/handicap list <players>` | List the selected players' handicaps. |
 | `/handicap next <players>` | Skip the timer and assign the next random handicap. |
-| `/handicap stacking [true\|false]` | Enable or disable stacking. When disabled, a new handicap replaces the previous one. `give all` still gives every handicap. |
-| `/handicap timer [off\|<minutes>]` | Show the timer, turn it off, or set the interval in minutes. |
+| `/handicap settings` | Show every setting at once. |
+| `/handicap settings stacking [true\|false]` | Enable or disable stacking. When disabled, a new handicap replaces the previous one. `give all` still gives every handicap. |
+| `/handicap settings timer [off\|<minutes>]` | Show the timer, turn it off, or set the interval in minutes. |
+| `/handicap settings max [off\|<count>]` | Limit how many handicaps a player can have. The oldest one is removed when a new one goes over the limit. Off by default. |
+| `/handicap settings duration [off\|<minutes>]` | Each handicap wears off on its own after that many minutes. Off by default. |
 
 Replace `<handicap>` with an ID from the table below.
 
-The timer is measured in minutes. For example, `0.5` means every 30 seconds. The minimum interval is 0.1 minute (6 seconds).
+The timer and the duration are measured in minutes. For example, `0.5` means every 30 seconds. The minimum interval is 0.1 minute (6 seconds).
  
 `<players>` is a player name or a target selector such as `@s`, `@a`, `@p` or `@r`.
  
 - **With operator permission**: you can use every command on any player, with or without selectors.
-- **Without operator permission** (the command permission is set to *Player*, for example in singleplayer with cheats off): you can only target **yourself**, by typing your own player name. Selectors like `@s` and `@a` are refused by Minecraft for players who are not operators. You can still manage the timer and stacking as usual.
+- **Without operator permission** (the command permission is set to *Player*, or you host a singleplayer world with cheats off): you can only target **yourself**, by typing your own player name. Selectors like `@s` and `@a` are refused by Minecraft for players who are not operators. You can still change every setting with `/handicap settings`, which applies to the whole server.
 
 ##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/handicaps.png" alt="Handicaps">
 
@@ -134,7 +138,8 @@ The timer is measured in minutes. For example, `0.5` means every 30 seconds. The
 | 59 | Hand Tremors | `hand_tremors` | Your hands shake and interrupt mining. |
 | 60 | Visual Agnosia | `visual_agnosia` | Colors blend together, making blocks hard to tell apart. |
 | 61 | Migraine | `migraine` | Migraine episodes blur and brighten the edges of your screen. |
-| 62 | Broken Arm | `broken_arm` | Breaking blocks takes much longer. |
+| 62 | Broken Arm | `broken_arm` | Breaking blocks takes much longer, and your arm is in a cast. |
+| 63 | Prosopagnosia | `prosopagnosia` | You can't recognize faces: players and villagers look like Steve, names are hidden and monsters are disguised as other monsters. |
 
 ⚠️ Only one screen filter is displayed at a time, with Blind taking priority over Phantom Light, Inverted Vision, Tunnel Vision, Migraine, Color Blind, Visual Agnosia, Myopia, and Hyperopia.
 
@@ -149,7 +154,7 @@ The settings are saved in `config/handicap.json`, which you can also edit by han
 | Option | Values | Description |
 |---|---|---|
 | `permissionLevel` | `0` or `2` | `2`: only operators can use `/handicap` (default). `0`: everyone can, but without operator permission players can only target themselves. |
-| `showDescriptions` | `true` or `false` | `true` (default): the announcement shows the handicap name and what it does. `false`: only the name is shown, so you have to find out the effects yourself. |
+| `showDescriptions` | `true` or `false` | `true` (default): hovering a handicap in the inventory panel shows what it does. `false`: only the name is shown, so you have to find out the effects yourself. |
  
 On a dedicated server, `handicap.json` of the server decides.
 
