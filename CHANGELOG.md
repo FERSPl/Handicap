@@ -41,3 +41,5 @@
   * Fixed a bug where the menus stayed scrambled after losing dyslexia.
 * **Max and stacking**
   * Fixed `next` doing nothing when you already had every handicap with stacking off.
+* **Visual effects**
+  * Fixed a bug that caused any visual effect to vanish for a short time by changing the camera view.
