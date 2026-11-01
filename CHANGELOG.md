@@ -5,6 +5,9 @@
   * Fixed a critical bug where the drunk handicap could make your speed go infinite, crashing the game.
 
 ### *Whats's new?*
+* **Permissions**
+  * A solo world no longer requires `allow cheats` to be enabled.
+
 * **Inventory panel**
   * Added a panel next to your inventory (survival and creative) with all your handicaps.
   * Hover a handicap to see what it does.
