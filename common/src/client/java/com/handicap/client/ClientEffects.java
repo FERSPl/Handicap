@@ -6,6 +6,7 @@ import com.handicap.HandicapMod;
 import java.lang.reflect.Method;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Holder;
@@ -29,6 +30,7 @@ public final class ClientEffects {
 	private static Boolean savedSubtitles = null;
 	private static Identifier currentEffect = null;
 	private static int effectTicks = 0;
+	private static CameraType lastCameraType = null;
 	private static int migraineTicks = 0;
 	private static int migraineCooldown = 600;
 	private static int flashTicks = 0;
@@ -73,11 +75,15 @@ public final class ClientEffects {
 			vertigoTicks = 0;
 			currentEffect = null;
 			effectTicks = 0;
+			lastCameraType = null;
 			flashTicks = 0;
 			migraineTicks = 0;
 			lastSlot = -1;
 			return;
 		}
+		CameraType cameraType = mc.options.getCameraType();
+		boolean cameraChanged = lastCameraType != null && cameraType != lastCameraType;
+		lastCameraType = cameraType;
 		RandomSource rnd = p.getRandom();
 		Prosopagnosia.tick(mc);
 		refreshText(mc, ClientState.has(Handicap.DYSLEXIA) || Prosopagnosia.active());
@@ -154,7 +160,7 @@ public final class ClientEffects {
 		}
 		if (desired != null) {
 			effectTicks++;
-			if (!desired.equals(currentEffect) || effectTicks % 100 == 0) {
+			if (!desired.equals(currentEffect) || cameraChanged || effectTicks % 100 == 0) {
 				setPostEffect(mc, desired);
 				currentEffect = desired;
 			}
@@ -369,6 +375,7 @@ public final class ClientEffects {
 			currentEffect = null;
 			effectTicks = 0;
 		}
+		lastCameraType = null;
 		flashTicks = 0;
 		migraineTicks = 0;
 		lastSlot = -1;
