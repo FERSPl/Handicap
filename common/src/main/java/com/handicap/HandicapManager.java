@@ -445,7 +445,7 @@ public final class HandicapManager {
 		} else if (rt.ocdType == 0) {
 			rt.ocdCooldown--;
 			if (rt.ocdCooldown <= 0) {
-				if (rnd.nextBoolean()) {
+				if (rnd.nextBoolean() && !set.contains(Handicap.PARAPLEGIA)) {
 					rt.ocdType = 1;
 					rt.ocdRemaining = 5;
 					p.sendSystemMessage(Component.literal("Compulsion: you must jump 5 times!").withStyle(ChatFormatting.LIGHT_PURPLE));
