@@ -83,7 +83,9 @@ public final class InventoryPanel {
 		String title = "Handicaps (" + owned.size() + ")";
 		Component timer = timerLine();
 		Component stacking = Component.literal("Stacking: ").append(
-			Component.literal(ClientState.stacking() ? "On" : "Off").withColor(TIME & 0xFFFFFF));
+			Component.literal(ClientState.stacking()
+				? "On (" + (ClientState.maxHandicaps == 0 ? "∞" : ClientState.maxHandicaps) + ")"
+				: "Off").withColor(TIME & 0xFFFFFF));
 		boolean canNext = canNext(player);
 
 		int contentW = Math.max(font.width(title), Math.max(font.width(timer), font.width(stacking)));

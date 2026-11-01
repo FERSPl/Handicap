@@ -479,7 +479,7 @@ public final class HandicapManager {
 			| (state.stacking() ? 8 : 0);
 		int timer = state.timerEnabled() ? state.ticksRemaining() : -1;
 		if (HandicapMod.platform().canSend(p)) {
-			HandicapMod.platform().send(p, new SyncPayload(mask, flags, timer));
+			HandicapMod.platform().send(p, new SyncPayload(mask, flags, timer, state.maxHandicaps()));
 		}
 
 		int limbs = limbsFor(p, set);
