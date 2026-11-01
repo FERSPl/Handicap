@@ -65,6 +65,7 @@ public class HandicapNeoForge {
 			ClientState.mask = payload.mask();
 			ClientState.flags = payload.flags();
 			ClientState.timer = payload.timer();
+			ClientState.maxHandicaps = payload.maxHandicaps();
 		});
 		registrar.playToClient(LimbsPayload.TYPE, LimbsPayload.CODEC, (payload, context) ->
 			ClientLimbs.set(payload.player(), payload.limbs()));
