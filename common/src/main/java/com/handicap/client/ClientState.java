@@ -6,6 +6,7 @@ public final class ClientState {
 	public static volatile long mask = 0L;
 	public static volatile int flags = 0;
 	public static volatile int timer = -1;
+	public static volatile int maxHandicaps = 0;
 
 	private ClientState() {
 	}
@@ -34,5 +35,6 @@ public final class ClientState {
 		mask = 0L;
 		flags = 0;
 		timer = -1;
+		maxHandicaps = 0;
 	}
 }

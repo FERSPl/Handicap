@@ -26,6 +26,7 @@ public class HandicapFabricClient implements ClientModInitializer {
 			ClientState.mask = payload.mask();
 			ClientState.flags = payload.flags();
 			ClientState.timer = payload.timer();
+			ClientState.maxHandicaps = payload.maxHandicaps();
 		});
 
 		ClientPlayNetworking.registerGlobalReceiver(LimbsPayload.TYPE, (payload, context) ->
