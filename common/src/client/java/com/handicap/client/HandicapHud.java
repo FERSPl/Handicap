@@ -1,6 +1,7 @@
 package com.handicap.client;
 
 import com.handicap.Handicap;
+import com.handicap.HandicapConfig;
 
 import com.mojang.blaze3d.platform.InputConstants;
 
@@ -16,15 +17,13 @@ import net.minecraft.network.chat.Component;
 import org.lwjgl.glfw.GLFW;
 
 public final class HandicapHud {
-	private static final int PADDING = 5;
+	private static final int PADDING = 4;
+	private static final int CARD_PAD = 4;
+	private static final int RADIUS = 4;
 	private static final int MAX_LINES = 12;
 	private static final float SCALE = 0.75f;
 	private static final int LINE_HEIGHT = 10;
-	private static final int BACKGROUND = 0xC0141018;
-	private static final int BORDER = 0xFF2E2433;
-	private static final int ACCENT = 0xFFD23C4B;
-	private static final int TITLE = 0xFFFF8A94;
-	private static final int MUTED = 0xFF9A90A0;
+	private static final int EFFECTS_HEIGHT = 54;
 
 	private static boolean visible = true;
 	private static KeyMapping toggleKey;
@@ -63,7 +62,7 @@ public final class HandicapHud {
 		int screenWidth = (int) (graphics.guiWidth() / SCALE);
 		int screenHeight = (int) (graphics.guiHeight() / SCALE);
 		int footer = timerOn ? LINE_HEIGHT + 4 : 0;
-		int maxLines = Math.max(1, Math.min(MAX_LINES, (screenHeight - 24 - PADDING * 2 - LINE_HEIGHT - 3 - footer) / LINE_HEIGHT));
+		int maxLines = Math.max(1, Math.min(MAX_LINES, (screenHeight - 24 - PADDING * 2 - LINE_HEIGHT - 2 - CARD_PAD * 2 - footer) / LINE_HEIGHT));
 		int more = 0;
 		if (owned.size() > maxLines) {
 			more = owned.size() - (maxLines - 1);
@@ -72,9 +71,9 @@ public final class HandicapHud {
 
 		String title = "Handicaps (" + (owned.size() + more) + ")";
 		Component timer = InventoryPanel.timerLine();
-		int width = font.width(title);
+		int width = InventoryPanel.LOGO_SIZE + InventoryPanel.LOGO_GAP + font.width(title);
 		for (Handicap d : owned) {
-			width = Math.max(width, font.width(d.displayName) + 6);
+			width = Math.max(width, font.width(d.displayName) + InventoryPanel.nameIndent());
 		}
 		if (more > 0) {
 			width = Math.max(width, font.width("+" + more + " more"));
@@ -83,33 +82,47 @@ public final class HandicapHud {
 			width = Math.max(width, font.width(timer));
 		}
 		int lines = owned.size() + (more > 0 ? 1 : 0);
-		int boxWidth = width + PADDING * 2 + 2;
-		int boxHeight = PADDING * 2 + LINE_HEIGHT + 3 + lines * LINE_HEIGHT + footer;
-		int x = screenWidth - boxWidth - 4;
-		int y = Math.max(4, (screenHeight - boxHeight) / 2);
+		int inset = PADDING + CARD_PAD;
+		int cardH = CARD_PAD * 2 + lines * LINE_HEIGHT - 1;
+		int boxWidth = width + inset * 2;
+		int boxHeight = PADDING * 2 + LINE_HEIGHT + 2 + cardH + footer;
+		String position = HandicapConfig.hudPosition();
+		boolean right = position.endsWith("right");
+		int x = right ? screenWidth - boxWidth - 4 : 4;
+		int y;
+		if (position.startsWith("top")) {
+			// Stay clear of the vanilla effect icons in the top right corner.
+			y = right && !mc.player.getActiveEffects().isEmpty() ? (int) (EFFECTS_HEIGHT / SCALE) : 4;
+		} else if (position.startsWith("bottom")) {
+			y = screenHeight - boxHeight - 4;
+		} else {
+			y = (screenHeight - boxHeight) / 2;
+		}
+		y = Math.max(4, y);
+		boolean background = HandicapConfig.hudBackground();
 
 		graphics.pose().pushMatrix();
 		graphics.pose().scale(SCALE, SCALE);
-		graphics.fill(x, y, x + boxWidth, y + boxHeight, BACKGROUND);
-		graphics.outline(x, y, boxWidth, boxHeight, BORDER);
-		graphics.fill(x, y, x + 2, y + boxHeight, ACCENT);
-		int textX = x + PADDING + 2;
-		int textY = y + PADDING;
-		graphics.text(mc.font, title, textX, textY, TITLE, false);
-		textY += LINE_HEIGHT + 3;
+		if (background) {
+			InventoryPanel.roundedFill(graphics, x, y, boxWidth, boxHeight, RADIUS, InventoryPanel.HUD_BACKGROUND);
+		}
+		int textX = x + inset;
+		InventoryPanel.logo(graphics, textX, y + PADDING);
+		graphics.text(font, title, textX + InventoryPanel.LOGO_SIZE + InventoryPanel.LOGO_GAP, y + PADDING + 1, InventoryPanel.TITLE, !background);
+		int cardY = y + PADDING + LINE_HEIGHT + 2;
+		if (background) {
+			InventoryPanel.roundedFill(graphics, x + PADDING, cardY, boxWidth - PADDING * 2, cardH, RADIUS, InventoryPanel.CARD);
+		}
+		int textY = cardY + CARD_PAD;
 		for (Handicap d : owned) {
-			int color = InventoryPanel.color(d);
-			graphics.fill(textX, textY + 3, textX + 2, textY + 5, color);
-			graphics.text(font, d.displayName, textX + 6, textY, color, false);
+			InventoryPanel.entry(graphics, font, Component.literal(d.displayName), textX, textY, InventoryPanel.color(d), !background);
 			textY += LINE_HEIGHT;
 		}
 		if (more > 0) {
-			graphics.text(font, "+" + more + " more", textX, textY, MUTED, false);
-			textY += LINE_HEIGHT;
+			graphics.text(font, "+" + more + " more", textX, textY, InventoryPanel.MUTED, !background);
 		}
 		if (timerOn) {
-			graphics.horizontalLine(x + PADDING, x + boxWidth - PADDING, textY + 1, BORDER);
-			graphics.text(font, timer, textX, textY + 4, MUTED, false);
+			graphics.text(font, timer, textX, cardY + cardH + 4, InventoryPanel.MUTED, !background);
 		}
 		graphics.pose().popMatrix();
 	}
