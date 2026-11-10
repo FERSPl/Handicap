@@ -52,6 +52,7 @@ public final class ClientEffects {
 	private static final Identifier TUNNEL_EFFECT = HandicapMod.id("tunnel");
 	private static final Identifier AGNOSIA_EFFECT = HandicapMod.id("agnosia");
 	private static final Identifier MIGRAINE_EFFECT = HandicapMod.id("migraine");
+	private static final Identifier DEREALIZATION_EFFECT = HandicapMod.id("derealization");
 	private static final Identifier DRUNK_ID = HandicapMod.id("drunk_client");
 	private static final Identifier BLIND_EFFECT = HandicapMod.id("blind");
 	private static final Identifier GLOW_1_EFFECT = HandicapMod.id("glow1");
@@ -112,7 +113,7 @@ public final class ClientEffects {
 				tried = true;
 			}
 			if (tried) {
-				p.sendOverlayMessage(Component.literal("You can't let go of this item!"));
+				overlay(p, Component.literal("You can't let go of this item!"));
 			}
 		}
 
@@ -134,7 +135,7 @@ public final class ClientEffects {
 			} else {
 				migraineTicks = 400;
 				migraineCooldown = 800 + rnd.nextInt(800);
-				p.sendOverlayMessage(Component.literal("A migraine is starting..."));
+				overlay(p, Component.literal("A migraine is starting..."));
 			}
 		} else {
 			migraineTicks = 0;
@@ -143,6 +144,8 @@ public final class ClientEffects {
 		Identifier desired = null;
 		if (flashTicks > 0) {
 			desired = glowEffect(flashTicks);
+		} else if (ClientState.has(Handicap.DEREALIZATION)) {
+			desired = DEREALIZATION_EFFECT;
 		} else if (ClientState.has(Handicap.INVERTED_VISION)) {
 			desired = FLIP_EFFECT;
 		} else if (ClientState.has(Handicap.TUNNEL_VISION)) {
@@ -231,7 +234,7 @@ public final class ClientEffects {
 				}
 			} else if (rnd.nextInt(1800) == 0) {
 				sleepwalkTicks = 60;
-				p.sendOverlayMessage(Component.literal("You are sleepwalking..."));
+				overlay(p, Component.literal("You are sleepwalking..."));
 			}
 		} else {
 			sleepwalkTicks = 0;
@@ -309,7 +312,7 @@ public final class ClientEffects {
 				p.setXRot(Mth.clamp(p.getXRot() + Mth.sin(wobbleTick * 0.2f) * 1.5f, -90.0f, 90.0f));
 			} else if (rnd.nextInt(400) == 0) {
 				vertigoTicks = 140;
-				p.sendOverlayMessage(Component.literal("Everything is spinning around you..."));
+				overlay(p, Component.literal("Everything is spinning around you..."));
 			}
 		} else {
 			vertigoTicks = 0;
@@ -353,6 +356,12 @@ public final class ClientEffects {
 		if (altered != textAltered) {
 			textAltered = altered;
 			mc.getLanguageManager().onResourceManagerReload(mc.getResourceManager());
+		}
+	}
+
+	private static void overlay(LocalPlayer p, Component message) {
+		if ((ClientState.flags & 16) == 0) {
+			p.sendOverlayMessage(message);
 		}
 	}
 

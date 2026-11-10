@@ -56,7 +56,7 @@ public enum Handicap {
 	MYOPIA("myopia", "Myopia", "Your vision is blurry"),
 	HYPEROPIA("hyperopia", "Hyperopia", "The bottom third of your screen is blurry"),
 	TUNNEL_VISION("tunnel_vision", "Tunnel Vision", "Your field of view is permanently narrowed"),
-	PHANTOM_LIGHT("phantom_light", "Phantom Light", "Soft glows of light appear from time to time"),
+	PHANTOM_LIGHT("phantom_light", "Phantom Light", "Blinding flashes of light appear from time to time"),
 	SPATIAL_DISORIENTATION("spatial_disorientation", "Spatial Disorientation", "Left and right are swapped"),
 	ARMOR_INTOLERANCE("armor_intolerance", "Armor Intolerance", "You can't wear armor"),
 	DRUNK("drunk", "Drunk", "The ground is slippery and your movement feels unsteady"),
@@ -65,7 +65,8 @@ public enum Handicap {
 	VISUAL_AGNOSIA("visual_agnosia", "Visual Agnosia", "Colors blend together"),
 	MIGRAINE("migraine", "Migraine", "Migraine episodes blur and brighten the edges of your screen"),
 	BROKEN_ARM("broken_arm", "Broken Arm", "Breaking blocks takes much longer"),
-	PROSOPAGNOSIA("prosopagnosia", "Prosopagnosia", "You can't recognize faces: players, villagers and monsters all look alike");
+	PROSOPAGNOSIA("prosopagnosia", "Prosopagnosia", "You can't recognize faces: players, villagers and monsters all look alike"),
+	DEREALIZATION("derealization", "Derealization", "The world turns into an unrecognizable mess");
 
 	public final String id;
 	public final String displayName;
@@ -77,8 +78,18 @@ public enum Handicap {
 		this.description = description;
 	}
 
+	static {
+		if (values().length > 128) {
+			throw new IllegalStateException("Handicap only supports 128 handicaps, found " + values().length);
+		}
+	}
+
 	public long bit() {
-		return 1L << ordinal();
+		return 1L << (ordinal() & 63);
+	}
+
+	public boolean high() {
+		return ordinal() >= 64;
 	}
 
 	public static Handicap byId(String id) {

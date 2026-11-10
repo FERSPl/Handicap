@@ -134,6 +134,10 @@ public final class HandicapCommands {
 				ctx.getSource().sendFailure(Component.literal("Unknown handicap: " + value));
 				return 0;
 			}
+			if (give && HandicapManager.state().isDisabled(single)) {
+				ctx.getSource().sendFailure(Component.literal(single.displayName + " is disabled in this world."));
+				return 0;
+			}
 		}
 
 		int changed = 0;

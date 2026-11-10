@@ -2,6 +2,7 @@ package com.handicap.client;
 
 import com.handicap.HandicapConfig;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.StringWidget;
 import net.minecraft.client.gui.screens.Screen;
@@ -22,18 +23,15 @@ public class HandicapConfigScreen extends Screen {
 			HandicapConfig.setPermissionLevel(HandicapConfig.permissionLevel() == 0 ? 2 : 0);
 			button.setMessage(levelLabel());
 		}).bounds(centerX - 100, this.height / 2 - 48, 200, 20).build());
-		addRenderableWidget(Button.builder(descriptionsLabel(), button -> {
-			HandicapConfig.setShowDescriptions(!HandicapConfig.showDescriptions());
-			button.setMessage(descriptionsLabel());
-		}).bounds(centerX - 100, this.height / 2 - 24, 200, 20).build());
+		addRenderableWidget(new StringWidget(centerX - 160, this.height / 2 - 18, 320, 10,
+			Component.literal("Every other setting is in game: open your inventory and click the gear.").withStyle(ChatFormatting.GRAY), this.font));
 		addRenderableWidget(Button.builder(Component.literal("Done"), button -> onClose())
 			.bounds(centerX - 100, this.height / 2 + 4, 200, 20).build());
 
 		String[] notes = {
 			"Player: everyone can use /handicap. Op: operators only.",
 			"With 'allow cheats' off and permission = Player, you can only",
-			"target yourself (by name, no @a / @s), and still manage the timer.",
-			"Descriptions: show what a handicap does when hovering it in the inventory."
+			"target yourself (by name, no @a / @s), and still manage the timer."
 		};
 		for (int i = 0; i < notes.length; i++) {
 			addRenderableWidget(new StringWidget(centerX - 160, this.height / 2 + 36 + i * 12, 320, 10,
@@ -51,9 +49,5 @@ public class HandicapConfigScreen extends Screen {
 		int level = HandicapConfig.permissionLevel();
 		String name = level == 0 ? "Player" : level == 2 ? "Operator" : "Other level: " + level;
 		return Component.literal("Command permission: " + name);
-	}
-
-	private static Component descriptionsLabel() {
-		return Component.literal("Descriptions: " + (HandicapConfig.showDescriptions() ? "On" : "Off"));
 	}
 }

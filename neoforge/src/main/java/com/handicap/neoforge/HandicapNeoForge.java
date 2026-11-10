@@ -1,15 +1,19 @@
 package com.handicap.neoforge;
 
 import com.handicap.HandicapCommands;
+import com.handicap.HandicapContent;
 import com.handicap.HandicapManager;
 import com.handicap.HandicapMod;
 import com.handicap.LimbsPayload;
+import com.handicap.SettingsPayload;
 import com.handicap.SyncPayload;
+import com.handicap.WheelchairEntity;
 import com.handicap.client.ClientLimbs;
 import com.handicap.client.ClientState;
 
 import java.nio.file.Path;
 
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 
@@ -17,6 +21,9 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
+import net.neoforged.neoforge.registries.RegisterEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.ServerChatEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -47,6 +54,9 @@ public class HandicapNeoForge {
 			}
 		});
 
+		modBus.addListener(this::registerContent);
+		modBus.addListener(this::registerAttributes);
+		modBus.addListener(this::addToCreativeTab);
 		modBus.addListener(this::registerPayloads);
 
 		NeoForge.EVENT_BUS.addListener(this::onServerStarted);
@@ -58,15 +68,34 @@ public class HandicapNeoForge {
 		NeoForge.EVENT_BUS.addListener(this::onRegisterCommands);
 	}
 
+	private void registerContent(RegisterEvent event) {
+		event.register(Registries.ENTITY_TYPE, helper ->
+			helper.register(HandicapContent.WHEELCHAIR_ENTITY_KEY, HandicapContent.createEntity()));
+		event.register(Registries.ITEM, helper ->
+			helper.register(HandicapContent.WHEELCHAIR_ITEM_KEY, HandicapContent.createItem()));
+	}
+
+	private void registerAttributes(EntityAttributeCreationEvent event) {
+		event.put(HandicapContent.wheelchair(), WheelchairEntity.createAttributes().build());
+	}
+
+	private void addToCreativeTab(BuildCreativeModeTabContentsEvent event) {
+		if (event.getTabKey() == HandicapContent.TOOLS_TAB) {
+			event.accept(HandicapContent.wheelchairItem());
+		}
+	}
+
 	private void registerPayloads(RegisterPayloadHandlersEvent event) {
 		// Optional: the mod also works when the other side does not have it.
-		var registrar = event.registrar("2").optional();
+		var registrar = event.registrar("3").optional();
 		registrar.playToClient(SyncPayload.TYPE, SyncPayload.CODEC, (payload, context) -> {
-			ClientState.mask = payload.mask();
-			ClientState.flags = payload.flags();
-			ClientState.timer = payload.timer();
-			ClientState.maxHandicaps = payload.maxHandicaps();
+			ClientState.apply(payload);
 		});
+		registrar.playToServer(SettingsPayload.TYPE, SettingsPayload.CODEC, (payload, context) -> context.enqueueWork(() -> {
+			if (context.player() instanceof ServerPlayer player) {
+				HandicapManager.applySetting(player, payload.key(), payload.value());
+			}
+		}));
 		registrar.playToClient(LimbsPayload.TYPE, LimbsPayload.CODEC, (payload, context) ->
 			ClientLimbs.set(payload.player(), payload.limbs()));
 	}
