@@ -13,6 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.effect.MobEffectInstance;
 
 public final class HandicapHud {
 	private static final int SDL_SCANCODE_GRAVE = 53;
@@ -23,7 +24,7 @@ public final class HandicapHud {
 	private static final int MAX_LINES = 12;
 	private static final float SCALE = 0.75f;
 	private static final int LINE_HEIGHT = 10;
-	private static final int EFFECTS_HEIGHT = 54;
+	private static final int EFFECT_ROW = 26;
 
 	private static KeyMapping toggleKey;
 
@@ -91,7 +92,7 @@ public final class HandicapHud {
 		int y;
 		if (position.startsWith("top")) {
 			// Stay clear of the vanilla effect icons in the top right corner.
-			y = right && !mc.player.getActiveEffects().isEmpty() ? (int) (EFFECTS_HEIGHT / SCALE) : 4;
+			y = right ? (int) (effectIconsHeight(mc) / SCALE) + 4 : 4;
 		} else if (position.startsWith("bottom")) {
 			y = screenHeight - boxHeight - 4;
 		} else {
@@ -124,6 +125,23 @@ public final class HandicapHud {
 			graphics.text(font, timer, textX, cardY + cardH + 4, InventoryPanel.MUTED, !background);
 		}
 		graphics.pose().popMatrix();
+	}
+
+	// Height of the vanilla effect icons in the top right corner; effects with a hidden icon take no room.
+	private static int effectIconsHeight(Minecraft mc) {
+		boolean beneficial = false;
+		boolean harmful = false;
+		for (MobEffectInstance effect : mc.player.getActiveEffects()) {
+			if (!effect.showIcon()) {
+				continue;
+			}
+			if (effect.getEffect().value().isBeneficial()) {
+				beneficial = true;
+			} else {
+				harmful = true;
+			}
+		}
+		return harmful ? EFFECT_ROW * 2 : beneficial ? EFFECT_ROW : 0;
 	}
 
 	public static void tick() {
