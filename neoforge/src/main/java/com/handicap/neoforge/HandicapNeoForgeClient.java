@@ -4,7 +4,7 @@ import com.handicap.HandicapContent;
 import com.handicap.HandicapMod;
 import com.handicap.client.ClientState;
 import com.handicap.client.ClientEffects;
-import com.handicap.client.HandicapConfigScreen;
+import com.handicap.client.HandicapSettingsScreen;
 import com.handicap.client.HandicapHud;
 import com.handicap.client.WheelchairModel;
 import com.handicap.client.WheelchairRenderer;
@@ -37,7 +37,7 @@ public class HandicapNeoForgeClient {
 		modBus.addListener(this::registerModelLayers);
 		modBus.addListener(this::registerRenderers);
 
-		container.registerExtensionPoint(IConfigScreenFactory.class, (modContainer, parent) -> new HandicapConfigScreen(parent));
+		container.registerExtensionPoint(IConfigScreenFactory.class, (modContainer, parent) -> new HandicapSettingsScreen(parent));
 
 		NeoForge.EVENT_BUS.addListener(this::onClientTickPre);
 		NeoForge.EVENT_BUS.addListener(this::onClientTickPost);

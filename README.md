@@ -43,7 +43,7 @@ You can also choose which handicaps to apply using commands, customize the timer
 - 📚 **Stacking control** — choose whether handicaps accumulate or replace one another.
 - 💾 **Persistent data** — handicaps are saved per world: if you leave and rejoin, you keep them.
 - 🎒 **Inventory panel** — your handicaps next to your inventory: hover one to see what it does, see the time left before the next one and if stacking is on, and get the next handicap with a button.
-- 📊 **On-screen handicap list** — shows your handicaps and the timer, toggle it with the backtick (`) key, configurable in Controls.
+- 📊 **On-screen handicap list** — shows your handicaps and the timer, show or hide it in the settings. The backtick (`) key opens the settings, configurable in Controls.
 - 🌐 **Multiplayer support** — install the mod on both client and server for the full experience.
 
 ##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/commands.png" alt="Commands">
@@ -142,15 +142,22 @@ The timer and the duration are measured in minutes. For example, `0.5` means eve
 | 63 | Prosopagnosia | `prosopagnosia` | You can't recognize faces, mixing up all the players and mobs. |
 | 64 | Derealization | `derealization` | The world turns into an unrecognizable mess. |
 
-⚠️ Only one screen filter is displayed at a time, with Blind taking priority over Phantom Light, Inverted Vision, Tunnel Vision, Migraine, Color Blind, Visual Agnosia, Myopia, and Hyperopia. (26.1 & 26.2)
+⚠️ Only one screen filter is displayed at a time, with Blind taking priority over Phantom Light, Inverted Vision, Tunnel Vision, Migraine, Color Blind, Visual Agnosia, Myopia, and Hyperopia. [26.1 & 26.2]
 
 ##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/configuration.png" alt="Configuration">
 
-Handicap has a small config screen:
- 
+All the settings are in one menu. Open it from the gear on the Handicap panel in your inventory, or from the mod list:
+
 - **Fabric and Quilt**: install [Mod Menu](https://modrinth.com/mod/modmenu), then select Handicap and click *Configure*.
 - **NeoForge**: open the *Mods* screen, select Handicap and click *Config*.
-The settings are saved in `config/handicap.json`, which you can also edit by hand (restart the game or server afterwards):
+
+The menu has three sections:
+
+- **Display**: how the handicap list looks on your screen. Only for you.
+- **Game rules**: synchronization, stacking, timer, max, duration and disabled handicaps, saved in the world. Only players who can use `/handicap` can change them, and you need to be in a world.
+- **Server config**: the command permission and the descriptions, saved in `config/handicap.json`. Only the host of a singleplayer world or an operator can change them. On a server, the menu shows the server's settings.
+
+You can also edit `config/handicap.json` by hand (restart the game or server afterwards):
  
 | Option | Values | Description |
 |---|---|---|
