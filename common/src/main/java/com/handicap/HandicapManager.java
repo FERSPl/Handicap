@@ -37,6 +37,8 @@ import net.minecraft.world.item.Items;
 public final class HandicapManager {
 	private static HandicapState state;
 	private static MinecraftServer server;
+	private static boolean syncing;
+	private static int syncedTick = -1;
 	private static final Map<UUID, Runtime> RUNTIME = new HashMap<>();
 	private static final EquipmentSlot[] ARMOR_SLOTS = {
 		EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET
@@ -82,6 +84,8 @@ public final class HandicapManager {
 		boolean lastSneak;
 
 		int lastLimbs = -1;
+		int wheelchairHint;
+		int announceHold;
 	}
 
 	private HandicapManager() {
@@ -116,6 +120,78 @@ public final class HandicapManager {
 		for (Runtime other : RUNTIME.values()) {
 			other.lastLimbs = -1;
 		}
+		if (state != null && server != null && state.sync()) {
+			for (ServerPlayer other : server.getPlayerList().getPlayers()) {
+				if (other != player) {
+					match(player, other);
+					break;
+				}
+			}
+		}
+	}
+
+	private static void match(ServerPlayer target, ServerPlayer source) {
+		boolean was = syncing;
+		syncing = true;
+		Set<Handicap> wanted = state.get(source.getUUID());
+		for (Handicap d : state.get(target.getUUID())) {
+			if (!wanted.contains(d)) {
+				remove(target, d, false);
+			}
+		}
+		for (Handicap d : wanted) {
+			give(target, d, false);
+		}
+		syncing = was;
+	}
+
+	public static void applySetting(ServerPlayer p, String key, int value) {
+		if (state == null || server == null || !HandicapConfig.allows(p.createCommandSourceStack())) {
+			return;
+		}
+		List<ServerPlayer> players = new ArrayList<>(server.getPlayerList().getPlayers());
+		switch (key) {
+			case "stacking" -> state.setStacking(value == 1);
+			case "descriptions" -> {
+				HandicapConfig.setShowDescriptions(value == 1);
+				HandicapConfig.save();
+			}
+			case "timer" -> {
+				if (value <= 0) {
+					state.setTimerEnabled(false);
+				} else {
+					state.setTimerSeconds(Math.max(5, value));
+				}
+			}
+			case "max" -> state.setMaxHandicaps(Math.max(0, value));
+			case "duration" -> state.setDurationSeconds(value <= 0 ? 0 : Math.max(5, value));
+			case "sync" -> {
+				state.setSync(value == 1);
+				if (value == 1) {
+					for (ServerPlayer other : players) {
+						if (other != p) {
+							match(other, p);
+						}
+					}
+				}
+			}
+			default -> {
+				Handicap d = key.startsWith("disable:") ? Handicap.byId(key.substring(8)) : null;
+				if (d == null) {
+					return;
+				}
+				if (value == 1) {
+					for (ServerPlayer other : players) {
+						remove(other, d, true);
+					}
+				}
+				state.setDisabled(d, value == 1);
+			}
+		}
+		state.save();
+		for (ServerPlayer other : players) {
+			refresh(other);
+		}
 	}
 
 	/** Returns false if the chat message must be blocked (Mute). */
@@ -128,6 +204,9 @@ public final class HandicapManager {
 	}
 
 	public static boolean give(ServerPlayer p, Handicap d, boolean announce) {
+		if (state.isDisabled(d)) {
+			return false;
+		}
 		if (announce && !state.stacking()) {
 			for (Handicap other : state.get(p.getUUID())) {
 				if (other != d) {
@@ -147,7 +226,20 @@ public final class HandicapManager {
 		if (announce && !state.has(p.getUUID(), Handicap.ANOSOGNOSIA)) {
 			announceNew(p, d);
 		}
+		if ((d == Handicap.PARAPLEGIA || d == Handicap.AMPUTATED_LEG)
+			&& state.has(p.getUUID(), Handicap.PARAPLEGIA) && state.has(p.getUUID(), Handicap.AMPUTATED_LEG)) {
+			RUNTIME.computeIfAbsent(p.getUUID(), k -> new Runtime()).wheelchairHint = 8;
+		}
 		refresh(p);
+		if (state.sync() && !syncing && server != null) {
+			syncing = true;
+			for (ServerPlayer other : new ArrayList<>(server.getPlayerList().getPlayers())) {
+				if (other != p) {
+					give(other, d, announce);
+				}
+			}
+			syncing = false;
+		}
 		return true;
 	}
 
@@ -181,7 +273,7 @@ public final class HandicapManager {
 	}
 
 	private static void announceNew(ServerPlayer p, Handicap d) {
-		p.sendOverlayMessage(Component.literal(d.displayName).withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+		announce(p, Component.literal(d.displayName).withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
 	}
 
 	public static boolean remove(ServerPlayer p, Handicap d, boolean announce) {
@@ -189,20 +281,35 @@ public final class HandicapManager {
 			return false;
 		}
 		if (announce && !state.has(p.getUUID(), Handicap.ANOSOGNOSIA)) {
-			p.sendOverlayMessage(Component.literal("Handicap removed: " + d.displayName).withStyle(ChatFormatting.GREEN));
+			announce(p, Component.literal("Handicap removed: " + d.displayName).withStyle(ChatFormatting.GREEN));
 		}
 		refresh(p);
+		if (state.sync() && !syncing && server != null) {
+			syncing = true;
+			for (ServerPlayer other : new ArrayList<>(server.getPlayerList().getPlayers())) {
+				if (other != p) {
+					remove(other, d, announce);
+				}
+			}
+			syncing = false;
+		}
 		return true;
 	}
 
 	public static Handicap giveRandom(ServerPlayer p) {
+		if (state.sync() && server != null) {
+			if (server.getTickCount() == syncedTick) {
+				return null;
+			}
+			syncedTick = server.getTickCount();
+		}
 		int limit = state.stacking() ? state.maxHandicaps() : 1;
 		if (limit > 0) {
 			trim(p, limit - 1, null);
 		}
 		List<Handicap> available = new ArrayList<>();
 		for (Handicap d : Handicap.values()) {
-			if (!state.has(p.getUUID(), d)) {
+			if (!state.has(p.getUUID(), d) && !state.isDisabled(d)) {
 				available.add(d);
 			}
 		}
@@ -291,7 +398,7 @@ public final class HandicapManager {
 				if (stage < 9) {
 					stage++;
 					state.setCancerStage(id, stage);
-					p.sendOverlayMessage(Component.literal("Your health is getting worse..."));
+					overlay(p, Component.literal("Your health is getting worse..."));
 				}
 			}
 		} else {
@@ -316,7 +423,7 @@ public final class HandicapManager {
 				rt.sprintSeconds = 0;
 				rt.windedSeconds = 8;
 				p.setSprinting(false);
-				p.sendOverlayMessage(Component.literal("You're out of breath!"));
+				overlay(p, Component.literal("You're out of breath!"));
 			}
 		} else {
 			rt.sprintSeconds = Math.max(0, rt.sprintSeconds - 2);
@@ -331,7 +438,7 @@ public final class HandicapManager {
 		} else if (rnd.nextInt(45) == 0) {
 			rt.narcoSeconds = 8;
 			p.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 180, 0, false, false, false));
-			p.sendOverlayMessage(Component.literal("You fall asleep... Zzz..."));
+			overlay(p, Component.literal("You fall asleep... Zzz..."));
 		}
 		if (set.contains(Handicap.BLIND)) {
 			p.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 260, 0, false, false, false));
@@ -347,7 +454,7 @@ public final class HandicapManager {
 
 		if (set.contains(Handicap.INSOMNIA) && p.isSleeping()) {
 			p.stopSleepInBed(true, true);
-			p.sendOverlayMessage(Component.literal("You can't fall asleep."));
+			overlay(p, Component.literal("You can't fall asleep."));
 		}
 
 		if (set.contains(Handicap.AMPUTATED_OFFHAND)) {
@@ -371,7 +478,7 @@ public final class HandicapManager {
 					if (!p.getInventory().add(copy)) {
 						dropItem(p, copy);
 					}
-					p.sendOverlayMessage(Component.literal("You can't stand wearing armor!"));
+					overlay(p, Component.literal("You can't stand wearing armor!"));
 				}
 			}
 		} else if (!state.armorMemory(id).isEmpty()) {
@@ -396,7 +503,7 @@ public final class HandicapManager {
 			for (BlockPos pos : BlockPos.betweenClosed(base.offset(-2, -1, -2), base.offset(2, 2, 2))) {
 				if (p.level().getBlockState(pos).is(BlockTags.FLOWERS)) {
 					p.addEffect(new MobEffectInstance(MobEffects.POISON, 100, 0));
-					p.sendOverlayMessage(Component.literal("Achoo! The pollen is poisoning you."));
+					overlay(p, Component.literal("Achoo! The pollen is poisoning you."));
 					break;
 				}
 			}
@@ -406,6 +513,13 @@ public final class HandicapManager {
 			String word = TOURETTE_WORDS[rnd.nextInt(TOURETTE_WORDS.length)];
 			Component msg = Component.translatable("chat.type.text", p.getDisplayName(), Component.literal(word));
 			server.getPlayerList().broadcastSystemMessage(msg, false);
+		}
+
+		if (rt.announceHold > 0) {
+			rt.announceHold--;
+		}
+		if (rt.wheelchairHint > 0 && rt.wheelchairHint-- <= 6) {
+			overlay(p, Component.literal("You need a wheelchair").withStyle(ChatFormatting.YELLOW));
 		}
 
 		tickPlayerExtra(p, set, rt);
@@ -448,38 +562,48 @@ public final class HandicapManager {
 				if (rnd.nextBoolean() && !set.contains(Handicap.PARAPLEGIA)) {
 					rt.ocdType = 1;
 					rt.ocdRemaining = 5;
-					p.sendSystemMessage(Component.literal("Compulsion: you must jump 5 times!").withStyle(ChatFormatting.LIGHT_PURPLE));
 				} else {
 					rt.ocdType = 2;
 					rt.ocdRemaining = 6;
-					p.sendSystemMessage(Component.literal("Compulsion: you must sneak 6 times!").withStyle(ChatFormatting.LIGHT_PURPLE));
 				}
 				rt.ocdDeadline = 45;
 			}
 		} else {
 			rt.ocdDeadline--;
-			if (rt.ocdDeadline == 15 || rt.ocdDeadline == 5) {
-				p.sendSystemMessage(Component.literal("Warning: obey your compulsion! " + rt.ocdRemaining + " left, "
-					+ rt.ocdDeadline + " seconds before you get hurt.").withStyle(ChatFormatting.GOLD));
-			}
-			if (rt.ocdDeadline <= 0 && !rt.ocdPunishing) {
-				p.sendSystemMessage(Component.literal("You disobeyed your compulsion: losing half a heart every second until you obey.").withStyle(ChatFormatting.RED));
+			if (rt.ocdDeadline <= 0) {
 				rt.ocdPunishing = true;
 			}
 		}
+		if (rt.ocdType != 0) {
+			ocdMessage(p, rt);
+		}
 		if (rt.ocdPunishing && rt.ocdType != 0) {
-			p.hurtServer((net.minecraft.server.level.ServerLevel) p.level(), p.damageSources().generic(), 1.0f);
+			p.hurtServer((net.minecraft.server.level.ServerLevel) p.level(), p.damageSources().generic(), 4.0f);
 		}
 
 		long mask = 0L;
+		long mask2 = 0L;
 		for (Handicap d : set) {
-			mask |= d.bit();
+			if (d.high()) {
+				mask2 |= d.bit();
+			} else {
+				mask |= d.bit();
+			}
 		}
-		int flags = (seizing ? 1 : 0) | (rt.narcoSeconds > 0 ? 2 : 0) | (HandicapConfig.showDescriptions() ? 4 : 0)
+		long off = 0L;
+		long off2 = 0L;
+		for (Handicap d : state.disabled()) {
+			if (d.high()) {
+				off2 |= d.bit();
+			} else {
+				off |= d.bit();
+			}
+		}
+		int flags = (state.sync() ? 32 : 0) | (rt.ocdType != 0 ? 16 : 0) | (seizing ? 1 : 0) | (rt.narcoSeconds > 0 ? 2 : 0) | (HandicapConfig.showDescriptions() ? 4 : 0)
 			| (state.stacking() ? 8 : 0);
 		int timer = state.timerEnabled() ? state.ticksRemaining() : -1;
 		if (HandicapMod.platform().canSend(p)) {
-			HandicapMod.platform().send(p, new SyncPayload(mask, flags, timer, state.maxHandicaps()));
+			HandicapMod.platform().send(p, new SyncPayload(mask, mask2, flags, timer, state.timerSeconds(), state.maxHandicaps(), state.durationSeconds(), off, off2));
 		}
 
 		int limbs = limbsFor(p, set);
@@ -535,7 +659,7 @@ public final class HandicapManager {
 					rt.apneaWake = false;
 					p.stopSleepInBed(true, true);
 					rt.apneaSlow = 30;
-					p.sendOverlayMessage(Component.literal("You wake up gasping for air..."));
+					overlay(p, Component.literal("You wake up gasping for air..."));
 				}
 			} else {
 				rt.sleepSeconds = 0;
@@ -557,7 +681,7 @@ public final class HandicapManager {
 			rt.hypoSeconds--;
 		} else if (rnd.nextInt(60) == 0) {
 			rt.hypoSeconds = 8;
-			p.sendOverlayMessage(Component.literal("Your blood pressure drops... you feel weak."));
+			overlay(p, Component.literal("Your blood pressure drops... you feel weak."));
 		}
 		setModifier(p, Attributes.MOVEMENT_SPEED, "hypotension_slow", -0.45, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
 			rt.hypoSeconds > 0);
@@ -582,7 +706,7 @@ public final class HandicapManager {
 			} else if (rt.idleSeconds >= 20) {
 				rt.numbSeconds = 10;
 				rt.idleSeconds = 0;
-				p.sendOverlayMessage(Component.literal("Your legs are numb..."));
+				overlay(p, Component.literal("Your legs are numb..."));
 			}
 		}
 		setModifier(p, Attributes.MOVEMENT_SPEED, "poor_circulation", -0.45, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
@@ -598,7 +722,7 @@ public final class HandicapManager {
 				ItemStack copy = held.copy();
 				p.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
 				dropItem(p, copy);
-				p.sendOverlayMessage(Component.literal("Oops! It slipped out of your hand."));
+				overlay(p, Component.literal("Oops! It slipped out of your hand."));
 				rt.clumsyCooldown = 60;
 			}
 		}
@@ -612,7 +736,7 @@ public final class HandicapManager {
 			List<Monster> near = p.level().getEntitiesOfClass(Monster.class, p.getBoundingBox().inflate(8.0));
 			if (!near.isEmpty()) {
 				if (rt.phobiaSeconds == 0) {
-					p.sendOverlayMessage(Component.literal("A monster is nearby... you freeze!"));
+					overlay(p, Component.literal("A monster is nearby... you freeze!"));
 				}
 				rt.phobiaSeconds = 3;
 			}
@@ -630,7 +754,7 @@ public final class HandicapManager {
 			}
 			if (isEnclosed(p)) {
 				if (rt.claustroSeconds == 0) {
-					p.sendOverlayMessage(Component.literal("The walls close in on you..."));
+					overlay(p, Component.literal("The walls close in on you..."));
 				}
 				rt.claustroSeconds = 2;
 			}
@@ -668,7 +792,7 @@ public final class HandicapManager {
 			ItemStack stack = e.getItem().copy();
 			if (p.getInventory().add(stack)) {
 				e.discard();
-				p.sendOverlayMessage(Component.literal("You can't let go of this item!"));
+				overlay(p, Component.literal("You can't let go of this item!"));
 			}
 		}
 	}
@@ -691,7 +815,7 @@ public final class HandicapManager {
 			}
 		}
 		state.clearArmorMemory(id);
-		p.sendOverlayMessage(Component.literal("Your armor is back on."));
+		overlay(p, Component.literal("Your armor is back on."));
 	}
 
 	private static boolean isEnclosed(ServerPlayer p) {
@@ -705,9 +829,31 @@ public final class HandicapManager {
 		return solid >= 52;
 	}
 
+	private static void announce(ServerPlayer p, Component message) {
+		RUNTIME.computeIfAbsent(p.getUUID(), k -> new Runtime()).announceHold = 3;
+		p.sendOverlayMessage(message);
+	}
+
+	private static void overlay(ServerPlayer p, Component message) {
+		Runtime rt = RUNTIME.get(p.getUUID());
+		if (rt == null || (rt.ocdType == 0 && rt.announceHold == 0)) {
+			p.sendOverlayMessage(message);
+		}
+	}
+
+	private static void ocdMessage(ServerPlayer p, Runtime rt) {
+		if (rt.ocdRemaining <= 0 || rt.announceHold > 0) {
+			return;
+		}
+		String task = (rt.ocdType == 1 ? "Jump " : "Sneak ") + rt.ocdRemaining + " more time" + (rt.ocdRemaining > 1 ? "s" : "");
+		p.sendOverlayMessage(rt.ocdPunishing
+			? Component.literal("Obey your compulsion! · " + task).withStyle(ChatFormatting.RED)
+			: Component.literal(task + " · " + Math.max(0, rt.ocdDeadline) + "s").withStyle(ChatFormatting.LIGHT_PURPLE));
+	}
+
 	private static void startSeizure(ServerPlayer p, Runtime rt) {
 		rt.seizureSeconds = 6;
-		p.sendOverlayMessage(Component.literal("Seizure!"));
+		overlay(p, Component.literal("Seizure!"));
 	}
 
 	private static void tickFast(ServerPlayer p) {
@@ -756,14 +902,16 @@ public final class HandicapManager {
 		if (state.has(id, Handicap.OCD) && rt.ocdType != 0) {
 			if (rt.ocdType == 1 && rt.lastOnGround && !onGround && p.getDeltaMovement().y > 0.2) {
 				rt.ocdRemaining--;
+				ocdMessage(p, rt);
 			} else if (rt.ocdType == 2 && sneaking && !rt.lastSneak) {
 				rt.ocdRemaining--;
+				ocdMessage(p, rt);
 			}
 			if (rt.ocdRemaining <= 0) {
 				rt.ocdType = 0;
 				rt.ocdPunishing = false;
 				rt.ocdCooldown = 60 + p.getRandom().nextInt(120);
-				p.sendSystemMessage(Component.literal("Compulsion fulfilled.").withStyle(ChatFormatting.GREEN));
+				p.sendOverlayMessage(Component.literal("Compulsion fulfilled").withStyle(ChatFormatting.GREEN));
 			}
 		}
 		rt.lastOnGround = onGround;
@@ -792,7 +940,7 @@ public final class HandicapManager {
 			int damage = sugarDamage(item);
 			if (damage > 0) {
 				p.setHealth(Math.max(1.0f, p.getHealth() - damage));
-				p.sendOverlayMessage(Component.literal("Too much sugar..."));
+				overlay(p, Component.literal("Too much sugar..."));
 			}
 		}
 	}

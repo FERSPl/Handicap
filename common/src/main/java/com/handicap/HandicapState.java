@@ -24,6 +24,8 @@ public final class HandicapState {
 	private static final class Data {
 		boolean timerEnabled = true;
 		boolean stacking = true;
+		boolean sync = false;
+		List<String> disabled = new ArrayList<>();
 		int timerSeconds = 600;
 		int ticksRemaining = 600 * 20;
 		Map<String, List<String>> players = new HashMap<>();
@@ -38,6 +40,8 @@ public final class HandicapState {
 	private final Path file;
 	private boolean timerEnabled = true;
 	private boolean stacking = true;
+	private boolean sync = false;
+	private final EnumSet<Handicap> disabled = EnumSet.noneOf(Handicap.class);
 	private int timerSeconds = 600;
 	private int ticksRemaining = 600 * 20;
 	private final Map<UUID, EnumSet<Handicap>> players = new HashMap<>();
@@ -61,6 +65,15 @@ public final class HandicapState {
 				if (data != null) {
 					state.timerEnabled = data.timerEnabled;
 					state.stacking = data.stacking;
+					state.sync = data.sync;
+					if (data.disabled != null) {
+						for (String id : data.disabled) {
+							Handicap d = Handicap.byId(id);
+							if (d != null) {
+								state.disabled.add(d);
+							}
+						}
+					}
 					state.timerSeconds = Math.max(5, data.timerSeconds);
 					state.ticksRemaining = Math.max(1, data.ticksRemaining);
 					if (data.players != null) {
@@ -118,6 +131,10 @@ public final class HandicapState {
 		Data data = new Data();
 		data.timerEnabled = timerEnabled;
 		data.stacking = stacking;
+		data.sync = sync;
+		for (Handicap d : disabled) {
+			data.disabled.add(d.id);
+		}
 		data.timerSeconds = timerSeconds;
 		data.ticksRemaining = ticksRemaining;
 		for (Map.Entry<UUID, EnumSet<Handicap>> e : players.entrySet()) {
@@ -261,6 +278,33 @@ public final class HandicapState {
 			cancerStage.remove(id);
 		} else {
 			cancerStage.put(id, stage);
+		}
+	}
+
+	public boolean sync() {
+		return sync;
+	}
+
+	public void setSync(boolean sync) {
+		this.sync = sync;
+	}
+
+	public boolean isDisabled(Handicap d) {
+		return disabled.contains(d);
+	}
+
+	public EnumSet<Handicap> disabled() {
+		return disabled.isEmpty() ? EnumSet.noneOf(Handicap.class) : EnumSet.copyOf(disabled);
+	}
+
+	public void setDisabled(Handicap d, boolean off) {
+		if (off) {
+			disabled.add(d);
+			for (UUID id : new ArrayList<>(players.keySet())) {
+				remove(id, d);
+			}
+		} else {
+			disabled.remove(d);
 		}
 	}
 

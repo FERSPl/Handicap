@@ -3,7 +3,8 @@ package com.handicap.client;
 import com.handicap.Handicap;
 import com.handicap.HandicapMod;
 
-import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.CameraType;
@@ -28,7 +29,7 @@ public final class ClientEffects {
 	private static int vertigoTicks = 0;
 	private static int wobbleTick = 0;
 	private static Boolean savedSubtitles = null;
-	private static Identifier currentEffect = null;
+	private static List<Identifier> currentEffects = List.of();
 	private static int effectTicks = 0;
 	private static CameraType lastCameraType = null;
 	private static int migraineTicks = 0;
@@ -41,8 +42,6 @@ public final class ClientEffects {
 	private static boolean magnetLastGround = true;
 	private static int stickyLock = 0;
 	private static int lastSlot = -1;
-	private static boolean postEffectWarned = false;
-	private static boolean postEffectDumped = false;
 	private static boolean textAltered = false;
 
 	private static final Identifier COLOR_BLIND_EFFECT = HandicapMod.id("colorblind");
@@ -52,6 +51,7 @@ public final class ClientEffects {
 	private static final Identifier TUNNEL_EFFECT = HandicapMod.id("tunnel");
 	private static final Identifier AGNOSIA_EFFECT = HandicapMod.id("agnosia");
 	private static final Identifier MIGRAINE_EFFECT = HandicapMod.id("migraine");
+	private static final Identifier DEREALIZATION_EFFECT = HandicapMod.id("derealization");
 	private static final Identifier DRUNK_ID = HandicapMod.id("drunk_client");
 	private static final Identifier BLIND_EFFECT = HandicapMod.id("blind");
 	private static final Identifier GLOW_1_EFFECT = HandicapMod.id("glow1");
@@ -73,7 +73,7 @@ public final class ClientEffects {
 			refreshText(mc, false);
 			restoreSound(mc);
 			vertigoTicks = 0;
-			currentEffect = null;
+			currentEffects = List.of();
 			effectTicks = 0;
 			lastCameraType = null;
 			flashTicks = 0;
@@ -112,7 +112,7 @@ public final class ClientEffects {
 				tried = true;
 			}
 			if (tried) {
-				p.sendOverlayMessage(Component.literal("You can't let go of this item!"));
+				overlay(p, Component.literal("You can't let go of this item!"));
 			}
 		}
 
@@ -134,39 +134,49 @@ public final class ClientEffects {
 			} else {
 				migraineTicks = 400;
 				migraineCooldown = 800 + rnd.nextInt(800);
-				p.sendOverlayMessage(Component.literal("A migraine is starting..."));
+				overlay(p, Component.literal("A migraine is starting..."));
 			}
 		} else {
 			migraineTicks = 0;
 		}
 
-		Identifier desired = null;
-		if (flashTicks > 0) {
-			desired = glowEffect(flashTicks);
-		} else if (ClientState.has(Handicap.INVERTED_VISION)) {
-			desired = FLIP_EFFECT;
-		} else if (ClientState.has(Handicap.TUNNEL_VISION)) {
-			desired = TUNNEL_EFFECT;
-		} else if (migraineTicks > 0) {
-			desired = MIGRAINE_EFFECT;
-		} else if (ClientState.has(Handicap.COLOR_BLIND)) {
-			desired = COLOR_BLIND_EFFECT;
-		} else if (ClientState.has(Handicap.VISUAL_AGNOSIA)) {
-			desired = AGNOSIA_EFFECT;
-		} else if (ClientState.has(Handicap.MYOPIA)) {
-			desired = MYOPIA_EFFECT;
-		} else if (ClientState.has(Handicap.HYPEROPIA)) {
-			desired = HYPEROPIA_EFFECT;
+		List<Identifier> desired = new ArrayList<>();
+		if (ClientState.has(Handicap.INVERTED_VISION)) {
+			desired.add(FLIP_EFFECT);
 		}
-		if (desired != null) {
+		if (ClientState.has(Handicap.DEREALIZATION)) {
+			desired.add(DEREALIZATION_EFFECT);
+		}
+		if (ClientState.has(Handicap.COLOR_BLIND)) {
+			desired.add(COLOR_BLIND_EFFECT);
+		}
+		if (ClientState.has(Handicap.VISUAL_AGNOSIA)) {
+			desired.add(AGNOSIA_EFFECT);
+		}
+		if (ClientState.has(Handicap.MYOPIA)) {
+			desired.add(MYOPIA_EFFECT);
+		}
+		if (ClientState.has(Handicap.HYPEROPIA)) {
+			desired.add(HYPEROPIA_EFFECT);
+		}
+		if (ClientState.has(Handicap.TUNNEL_VISION)) {
+			desired.add(TUNNEL_EFFECT);
+		}
+		if (migraineTicks > 0) {
+			desired.add(MIGRAINE_EFFECT);
+		}
+		if (flashTicks > 0) {
+			desired.add(glowEffect(flashTicks));
+		}
+		if (!desired.isEmpty()) {
 			effectTicks++;
-			if (!desired.equals(currentEffect) || cameraChanged || effectTicks % 100 == 0) {
-				setPostEffect(mc, desired);
-				currentEffect = desired;
+			if (!desired.equals(currentEffects) || cameraChanged || effectTicks % 100 == 0) {
+				p.setActivePostEffects(desired);
+				currentEffects = desired;
 			}
-		} else if (currentEffect != null) {
-			clearPostEffect(mc);
-			currentEffect = null;
+		} else if (!currentEffects.isEmpty()) {
+			p.setActivePostEffects(new ArrayList<>());
+			currentEffects = List.of();
 			effectTicks = 0;
 		}
 
@@ -231,7 +241,7 @@ public final class ClientEffects {
 				}
 			} else if (rnd.nextInt(1800) == 0) {
 				sleepwalkTicks = 60;
-				p.sendOverlayMessage(Component.literal("You are sleepwalking..."));
+				overlay(p, Component.literal("You are sleepwalking..."));
 			}
 		} else {
 			sleepwalkTicks = 0;
@@ -309,7 +319,7 @@ public final class ClientEffects {
 				p.setXRot(Mth.clamp(p.getXRot() + Mth.sin(wobbleTick * 0.2f) * 1.5f, -90.0f, 90.0f));
 			} else if (rnd.nextInt(400) == 0) {
 				vertigoTicks = 140;
-				p.sendOverlayMessage(Component.literal("Everything is spinning around you..."));
+				overlay(p, Component.literal("Everything is spinning around you..."));
 			}
 		} else {
 			vertigoTicks = 0;
@@ -356,6 +366,12 @@ public final class ClientEffects {
 		}
 	}
 
+	private static void overlay(LocalPlayer p, Component message) {
+		if ((ClientState.flags & 16) == 0) {
+			p.sendOverlayMessage(message);
+		}
+	}
+
 	private static void restoreSound(Minecraft mc) {
 		if (savedSubtitles != null) {
 			mc.options.showSubtitles().set(savedSubtitles);
@@ -370,108 +386,17 @@ public final class ClientEffects {
 	public static void onShutdown(Minecraft mc) {
 		ClientLimbs.clear();
 		restoreSound(mc);
-		if (currentEffect != null) {
-			clearPostEffect(mc);
-			currentEffect = null;
-			effectTicks = 0;
+		if (!currentEffects.isEmpty() && mc.player != null) {
+			mc.player.setActivePostEffects(new ArrayList<>());
 		}
+		currentEffects = List.of();
+		effectTicks = 0;
 		lastCameraType = null;
 		flashTicks = 0;
 		migraineTicks = 0;
 		lastSlot = -1;
 		ClientState.reset();
 		vertigoTicks = 0;
-	}
-
-	private static void setPostEffect(Minecraft mc, Identifier id) {
-		for (String name : new String[] {"setPostEffect", "setSpectatedEntityPostEffect"}) {
-			try {
-				Method m = mc.gameRenderer.getClass().getDeclaredMethod(name, Identifier.class);
-				m.setAccessible(true);
-				m.invoke(mc.gameRenderer, id);
-				return;
-			} catch (NoSuchMethodException ignored) {
-				// try the next name
-			} catch (Throwable t) {
-				warnPostEffect(t);
-				return;
-			}
-		}
-		// 26.3 added a player-level post effect API: LocalPlayer#setActivePostEffects.
-		if (mc.player != null && invokePlayerPostEffects(mc.player, id)) {
-			return;
-		}
-		warnPostEffect(new NoSuchMethodException("No usable GameRenderer/LocalPlayer post effect method"));
-		dumpPostEffectMethods(mc);
-	}
-
-	private static boolean invokePlayerPostEffects(LocalPlayer p, Identifier idOrNull) {
-		try {
-			for (Method m : p.getClass().getMethods()) {
-				if (!m.getName().equals("setActivePostEffects") || m.getParameterCount() != 1) {
-					continue;
-				}
-				Class<?> type = m.getParameterTypes()[0];
-				Object arg;
-				if (type.isAssignableFrom(java.util.ArrayList.class)) {
-					arg = idOrNull == null ? new java.util.ArrayList<Identifier>() : new java.util.ArrayList<>(java.util.List.of(idOrNull));
-				} else if (type.isAssignableFrom(java.util.HashSet.class)) {
-					arg = idOrNull == null ? new java.util.HashSet<Identifier>() : new java.util.HashSet<>(java.util.List.of(idOrNull));
-				} else {
-					continue;
-				}
-				m.invoke(p, arg);
-				return true;
-			}
-		} catch (Throwable t) {
-			warnPostEffect(t);
-		}
-		return false;
-	}
-
-	// Logs every post-effect related method once, so a failed port can be fixed from latest.log.
-	private static void dumpPostEffectMethods(Minecraft mc) {
-		if (postEffectDumped) {
-			return;
-		}
-		postEffectDumped = true;
-		Class<?>[] classes = {mc.gameRenderer.getClass(), LocalPlayer.class};
-		for (Class<?> c : classes) {
-			for (Method m : c.getDeclaredMethods()) {
-				if (m.getName().toLowerCase(java.util.Locale.ROOT).contains("posteffect")) {
-					HandicapMod.LOGGER.warn("[Handicap] candidate: {}#{}{}", c.getSimpleName(), m.getName(),
-						java.util.Arrays.toString(m.getParameterTypes()));
-				}
-			}
-		}
-	}
-
-	private static void clearPostEffect(Minecraft mc) {
-		// 26.3 renamed clearPostEffect to clearSpectatedEntityPostEffect.
-		for (String name : new String[] {"clearSpectatedEntityPostEffect", "clearPostEffect"}) {
-			try {
-				Method m = mc.gameRenderer.getClass().getDeclaredMethod(name);
-				m.setAccessible(true);
-				m.invoke(mc.gameRenderer);
-				return;
-			} catch (NoSuchMethodException ignored) {
-				// try the next name
-			} catch (Throwable t) {
-				warnPostEffect(t);
-				return;
-			}
-		}
-		if (mc.player != null && invokePlayerPostEffects(mc.player, null)) {
-			return;
-		}
-		warnPostEffect(new NoSuchMethodException("GameRenderer clear post effect method"));
-	}
-
-	private static void warnPostEffect(Throwable t) {
-		if (!postEffectWarned) {
-			postEffectWarned = true;
-			HandicapMod.LOGGER.warn("Color Blind: could not change the post effect", t);
-		}
 	}
 
 	private static Identifier glowEffect(int ticksLeft) {

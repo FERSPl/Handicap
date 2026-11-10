@@ -58,7 +58,6 @@ public final class InventoryPanel {
 	static final int MUTED = 0xFF8C8890;
 	private static final int TIME = 0xFF923F42;
 	private static final int ROW_HOVER = 0x14FFFFFF;
-	private static final int MENU = 0x26923F42;
 	private static final int BUTTON = 0x99923F42;
 	private static final int BUTTON_HOVER = 0xFFA8494D;
 
@@ -80,10 +79,6 @@ public final class InventoryPanel {
 	private static int buttonW;
 	private static int gearX;
 	private static int gearY;
-	private static boolean menuOpen;
-	private static int menuX;
-	private static int menuY;
-	private static int menuW;
 
 	private InventoryPanel() {
 	}
@@ -118,11 +113,7 @@ public final class InventoryPanel {
 				: "Off").withColor(TIME & 0xFFFFFF));
 		boolean canNext = canNext(player);
 
-		Component position = positionLine();
-		Component background = backgroundLine();
-		Component list = listLine();
 		int contentW = Math.max(LOGO_SIZE + LOGO_GAP + font.width(title) + 4 + GEAR, Math.max(font.width(timer), font.width(stacking)));
-		contentW = Math.max(contentW, Math.max(font.width(position), Math.max(font.width(background), font.width(list))));
 		for (Handicap d : owned) {
 			contentW = Math.max(contentW, font.width(hide(d.displayName, hidden)) + nameIndent());
 		}
@@ -149,8 +140,7 @@ public final class InventoryPanel {
 		}
 		int x = useLeft ? left - GAP - w : right;
 		int inset = PADDING + CARD_PAD;
-		int menuH = CARD_PAD * 2 + LINE * 3 - 2;
-		int header = LINE + 2 + (menuOpen ? menuH + 3 : 0);
+		int header = LINE + 2;
 		int footer = 4 + LINE * 2 + (canNext ? BUTTON_HEIGHT + 4 : 0);
 		int chrome = PADDING * 2 + header + CARD_PAD * 2 - 2 + footer;
 		int rows = Math.max(1, owned.size());
@@ -175,22 +165,11 @@ public final class InventoryPanel {
 		g.text(font, title, textX + LOGO_SIZE + LOGO_GAP, y + PADDING + 2, TITLE, false);
 		gearX = x + w - inset - GEAR;
 		gearY = y + PADDING + 2;
-		if (menuOpen) {
-			menuX = x + PADDING;
-			menuY = y + PADDING + LINE + 2;
-			menuW = w - PADDING * 2;
-			roundedFill(g, menuX, menuY, menuW, menuH, RADIUS, MENU);
-			Component[] options = {position, background, list};
-			for (int i = 0; i < options.length; i++) {
-				int rowY = menuY + CARD_PAD + i * LINE;
-				if (inside(mouseX, mouseY, menuX, rowY - 1, menuW, LINE)) {
-					roundedFill(g, menuX + 2, rowY - 2, menuW - 4, LINE + 1, 2, ROW_HOVER);
-				}
-				g.text(font, options[i], textX, rowY, MUTED, false);
-			}
-		}
 		boolean gearHover = inside(mouseX, mouseY, gearX - 2, gearY - 2, GEAR + 4, GEAR + 4);
-		gear(g, gearX, gearY, menuOpen || gearHover ? ACCENT : MUTED);
+		gear(g, gearX, gearY, gearHover ? ACCENT : MUTED);
+		if (gearHover) {
+			g.setTooltipForNextFrame(font, Component.literal("Settings"), mouseX, mouseY);
+		}
 
 		int cardX = x + PADDING;
 		int cardY = y + PADDING + header;
@@ -245,22 +224,6 @@ public final class InventoryPanel {
 
 	}
 
-	private static Component positionLine() {
-		String name = HandicapConfig.hudPosition().replace('_', ' ');
-		name = Character.toUpperCase(name.charAt(0)) + name.substring(1);
-		return Component.literal("Position: ").append(Component.literal(name).withColor(TIME & 0xFFFFFF));
-	}
-
-	private static Component backgroundLine() {
-		return Component.literal("Background: ").append(
-			Component.literal(HandicapConfig.hudBackground() ? "On" : "Off").withColor(TIME & 0xFFFFFF));
-	}
-
-	private static Component listLine() {
-		return Component.literal("List: ").append(
-			Component.literal(HandicapConfig.coloredNames() ? "Colored text" : "Dots").withColor(TIME & 0xFFFFFF));
-	}
-
 	private static void gear(GuiGraphicsExtractor g, int x, int y, int color) {
 		for (int row = 0; row < GEAR_SHAPE.length; row++) {
 			for (int col = 0; col < GEAR; col++) {
@@ -310,33 +273,13 @@ public final class InventoryPanel {
 
 	public static boolean click(double mouseX, double mouseY, int button) {
 		if (!shown || !inside(mouseX, mouseY, panelX, panelY, panelW, panelH)) {
-			menuOpen = false;
 			return false;
 		}
 		if (inside(mouseX, mouseY, gearX - 2, gearY - 2, GEAR + 4, GEAR + 4)) {
-			menuOpen = !menuOpen;
 			clickSound();
+			Minecraft mc = Minecraft.getInstance();
+			mc.gui.setScreen(new HandicapSettingsScreen(mc.gui.screen()));
 			return true;
-		}
-		if (menuOpen) {
-			if (inside(mouseX, mouseY, menuX, menuY + CARD_PAD - 1, menuW, LINE)) {
-				HandicapConfig.cycleHudPosition(button == InputConstants.MOUSE_BUTTON_RIGHT ? -1 : 1);
-				HandicapConfig.save();
-				clickSound();
-				return true;
-			}
-			if (inside(mouseX, mouseY, menuX, menuY + CARD_PAD + LINE - 1, menuW, LINE)) {
-				HandicapConfig.setHudBackground(!HandicapConfig.hudBackground());
-				HandicapConfig.save();
-				clickSound();
-				return true;
-			}
-			if (inside(mouseX, mouseY, menuX, menuY + CARD_PAD + LINE * 2 - 1, menuW, LINE)) {
-				HandicapConfig.setColoredNames(!HandicapConfig.coloredNames());
-				HandicapConfig.save();
-				clickSound();
-				return true;
-			}
 		}
 		if (button == InputConstants.MOUSE_BUTTON_LEFT && buttonShown && inside(mouseX, mouseY, buttonX, buttonY, buttonW, BUTTON_HEIGHT)) {
 			Minecraft mc = Minecraft.getInstance();
@@ -401,7 +344,7 @@ public final class InventoryPanel {
 		return Component.literal("Next in ").append(Component.literal(time).withColor(TIME & 0xFFFFFF));
 	}
 
-	private static boolean canNext(LocalPlayer player) {
+	static boolean canNext(LocalPlayer player) {
 		var root = player.connection.getCommands().getRoot().getChild("handicap");
 		return root != null && root.getChild("next") != null;
 	}

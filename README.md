@@ -130,7 +130,7 @@ The timer and the duration are measured in minutes. For example, `0.5` means eve
 | 51 | Myopia | `myopia` | Your vision is blurry. |
 | 52 | Hyperopia | `hyperopia` | The bottom third of your screen is blurry. |
 | 53 | Tunnel Vision | `tunnel_vision` | Your field of view narrows to a small spot. |
-| 54 | Phantom Light | `phantom_light` | Soft, gradual glows of light appear from time to time. |
+| 54 | Phantom Light | `phantom_light` | Blinding flashes of light appear from time to time. |
 | 55 | Spatial Disorientation | `spatial_disorientation` | Left and right are swapped. |
 | 56 | Armor Intolerance | `armor_intolerance` | You cannot wear armor; it is given back when the handicap ends. |
 | 57 | Drunk | `drunk` | Your movement feels unsteady. |
@@ -140,6 +140,7 @@ The timer and the duration are measured in minutes. For example, `0.5` means eve
 | 61 | Migraine | `migraine` | Migraine episodes blur and brighten the edges of your screen. |
 | 62 | Broken Arm | `broken_arm` | Breaking blocks takes much longer, and your arm is in a cast. |
 | 63 | Prosopagnosia | `prosopagnosia` | You can't recognize faces, mixing up all the players and mobs. |
+| 64 | Derealization | `derealization` | The world turns into an unrecognizable mess. |
 
 ⚠️ Only one screen filter is displayed at a time, with Blind taking priority over Phantom Light, Inverted Vision, Tunnel Vision, Migraine, Color Blind, Visual Agnosia, Myopia, and Hyperopia.
 
