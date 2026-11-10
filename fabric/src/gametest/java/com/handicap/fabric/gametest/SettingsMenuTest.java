@@ -23,6 +23,10 @@ public class SettingsMenuTest implements FabricClientGameTest {
 
 	@Override
 	public void runTest(ClientGameTestContext context) {
+		context.setScreen(() -> new HandicapSettingsScreen(null));
+		context.waitTicks(5);
+		context.takeScreenshot("settings-no-world");
+		context.setScreen(() -> null);
 		try (TestSingleplayerContext world = context.worldBuilder().create()) {
 			world.getClientLevel().waitForChunksRender();
 			world.getServer().runCommand("handicap settings timer off");
@@ -37,6 +41,13 @@ public class SettingsMenuTest implements FabricClientGameTest {
 			check(world.getServer().computeOnServer(s -> HandicapManager.state().isDisabled(Handicap.BLIND)), "server disabled blind");
 			check(context.computeOnClient(mc -> ClientState.disabled(Handicap.BLIND)), "client sees blind disabled");
 			check(!context.computeOnClient(mc -> ClientState.stacking()), "client sees stacking off");
+			context.runOnClient(mc -> HandicapSettingsScreen.send("permission", 0));
+			context.waitTicks(30);
+			check(world.getServer().computeOnServer(s -> com.handicap.HandicapConfig.permissionLevel() == 0), "server permission is Player");
+			check(context.computeOnClient(mc -> ClientState.permissionPlayer()), "client sees permission Player");
+			context.runOnClient(mc -> HandicapSettingsScreen.send("permission", 2));
+			context.waitTicks(30);
+			check(!context.computeOnClient(mc -> ClientState.permissionPlayer()), "client sees permission Operator");
 			context.setScreen(() -> new HandicapListScreen(null));
 			context.waitTicks(5);
 			context.takeScreenshot("settings-list");
