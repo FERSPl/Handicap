@@ -91,7 +91,6 @@ public final class HandicapHud {
 		int x = right ? screenWidth - boxWidth - 4 : 4;
 		int y;
 		if (position.startsWith("top")) {
-			// Stay clear of the vanilla effect icons in the top right corner.
 			y = right ? (int) (effectIconsHeight(mc) / SCALE) + 4 : 4;
 		} else if (position.startsWith("bottom")) {
 			y = screenHeight - boxHeight - 4;
@@ -127,7 +126,6 @@ public final class HandicapHud {
 		graphics.pose().popMatrix();
 	}
 
-	// Height of the vanilla effect icons in the top right corner; effects with a hidden icon take no room.
 	private static int effectIconsHeight(Minecraft mc) {
 		boolean beneficial = false;
 		boolean harmful = false;
