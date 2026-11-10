@@ -98,7 +98,7 @@ public class ProsopagnosiaMultiplayerTest implements FabricClientGameTest {
 		}
 	}
 
-	private static final class FakeConnection extends Connection {
+	static final class FakeConnection extends Connection {
 		FakeConnection() {
 			super(PacketFlow.SERVERBOUND);
 			try {

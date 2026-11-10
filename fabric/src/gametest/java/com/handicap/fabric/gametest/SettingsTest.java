@@ -20,7 +20,7 @@ public class SettingsTest implements FabricClientGameTest {
 
 			world.getServer().runCommand("handicap give @a all");
 			context.waitTicks(5);
-			check(world, 63, "give all ignores max");
+			check(world, com.handicap.Handicap.values().length, "give all ignores max");
 			world.getServer().runCommand("handicap next @a");
 			context.waitTicks(5);
 			check(world, 3, "next brings everything back to max");

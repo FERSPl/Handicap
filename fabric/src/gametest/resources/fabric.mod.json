@@ -11,7 +11,10 @@
 			"com.handicap.fabric.gametest.SettingsTest",
 			"com.handicap.fabric.gametest.ProsopagnosiaMultiplayerTest",
 			"com.handicap.fabric.gametest.DyslexiaMenuTest",
-			"com.handicap.fabric.gametest.PermissionTest"
+			"com.handicap.fabric.gametest.PermissionTest",
+			"com.handicap.fabric.gametest.WheelchairTest",
+			"com.handicap.fabric.gametest.SettingsMenuTest",
+			"com.handicap.fabric.gametest.FilterRuleTest"
 		]
 	}
 }
