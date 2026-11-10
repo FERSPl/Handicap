@@ -25,7 +25,6 @@ public final class HandicapHud {
 	private static final int LINE_HEIGHT = 10;
 	private static final int EFFECTS_HEIGHT = 54;
 
-	private static boolean visible = true;
 	private static KeyMapping toggleKey;
 
 	private HandicapHud() {
@@ -42,7 +41,7 @@ public final class HandicapHud {
 
 	public static void render(GuiGraphicsExtractor graphics) {
 		Minecraft mc = Minecraft.getInstance();
-		if (!visible || mc.player == null || InventoryPanel.supports(mc.gui.screen())) {
+		if (!HandicapConfig.hudShown() || mc.player == null || InventoryPanel.supports(mc.gui.screen())) {
 			return;
 		}
 		if (ClientState.has(Handicap.ANOSOGNOSIA)) {
@@ -135,7 +134,10 @@ public final class HandicapHud {
 			return;
 		}
 		while (toggleKey.consumeClick()) {
-			visible = !visible;
+			Minecraft mc = Minecraft.getInstance();
+			if (mc.player != null && mc.gui.screen() == null) {
+				mc.gui.setScreen(new HandicapSettingsScreen(null));
+			}
 		}
 	}
 }

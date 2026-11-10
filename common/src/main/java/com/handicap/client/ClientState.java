@@ -25,6 +25,10 @@ public final class ClientState {
 		return ((d.high() ? disabled2 : disabled) & d.bit()) != 0;
 	}
 
+	public static boolean permissionPlayer() {
+		return (flags & 64) != 0;
+	}
+
 	public static boolean sync() {
 		return (flags & 32) != 0;
 	}

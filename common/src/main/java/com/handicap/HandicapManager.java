@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Holder;
@@ -148,16 +149,29 @@ public final class HandicapManager {
 	}
 
 	public static void applySetting(ServerPlayer p, String key, int value) {
+		if (key.equals("permission") || key.equals("descriptions")) {
+			if (server == null || !(server.isSingleplayerOwner(p.nameAndId())
+					|| Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(p.createCommandSourceStack()))) {
+				return;
+			}
+			if (key.equals("permission")) {
+				HandicapConfig.setPermissionLevel(value == 0 ? 0 : 2);
+			} else {
+				HandicapConfig.setShowDescriptions(value == 1);
+			}
+			HandicapConfig.save();
+			for (ServerPlayer other : new ArrayList<>(server.getPlayerList().getPlayers())) {
+				server.getCommands().sendCommands(other);
+				refresh(other);
+			}
+			return;
+		}
 		if (state == null || server == null || !HandicapConfig.allows(p.createCommandSourceStack())) {
 			return;
 		}
 		List<ServerPlayer> players = new ArrayList<>(server.getPlayerList().getPlayers());
 		switch (key) {
 			case "stacking" -> state.setStacking(value == 1);
-			case "descriptions" -> {
-				HandicapConfig.setShowDescriptions(value == 1);
-				HandicapConfig.save();
-			}
 			case "timer" -> {
 				if (value <= 0) {
 					state.setTimerEnabled(false);
@@ -602,7 +616,7 @@ public final class HandicapManager {
 				off |= d.bit();
 			}
 		}
-		int flags = (state.sync() ? 32 : 0) | (rt.ocdType != 0 ? 16 : 0) | (seizing ? 1 : 0) | (rt.narcoSeconds > 0 ? 2 : 0) | (HandicapConfig.showDescriptions() ? 4 : 0)
+		int flags = (HandicapConfig.permissionLevel() == 0 ? 64 : 0) | (state.sync() ? 32 : 0) | (rt.ocdType != 0 ? 16 : 0) | (seizing ? 1 : 0) | (rt.narcoSeconds > 0 ? 2 : 0) | (HandicapConfig.showDescriptions() ? 4 : 0)
 			| (state.stacking() ? 8 : 0);
 		int timer = state.timerEnabled() ? state.ticksRemaining() : -1;
 		if (HandicapMod.platform().canSend(p)) {

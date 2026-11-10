@@ -31,6 +31,7 @@ public final class HandicapConfig {
 		boolean coloredNames = true;
 		String hudPosition = HUD_POSITIONS.get(DEFAULT_HUD_POSITION);
 		boolean hudBackground = true;
+		boolean hudShown = true;
 	}
 
 	private static int permissionLevel = 2;
@@ -38,6 +39,7 @@ public final class HandicapConfig {
 	private static boolean coloredNames = true;
 	private static int hudPosition = DEFAULT_HUD_POSITION;
 	private static boolean hudBackground = true;
+	private static boolean hudShown = true;
 	private static Path file;
 
 	private HandicapConfig() {
@@ -56,6 +58,7 @@ public final class HandicapConfig {
 						int index = HUD_POSITIONS.indexOf(data.hudPosition);
 						hudPosition = index < 0 ? DEFAULT_HUD_POSITION : index;
 						hudBackground = data.hudBackground;
+						hudShown = data.hudShown;
 					}
 				}
 			} else {
@@ -98,6 +101,7 @@ public final class HandicapConfig {
 			data.coloredNames = coloredNames;
 			data.hudPosition = HUD_POSITIONS.get(hudPosition);
 			data.hudBackground = hudBackground;
+			data.hudShown = hudShown;
 			Files.writeString(file, GSON.toJson(data));
 		} catch (Exception e) {
 			HandicapMod.LOGGER.error("Could not write {}", file, e);
@@ -118,6 +122,14 @@ public final class HandicapConfig {
 
 	public static String hudPosition() {
 		return HUD_POSITIONS.get(hudPosition);
+	}
+
+	public static boolean hudShown() {
+		return hudShown;
+	}
+
+	public static void setHudShown(boolean value) {
+		hudShown = value;
 	}
 
 	public static boolean hudBackground() {
