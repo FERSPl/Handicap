@@ -181,3 +181,6 @@ Install the mod on the **client**, and also on the **server** if you play multip
 Bug reports and suggestions are welcome. Please open an [issue](https://github.com/FERSPl/Handicap/issues) in this repository.
 
 Handicap is released under the [LGPLv3 License](LICENSE).
+
+## Featured in
+[![Youtube](https://img.youtube.com/vi/E-tQTPjQ_j8/maxresdefault.jpg)](https://www.youtube.com/watch?v=E-tQTPjQ_j8)
