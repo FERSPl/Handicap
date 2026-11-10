@@ -36,15 +36,11 @@ You can also choose which handicaps to apply using commands, customize the timer
 ### Features
 
 - 🎭 **64 unique handicaps** that change the way you play.
-- ⏳ **Automatic random assignment** every 10 minutes by default.
-- ⚙️ **Customizable timer** — change the interval or turn it off entirely.
-- 💬 **Commands** to give, clear, and list handicaps.
-- 🖥️ **In-game config screen** — choose who can use the commands and whether handicap descriptions are shown.
-- 📚 **Stacking control** — choose whether handicaps accumulate or replace one another.
-- 💾 **Persistent data** — handicaps are saved per world: if you leave and rejoin, you keep them.
-- 🎒 **Inventory panel** — your handicaps next to your inventory: hover one to see what it does, see the time left before the next one and if stacking is on, and get the next handicap with a button.
-- 📊 **On-screen handicap list** — shows your handicaps and the timer, show or hide it in the settings. The backtick (`) key opens the settings, configurable in Controls.
-- 🌐 **Multiplayer support** — install the mod on both client and server for the full experience.
+- ⏳ **A new random handicap every 10 minutes**, with stacking, sync, max and duration all adjustable in the settings menu.
+- 🎒 **Inventory panel and on-screen list** — see your handicaps, what they do and the time left. The backtick (`) key opens the settings.
+- ♿ **Wheelchair** — 8 coal around an iron nugget. Place it and right-click to drive, handy with `paraplegia` or `amputated_leg`.
+- 💬 **Commands** to give, clear and list handicaps.
+- 💾 **Saved per world** and 🌐 **multiplayer ready** (install on client and server).
 
 ##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/commands.png" alt="Commands">
 
