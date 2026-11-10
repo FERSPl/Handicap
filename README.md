@@ -142,7 +142,7 @@ The timer and the duration are measured in minutes. For example, `0.5` means eve
 | 63 | Prosopagnosia | `prosopagnosia` | You can't recognize faces, mixing up all the players and mobs. |
 | 64 | Derealization | `derealization` | The world turns into an unrecognizable mess. |
 
-⚠️ Only one screen filter is displayed at a time, with Blind taking priority over Phantom Light, Inverted Vision, Tunnel Vision, Migraine, Color Blind, Visual Agnosia, Myopia, and Hyperopia.
+⚠️ Only one screen filter is displayed at a time, with Blind taking priority over Phantom Light, Inverted Vision, Tunnel Vision, Migraine, Color Blind, Visual Agnosia, Myopia, and Hyperopia. (26.1 & 26.2)
 
 ##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/configuration.png" alt="Configuration">
 
