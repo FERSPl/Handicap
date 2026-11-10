@@ -27,7 +27,7 @@
 
 ## <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/about.png" alt="About">
 
-**Handicap** is a Minecraft mod that randomly assigns players handicaps at regular intervals. Survive as long as possible, adapt your playstyle, and discover all 63 unique handicaps.
+**Handicap** is a Minecraft mod that randomly assigns players handicaps at regular intervals. Survive as long as possible, adapt your playstyle, and discover all 64 unique handicaps.
 
 You can also choose which handicaps to apply using commands, customize the timer, and decide whether handicaps stack.
 
@@ -35,7 +35,7 @@ You can also choose which handicaps to apply using commands, customize the timer
 
 ### Features
 
-- 🎭 **63 unique handicaps** that change the way you play.
+- 🎭 **64 unique handicaps** that change the way you play.
 - ⏳ **Automatic random assignment** every 10 minutes by default.
 - ⚙️ **Customizable timer** — change the interval or turn it off entirely.
 - 💬 **Commands** to give, clear, and list handicaps.
