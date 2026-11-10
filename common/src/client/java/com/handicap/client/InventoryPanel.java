@@ -121,24 +121,15 @@ public final class InventoryPanel {
 			contentW = Math.max(contentW, font.width("None"));
 		}
 		int desired = Math.max(MIN_WIDTH, contentW + (PADDING + CARD_PAD) * 2 + 10);
-		int right = left + imageWidth + GAP;
-		int rightSpace = g.guiWidth() - 2 - right;
 		boolean recipeBookOpen = left > (g.guiWidth() - imageWidth) / 2 + 2;
-		int leftSpace = recipeBookOpen ? 0 : left - GAP - 2;
-		boolean effects = !player.getActiveEffects().isEmpty();
-		boolean useLeft;
-		if (effects && leftSpace >= Math.min(desired, MIN_WIDTH)) {
-			useLeft = true;
-		} else if (rightSpace >= Math.min(desired, MIN_WIDTH)) {
-			useLeft = false;
-		} else {
-			useLeft = leftSpace > rightSpace;
+		if (recipeBookOpen) {
+			return;
 		}
-		int w = Math.min(desired, useLeft ? leftSpace : rightSpace);
+		int w = Math.min(desired, left - GAP - 2);
 		if (w < 60) {
 			return;
 		}
-		int x = useLeft ? left - GAP - w : right;
+		int x = left - GAP - w;
 		int inset = PADDING + CARD_PAD;
 		int header = LINE + 2;
 		int footer = 4 + LINE * 2 + (canNext ? BUTTON_HEIGHT + 4 : 0);

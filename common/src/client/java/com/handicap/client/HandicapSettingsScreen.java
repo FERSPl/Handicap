@@ -15,6 +15,7 @@ public class HandicapSettingsScreen extends Screen {
 	private static final int[] MAX = {0, 1, 2, 3, 4, 5, 6, 8, 10, 15, 20};
 	private static final int[] DURATION = {0, 60, 120, 300, 600, 900, 1800, 3600};
 	private static final int HEADER = InventoryPanel.TITLE;
+	private static final int VALUE = 0xF2A0A3;
 
 	private final Screen parent;
 	private Button position;
@@ -125,19 +126,24 @@ public class HandicapSettingsScreen extends Screen {
 
 	private void refresh() {
 		String pos = HandicapConfig.hudPosition().replace('_', ' ');
-		position.setMessage(Component.literal("Position: " + Character.toUpperCase(pos.charAt(0)) + pos.substring(1)));
-		background.setMessage(Component.literal("Background: " + (HandicapConfig.hudBackground() ? "On" : "Off")));
-		hud.setMessage(Component.literal("HUD: " + (HandicapConfig.hudShown() ? "Shown" : "Hidden")));
-		list.setMessage(Component.literal("List: " + (HandicapConfig.coloredNames() ? "Colored text" : "Dots")));
-		sync.setMessage(Component.literal("Synchronization: " + (ClientState.sync() ? "On" : "Off")));
-		stacking.setMessage(Component.literal("Stacking: " + (ClientState.stacking() ? "On" : "Off")));
-		timer.setMessage(Component.literal("Timer: " + time(ClientState.timer < 0 ? 0 : ClientState.interval)));
-		max.setMessage(Component.literal("Max: " + (ClientState.maxHandicaps <= 0 ? "Off" : String.valueOf(ClientState.maxHandicaps))));
-		duration.setMessage(Component.literal("Duration: " + time(ClientState.duration)));
+		label(position, "Position", Character.toUpperCase(pos.charAt(0)) + pos.substring(1));
+		label(background, "Background", HandicapConfig.hudBackground() ? "On" : "Off");
+		label(hud, "HUD", HandicapConfig.hudShown() ? "Shown" : "Hidden");
+		label(list, "List", HandicapConfig.coloredNames() ? "Colored text" : "Dots");
+		label(sync, "Synchronization", ClientState.sync() ? "On" : "Off");
+		label(stacking, "Stacking", ClientState.stacking() ? "On" : "Off");
+		label(timer, "Timer", time(ClientState.timer < 0 ? 0 : ClientState.interval));
+		label(max, "Max", ClientState.maxHandicaps <= 0 ? "Off" : String.valueOf(ClientState.maxHandicaps));
+		label(duration, "Duration", time(ClientState.duration));
 		boolean player = inWorld ? ClientState.permissionPlayer() : HandicapConfig.permissionLevel() == 0;
-		permission.setMessage(Component.literal("Permission: " + (player ? "Player" : "Operator")));
+		label(permission, "Permission", player ? "Player" : "Operator");
 		boolean shown = inWorld ? ClientState.showDescriptions() : HandicapConfig.showDescriptions();
-		descriptions.setMessage(Component.literal("Descriptions: " + (shown ? "On" : "Off")));
+		label(descriptions, "Descriptions", shown ? "On" : "Off");
+	}
+
+	private static void label(Button button, String name, String value) {
+		Component text = button.active ? Component.literal(value).withColor(VALUE) : Component.literal(value);
+		button.setMessage(Component.literal(name + ": ").append(text));
 	}
 
 	@Override
