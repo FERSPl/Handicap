@@ -36,7 +36,8 @@ You can also choose which handicaps to apply using commands, customize the timer
 ### Features
 
 - 🎭 **64 unique handicaps** that change the way you play.
-- ⏳ **A new random handicap every 10 minutes**, with stacking, sync, max and duration all adjustable in the settings menu.
+- ⏳ **A new random handicap every 10 minutes**, with stacking, max and duration all adjustable in the settings menu.
+- 🔗 **Synchronization** — turn it on and every player shares the same handicaps: when one gets or loses a handicap, everyone does.
 - 🎒 **Inventory panel and on-screen list** — see your handicaps, what they do and the time left. The backtick (`) key opens the settings.
 - ♿ **Wheelchair** — 8 coal around an iron nugget. Place it and right-click to drive, handy with `paraplegia` or `amputated_leg`.
 - 💬 **Commands** to give, clear and list handicaps.
