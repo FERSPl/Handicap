@@ -1,38 +1,38 @@
-## v1.6.0 changelog
+## v1.6.0 Changelog
 
-### *Whats's new?*
-* **New Handicap**: 
-  * Added `derealization`, the world turns into an unrecognizable mess.
-* **Wheelchair**
-  * Added a wheelchair item in the game. You can use it to move.
-  * With `paraplegia` and `amputated_leg` together you can't move anymore, so the action bar tells you that you need a wheelchair.
-* **Settings menu**
-  * The gear in the `inventory panel` now opens a full settings menu.
-  * Display: position of the HUD, background and list style.
-  * Game rules: synchronization, stacking, timer, max, duration and descriptions, directly in game.
-  * Hover any setting to see what it does.
-  * Only players who can use `/handicap` can change the game rules, the others just see them.
-* **Synchronization**
-  * New option: when it's on, everyone gets the same handicaps. If a player gets or loses one, all players do.
-* **Disabled handicaps**
-  * You can now disable any handicap for your world in the settings menu. A disabled handicap is never given, even with `give all`.
+### *What's new?*
+- **New Handicap** 
+  - Added `derealization`: turns the world into an unrecognizable pixelated mess.
+- **Wheelchair**
+  - Added a Wheelchair item to the game to help you move around.
+  - Having both `paraplegia` and `amputated_leg` together now completely prevents movement, and the action bar will inform you that a wheelchair is required.
+- **Settings Menu**
+  - The gear icon in the inventory panel now opens a full settings menu.
+  - **Display:** Customize HUD position, background, and list style.
+  - **Game Rules:** Adjust synchronization, stacking, timer, max handicaps, duration, and descriptions directly in-game.
+  - Hover over any setting to see its description.
+  - Only players with permission to use `/handicap` can modify game rules; other players can only view them.
+- **Synchronization**
+  - New option: when enabled, all players share the exact same handicaps. When one player gains or loses a handicap, everyone does.
+- **Disabled Handicaps**
+  - You can now disable specific handicaps for your world in the settings menu. Disabled handicaps will never be assigned, even when using `/handicap give all`.
 
 ### *Changes & Balancing*
-* **HUD**
-  * New look and customised for the Handicap DA.
-  * You can now choose the position in the `inventory panel` settings.
-* **Visuals**
-  * `phantom_light` is now stronger, it blinds you with a white flash.
-  * Visual handicaps now stack: if you have `color_blind` and `tunnel_vision`, you see both at the same time (26.3 only).
-  * In 26.1 and 26.2 you can't randomly get a second visual handicap while you already have one (while waiting to find a solution for the accumulation).
-* **OCD**
-  * `ocd` now deals more damage: 2 hearts per second until you obey.
-  * The timer and what you still have to do are now shown in the action bar, not in the tchat anymore.
-* **Action bar**
-  * When several messages want the action bar, a new handicap comes first, then `ocd`, then the rest.
-* **Config**
-  * The mod config screen and the in-game settings are now the same menu, and the HUD key now opens the settings instead of showing/hiding the HUD.
+- **HUD**
+  - Redesigned look tailored to the mod's visual identity.
+  - You can now choose its position in the settings menu.
+- **Visuals**
+  - `phantom_light` is now stronger and blinds you with a white flash.
+  - Visual handicaps now stack: having both `color_blind` and `tunnel_vision` displays both effects simultaneously (26.3 only).
+  - In 26.1 and 26.2, players will not randomly receive a second visual handicap while one is active (temporary fix while working on stacking for older versions).
+- **OCD**
+  - `ocd` now deals increased damage: 2 hearts per second until task completion.
+  - The remaining time and task requirements are now displayed in the action bar instead of the chat.
+- **Action Bar**
+  - Priority system implemented: when multiple messages request the action bar, new handicaps take top priority, followed by `ocd`, then other notifications.
+- **Config**
+  - Moved the descriptions toggle from the mod config screen to the in-game settings menu.
 
 ### *Fixes*
-* **Visual handicaps**
-  * Fixed visual handicaps hiding each other when you had more than one (26.3 only).
+- **Visual Handicaps**
+  - Fixed an issue where visual handicaps would overlap and hide each other when holding multiple at once (26.3 only).
