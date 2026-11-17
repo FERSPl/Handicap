@@ -6,10 +6,10 @@ import com.handicap.WheelchairEntity;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public class WheelchairRenderer extends LivingEntityRenderer<WheelchairEntity, LivingEntityRenderState, WheelchairModel> {
-	private static final Identifier TEXTURE = HandicapMod.id("textures/entity/wheelchair.png");
+	private static final ResourceLocation TEXTURE = HandicapMod.id("textures/entity/wheelchair.png");
 
 	public WheelchairRenderer(EntityRendererProvider.Context context) {
 		super(context, new WheelchairModel(context.bakeLayer(WheelchairModel.LAYER)), 0.5f);
@@ -21,7 +21,7 @@ public class WheelchairRenderer extends LivingEntityRenderer<WheelchairEntity, L
 	}
 
 	@Override
-	public Identifier getTextureLocation(LivingEntityRenderState state) {
+	public ResourceLocation getTextureLocation(LivingEntityRenderState state) {
 		return TEXTURE;
 	}
 

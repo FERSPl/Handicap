@@ -13,7 +13,7 @@ import java.nio.file.Path;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -34,12 +34,12 @@ public class HandicapFabric implements ModInitializer {
 		Registry.register(BuiltInRegistries.ENTITY_TYPE, HandicapContent.WHEELCHAIR_ENTITY_KEY, HandicapContent.createEntity());
 		Registry.register(BuiltInRegistries.ITEM, HandicapContent.WHEELCHAIR_ITEM_KEY, HandicapContent.createItem());
 		FabricDefaultAttributeRegistry.register(HandicapContent.wheelchair(), WheelchairEntity.createAttributes());
-		CreativeModeTabEvents.modifyOutputEvent(HandicapContent.TOOLS_TAB).register(output ->
-			output.accept(HandicapContent.wheelchairItem()));
+		ItemGroupEvents.modifyEntriesEvent(HandicapContent.TOOLS_TAB).register(entries ->
+			entries.accept(HandicapContent.wheelchairItem()));
 
-		PayloadTypeRegistry.clientboundPlay().register(SyncPayload.TYPE, SyncPayload.CODEC);
-		PayloadTypeRegistry.clientboundPlay().register(LimbsPayload.TYPE, LimbsPayload.CODEC);
-		PayloadTypeRegistry.serverboundPlay().register(SettingsPayload.TYPE, SettingsPayload.CODEC);
+		PayloadTypeRegistry.playS2C().register(SyncPayload.TYPE, SyncPayload.CODEC);
+		PayloadTypeRegistry.playS2C().register(LimbsPayload.TYPE, LimbsPayload.CODEC);
+		PayloadTypeRegistry.playC2S().register(SettingsPayload.TYPE, SettingsPayload.CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(SettingsPayload.TYPE, (payload, context) ->
 			HandicapManager.applySetting(context.player(), payload.key(), payload.value()));
 

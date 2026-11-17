@@ -21,7 +21,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.FormattedCharSequence;
 
@@ -45,7 +45,7 @@ public final class InventoryPanel {
 	private static final int BUTTON_HEIGHT = 14;
 	private static final int MIN_WIDTH = 96;
 
-	private static final Identifier LOGO = HandicapMod.id("textures/gui/logo.png");
+	private static final ResourceLocation LOGO = HandicapMod.id("textures/gui/logo.png");
 	static final int LOGO_SIZE = 9;
 	static final int LOGO_GAP = 3;
 

@@ -138,15 +138,15 @@ public final class HandicapConfig {
 
 	public static boolean allows(CommandSourceStack source) {
 		ServerPlayer player = source.getPlayer();
-		if (player != null && source.getServer().isSingleplayerOwner(player.nameAndId())) {
+		if (player != null && source.getServer().isSingleplayerOwner(player.getGameProfile())) {
 			return true;
 		}
 		return switch (permissionLevel) {
 			case 0 -> true;
-			case 1 -> Commands.hasPermission(Commands.LEVEL_MODERATORS).test(source);
-			case 2 -> Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(source);
-			case 3 -> Commands.hasPermission(Commands.LEVEL_ADMINS).test(source);
-			default -> Commands.hasPermission(Commands.LEVEL_OWNERS).test(source);
+			case 1 -> source.hasPermission(Commands.LEVEL_MODERATORS);
+			case 2 -> source.hasPermission(Commands.LEVEL_GAMEMASTERS);
+			case 3 -> source.hasPermission(Commands.LEVEL_ADMINS);
+			default -> source.hasPermission(Commands.LEVEL_OWNERS);
 		};
 	}
 }

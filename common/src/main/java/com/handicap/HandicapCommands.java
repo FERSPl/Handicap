@@ -99,7 +99,7 @@ public final class HandicapCommands {
 	private static Collection<ServerPlayer> targets(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		Collection<ServerPlayer> found = EntityArgument.getPlayers(ctx, "targets");
 		CommandSourceStack source = ctx.getSource();
-		if (!Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(source)) {
+		if (!source.hasPermission(Commands.LEVEL_GAMEMASTERS)) {
 			ServerPlayer self = source.getPlayer();
 			for (ServerPlayer p : found) {
 				if (self == null || !p.getUUID().equals(self.getUUID())) {

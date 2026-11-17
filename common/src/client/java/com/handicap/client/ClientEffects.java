@@ -11,7 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -28,7 +28,7 @@ public final class ClientEffects {
 	private static int vertigoTicks = 0;
 	private static int wobbleTick = 0;
 	private static Boolean savedSubtitles = null;
-	private static Identifier currentEffect = null;
+	private static ResourceLocation currentEffect = null;
 	private static int effectTicks = 0;
 	private static CameraType lastCameraType = null;
 	private static int migraineTicks = 0;
@@ -45,23 +45,23 @@ public final class ClientEffects {
 	private static boolean postEffectDumped = false;
 	private static boolean textAltered = false;
 
-	private static final Identifier COLOR_BLIND_EFFECT = HandicapMod.id("colorblind");
-	private static final Identifier FLIP_EFFECT = HandicapMod.id("flip");
-	private static final Identifier MYOPIA_EFFECT = HandicapMod.id("myopia");
-	private static final Identifier HYPEROPIA_EFFECT = HandicapMod.id("hyperopia");
-	private static final Identifier TUNNEL_EFFECT = HandicapMod.id("tunnel");
-	private static final Identifier AGNOSIA_EFFECT = HandicapMod.id("agnosia");
-	private static final Identifier MIGRAINE_EFFECT = HandicapMod.id("migraine");
-	private static final Identifier DEREALIZATION_EFFECT = HandicapMod.id("derealization");
-	private static final Identifier DRUNK_ID = HandicapMod.id("drunk_client");
-	private static final Identifier BLIND_EFFECT = HandicapMod.id("blind");
-	private static final Identifier GLOW_1_EFFECT = HandicapMod.id("glow1");
-	private static final Identifier GLOW_2_EFFECT = HandicapMod.id("glow2");
-	private static final Identifier GLOW_3_EFFECT = HandicapMod.id("glow3");
-	private static final Identifier SNEEZE_ID = HandicapMod.id("sneezing_client");
-	private static final Identifier MAGNET_ID = HandicapMod.id("magnet_feet_client");
+	private static final ResourceLocation COLOR_BLIND_EFFECT = HandicapMod.id("colorblind");
+	private static final ResourceLocation FLIP_EFFECT = HandicapMod.id("flip");
+	private static final ResourceLocation MYOPIA_EFFECT = HandicapMod.id("myopia");
+	private static final ResourceLocation HYPEROPIA_EFFECT = HandicapMod.id("hyperopia");
+	private static final ResourceLocation TUNNEL_EFFECT = HandicapMod.id("tunnel");
+	private static final ResourceLocation AGNOSIA_EFFECT = HandicapMod.id("agnosia");
+	private static final ResourceLocation MIGRAINE_EFFECT = HandicapMod.id("migraine");
+	private static final ResourceLocation DEREALIZATION_EFFECT = HandicapMod.id("derealization");
+	private static final ResourceLocation DRUNK_ID = HandicapMod.id("drunk_client");
+	private static final ResourceLocation BLIND_EFFECT = HandicapMod.id("blind");
+	private static final ResourceLocation GLOW_1_EFFECT = HandicapMod.id("glow1");
+	private static final ResourceLocation GLOW_2_EFFECT = HandicapMod.id("glow2");
+	private static final ResourceLocation GLOW_3_EFFECT = HandicapMod.id("glow3");
+	private static final ResourceLocation SNEEZE_ID = HandicapMod.id("sneezing_client");
+	private static final ResourceLocation MAGNET_ID = HandicapMod.id("magnet_feet_client");
 
-	private static final Identifier LEG_ID = HandicapMod.id("amputated_leg_client");
+	private static final ResourceLocation LEG_ID = HandicapMod.id("amputated_leg_client");
 
 	private static final String[] FAKE_NAMES = {"Herobrine", "Steve_", "xX_Shadow_Xx", "Entity303"};
 
@@ -141,7 +141,7 @@ public final class ClientEffects {
 			migraineTicks = 0;
 		}
 
-		Identifier desired = null;
+		ResourceLocation desired = null;
 		if (flashTicks > 0) {
 			desired = glowEffect(flashTicks);
 		} else if (ClientState.has(Handicap.DEREALIZATION)) {
@@ -361,7 +361,7 @@ public final class ClientEffects {
 
 	private static void overlay(LocalPlayer p, Component message) {
 		if ((ClientState.flags & 16) == 0) {
-			p.sendOverlayMessage(message);
+			p.displayClientMessage(message, true);
 		}
 	}
 
@@ -392,10 +392,10 @@ public final class ClientEffects {
 		vertigoTicks = 0;
 	}
 
-	private static void setPostEffect(Minecraft mc, Identifier id) {
+	private static void setPostEffect(Minecraft mc, ResourceLocation id) {
 		for (String name : new String[] {"setPostEffect", "setSpectatedEntityPostEffect"}) {
 			try {
-				Method m = mc.gameRenderer.getClass().getDeclaredMethod(name, Identifier.class);
+				Method m = mc.gameRenderer.getClass().getDeclaredMethod(name, ResourceLocation.class);
 				m.setAccessible(true);
 				m.invoke(mc.gameRenderer, id);
 				return;
@@ -414,7 +414,7 @@ public final class ClientEffects {
 		dumpPostEffectMethods(mc);
 	}
 
-	private static boolean invokePlayerPostEffects(LocalPlayer p, Identifier idOrNull) {
+	private static boolean invokePlayerPostEffects(LocalPlayer p, ResourceLocation idOrNull) {
 		try {
 			for (Method m : p.getClass().getMethods()) {
 				if (!m.getName().equals("setActivePostEffects") || m.getParameterCount() != 1) {
@@ -423,9 +423,9 @@ public final class ClientEffects {
 				Class<?> type = m.getParameterTypes()[0];
 				Object arg;
 				if (type.isAssignableFrom(java.util.ArrayList.class)) {
-					arg = idOrNull == null ? new java.util.ArrayList<Identifier>() : new java.util.ArrayList<>(java.util.List.of(idOrNull));
+					arg = idOrNull == null ? new java.util.ArrayList<ResourceLocation>() : new java.util.ArrayList<>(java.util.List.of(idOrNull));
 				} else if (type.isAssignableFrom(java.util.HashSet.class)) {
-					arg = idOrNull == null ? new java.util.HashSet<Identifier>() : new java.util.HashSet<>(java.util.List.of(idOrNull));
+					arg = idOrNull == null ? new java.util.HashSet<ResourceLocation>() : new java.util.HashSet<>(java.util.List.of(idOrNull));
 				} else {
 					continue;
 				}
@@ -483,7 +483,7 @@ public final class ClientEffects {
 		}
 	}
 
-	private static Identifier glowEffect(int ticksLeft) {
+	private static ResourceLocation glowEffect(int ticksLeft) {
 		int t = 90 - ticksLeft;
 		if (t < 15 || t >= 75) {
 			return GLOW_1_EFFECT;
@@ -494,7 +494,7 @@ public final class ClientEffects {
 		return GLOW_3_EFFECT;
 	}
 
-	private static void setLocalModifier(LocalPlayer p, Holder<Attribute> attribute, Identifier id, double amount,
+	private static void setLocalModifier(LocalPlayer p, Holder<Attribute> attribute, ResourceLocation id, double amount,
 			AttributeModifier.Operation operation, boolean active) {
 		AttributeInstance inst = p.getAttribute(attribute);
 		if (inst == null) {

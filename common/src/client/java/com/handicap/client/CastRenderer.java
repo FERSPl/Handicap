@@ -14,10 +14,10 @@ import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 public final class CastRenderer {
-	private static final Identifier TEXTURE = HandicapMod.id("textures/entity/cast.png");
+	private static final ResourceLocation TEXTURE = HandicapMod.id("textures/entity/cast.png");
 	private static final CubeDeformation PLASTER = new CubeDeformation(0.55f);
 
 	private static ModelPart rightWide;

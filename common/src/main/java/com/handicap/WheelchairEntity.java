@@ -6,6 +6,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
@@ -33,7 +34,7 @@ public class WheelchairEntity extends LivingEntity {
 	}
 
 	@Override
-	public InteractionResult interact(Player player, InteractionHand hand, Vec3 location) {
+	public InteractionResult interact(Player player, InteractionHand hand) {
 		if (player.isSecondaryUseActive() || isVehicle()) {
 			return InteractionResult.PASS;
 		}
@@ -73,8 +74,8 @@ public class WheelchairEntity extends LivingEntity {
 	}
 
 	@Override
-	public boolean hurtServer(ServerLevel level, DamageSource source, float amount) {
-		if (isRemoved()) {
+	public boolean hurt(DamageSource source, float amount) {
+		if (isRemoved() || !(level() instanceof ServerLevel)) {
 			return false;
 		}
 		if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
@@ -83,7 +84,7 @@ public class WheelchairEntity extends LivingEntity {
 		}
 		if (source.getEntity() instanceof Player player) {
 			if (!player.getAbilities().instabuild) {
-				spawnAtLocation(level, new ItemStack(HandicapContent.wheelchairItem()));
+				spawnAtLocation(new ItemStack(HandicapContent.wheelchairItem()), 0.0f);
 			}
 			ejectPassengers();
 			discard();
@@ -116,6 +117,20 @@ public class WheelchairEntity extends LivingEntity {
 	@Override
 	protected boolean canAddPassenger(Entity passenger) {
 		return getPassengers().isEmpty();
+	}
+
+	@Override
+	public Iterable<ItemStack> getArmorSlots() {
+		return java.util.List.of();
+	}
+
+	@Override
+	public ItemStack getItemBySlot(EquipmentSlot slot) {
+		return ItemStack.EMPTY;
+	}
+
+	@Override
+	public void setItemSlot(EquipmentSlot slot, ItemStack stack) {
 	}
 
 	@Override

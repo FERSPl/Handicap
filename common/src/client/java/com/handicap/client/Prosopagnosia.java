@@ -17,7 +17,6 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -121,7 +120,7 @@ public final class Prosopagnosia {
 			if (type == EntityType.PLAYER) {
 				return new RemotePlayer(level, new GameProfile(STEVE, ""));
 			}
-			return type.create(level, EntitySpawnReason.LOAD);
+			return type.create(level);
 		} catch (Throwable t) {
 			return null;
 		}

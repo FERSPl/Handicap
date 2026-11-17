@@ -14,7 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -150,8 +150,8 @@ public final class HandicapManager {
 
 	public static void applySetting(ServerPlayer p, String key, int value) {
 		if (key.equals("permission") || key.equals("descriptions")) {
-			if (server == null || !(server.isSingleplayerOwner(p.nameAndId())
-					|| Commands.hasPermission(Commands.LEVEL_GAMEMASTERS).test(p.createCommandSourceStack()))) {
+			if (server == null || !(server.isSingleplayerOwner(p.getGameProfile())
+					|| p.createCommandSourceStack().hasPermission(Commands.LEVEL_GAMEMASTERS))) {
 				return;
 			}
 			if (key.equals("permission")) {
@@ -213,7 +213,7 @@ public final class HandicapManager {
 	/** Returns false if the chat message must be blocked (Mute). */
 	public static boolean allowChat(ServerPlayer sender) {
 		if (state != null && state.has(sender.getUUID(), Handicap.MUTE)) {
-			sender.sendOverlayMessage(Component.literal("You are mute: you can't speak."));
+			sender.displayClientMessage(Component.literal("You are mute: you can't speak."), true);
 			return false;
 		}
 		return true;
@@ -595,7 +595,7 @@ public final class HandicapManager {
 			ocdMessage(p, rt);
 		}
 		if (rt.ocdPunishing && rt.ocdType != 0) {
-			p.hurtServer((net.minecraft.server.level.ServerLevel) p.level(), p.damageSources().generic(), 4.0f);
+			p.hurt(p.damageSources().generic(), 4.0f);
 		}
 
 		long mask = 0L;
@@ -848,13 +848,13 @@ public final class HandicapManager {
 
 	private static void announce(ServerPlayer p, Component message) {
 		RUNTIME.computeIfAbsent(p.getUUID(), k -> new Runtime()).announceHold = 3;
-		p.sendOverlayMessage(message);
+		p.displayClientMessage(message, true);
 	}
 
 	private static void overlay(ServerPlayer p, Component message) {
 		Runtime rt = RUNTIME.get(p.getUUID());
 		if (rt == null || (rt.ocdType == 0 && rt.announceHold == 0)) {
-			p.sendOverlayMessage(message);
+			p.displayClientMessage(message, true);
 		}
 	}
 
@@ -863,9 +863,9 @@ public final class HandicapManager {
 			return;
 		}
 		String task = (rt.ocdType == 1 ? "Jump " : "Sneak ") + rt.ocdRemaining + " more time" + (rt.ocdRemaining > 1 ? "s" : "");
-		p.sendOverlayMessage(rt.ocdPunishing
+		p.displayClientMessage(rt.ocdPunishing
 			? Component.literal("Obey your compulsion! · " + task).withStyle(ChatFormatting.RED)
-			: Component.literal(task + " · " + Math.max(0, rt.ocdDeadline) + "s").withStyle(ChatFormatting.LIGHT_PURPLE));
+			: Component.literal(task + " · " + Math.max(0, rt.ocdDeadline) + "s").withStyle(ChatFormatting.LIGHT_PURPLE), true);
 	}
 
 	private static void startSeizure(ServerPlayer p, Runtime rt) {
@@ -928,7 +928,7 @@ public final class HandicapManager {
 				rt.ocdType = 0;
 				rt.ocdPunishing = false;
 				rt.ocdCooldown = 60 + p.getRandom().nextInt(120);
-				p.sendOverlayMessage(Component.literal("Compulsion fulfilled").withStyle(ChatFormatting.GREEN));
+				p.displayClientMessage(Component.literal("Compulsion fulfilled").withStyle(ChatFormatting.GREEN), true);
 			}
 		}
 		rt.lastOnGround = onGround;
@@ -940,17 +940,17 @@ public final class HandicapManager {
 		if (fishAllergy && (item.is(Items.COD) || item.is(Items.SALMON) || item.is(Items.COOKED_COD)
 			|| item.is(Items.COOKED_SALMON) || item.is(Items.TROPICAL_FISH) || item.is(Items.PUFFERFISH))) {
 			p.sendSystemMessage(Component.literal("Your fish allergy was fatal...").withStyle(ChatFormatting.RED));
-			p.kill((ServerLevel) p.level());
+			p.kill();
 			return;
 		}
 		if (celiac && (item.is(Items.BREAD) || item.is(Items.COOKIE))) {
 			p.sendSystemMessage(Component.literal("Your celiac disease was fatal...").withStyle(ChatFormatting.RED));
-			p.kill((ServerLevel) p.level());
+			p.kill();
 			return;
 		}
 		if (lactose && item.is(Items.MILK_BUCKET)) {
 			p.sendSystemMessage(Component.literal("Your lactose intolerance was fatal...").withStyle(ChatFormatting.RED));
-			p.kill((ServerLevel) p.level());
+			p.kill();
 			return;
 		}
 		if (diabetes) {
@@ -978,7 +978,7 @@ public final class HandicapManager {
 		if (inst == null) {
 			return;
 		}
-		Identifier id = HandicapMod.id(name);
+		ResourceLocation id = HandicapMod.id(name);
 		AttributeModifier existing = inst.getModifier(id);
 		if (active) {
 			if (existing == null || existing.amount() != amount) {

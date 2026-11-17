@@ -15,7 +15,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -45,7 +45,7 @@ public abstract class AvatarRendererMixin {
 	}
 
 	@Inject(method = "renderHand", at = @At("TAIL"))
-	private void handicap$castInHand(PoseStack poseStack, SubmitNodeCollector collector, int light, Identifier skin,
+	private void handicap$castInHand(PoseStack poseStack, SubmitNodeCollector collector, int light, ResourceLocation skin,
 			ModelPart arm, boolean sleeve, CallbackInfo ci) {
 		Minecraft mc = Minecraft.getInstance();
 		if (mc.player == null) {
