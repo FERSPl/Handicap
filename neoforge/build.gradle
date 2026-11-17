@@ -10,7 +10,7 @@ base {
 version = "${mod_version}+mc${mc_label}"
 group = 'com.handicap'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(25)
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 // Code shared with the other loaders. NeoForge uses a single source set, so the
 // common client code is compiled in too (it is only ever loaded on the client).
@@ -54,7 +54,7 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 25
+	it.options.release = 21
 }
 
 jar {
