@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(EntityRenderDispatcher.class)
 public abstract class EntityRenderDispatcherMixin {
-	@ModifyVariable(method = "extractEntity", at = @At("HEAD"), argsOnly = true)
+	@ModifyVariable(method = "render", at = @At("HEAD"), argsOnly = true)
 	private Entity handicap$disguise(Entity entity) {
 		return Prosopagnosia.disguise(entity);
 	}

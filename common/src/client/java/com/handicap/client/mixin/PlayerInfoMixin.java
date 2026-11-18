@@ -6,7 +6,7 @@ import com.mojang.authlib.GameProfile;
 
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.world.entity.player.PlayerSkin;
+import net.minecraft.client.resources.PlayerSkin;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,7 +23,7 @@ public abstract class PlayerInfoMixin {
 
 	@Inject(method = "getSkin", at = @At("HEAD"), cancellable = true)
 	private void handicap$steve(CallbackInfoReturnable<PlayerSkin> cir) {
-		if (Prosopagnosia.hides(profile.id())) {
+		if (Prosopagnosia.hides(profile.getId())) {
 			cir.setReturnValue(DefaultPlayerSkin.getDefaultSkin());
 		}
 	}

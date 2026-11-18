@@ -2,10 +2,9 @@ package com.handicap.client.mixin;
 
 import com.handicap.client.InventoryPanel;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.input.MouseButtonEvent;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,16 +26,16 @@ public abstract class ContainerScreenMixin {
 	@Final
 	protected int imageWidth;
 
-	@Inject(method = "extractContents", at = @At("TAIL"))
-	private void handicap$panel(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
+	@Inject(method = "render", at = @At("TAIL"))
+	private void handicap$panel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
 		if (InventoryPanel.supports((Screen) (Object) this)) {
 			InventoryPanel.render(graphics, leftPos, topPos, imageWidth, mouseX, mouseY);
 		}
 	}
 
 	@Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
-	private void handicap$click(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
-		if (InventoryPanel.supports((Screen) (Object) this) && InventoryPanel.click(event.x(), event.y(), event.button())) {
+	private void handicap$click(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
+		if (InventoryPanel.supports((Screen) (Object) this) && InventoryPanel.click(mouseX, mouseY, button)) {
 			cir.setReturnValue(true);
 		}
 	}

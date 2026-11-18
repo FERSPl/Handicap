@@ -14,12 +14,11 @@ import com.handicap.client.WheelchairRenderer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.renderer.entity.EntityRenderers;
@@ -36,14 +35,12 @@ public class HandicapFabricClient implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(LimbsPayload.TYPE, (payload, context) ->
 			ClientLimbs.set(payload.player(), payload.limbs()));
 
-		ModelLayerRegistry.registerModelLayer(WheelchairModel.LAYER, WheelchairModel::createBodyLayer);
+		EntityModelLayerRegistry.registerModelLayer(WheelchairModel.LAYER, WheelchairModel::createBodyLayer);
 		EntityRenderers.register(HandicapContent.wheelchair(), WheelchairRenderer::new);
 
-		KeyMapping.Category category =KeyMapping.Category.register(HandicapMod.id("main"));
-		KeyMappingHelper.registerKeyMapping(HandicapHud.createKey(category));
+		KeyBindingHelper.registerKeyBinding(HandicapHud.createKey("key.category.handicap.main"));
 
-		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, HandicapMod.id("list"),
-			(graphics, tickCounter) -> HandicapHud.render(graphics));
+		HudRenderCallback.EVENT.register((graphics, tickCounter) -> HandicapHud.render(graphics));
 
 		ClientTickEvents.START_CLIENT_TICK.register(ClientEffects::tick);
 		ClientTickEvents.END_CLIENT_TICK.register(client -> HandicapHud.tick());

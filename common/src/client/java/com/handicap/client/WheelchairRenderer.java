@@ -5,10 +5,9 @@ import com.handicap.WheelchairEntity;
 
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 import net.minecraft.resources.ResourceLocation;
 
-public class WheelchairRenderer extends LivingEntityRenderer<WheelchairEntity, LivingEntityRenderState, WheelchairModel> {
+public class WheelchairRenderer extends LivingEntityRenderer<WheelchairEntity, WheelchairModel> {
 	private static final ResourceLocation TEXTURE = HandicapMod.id("textures/entity/wheelchair.png");
 
 	public WheelchairRenderer(EntityRendererProvider.Context context) {
@@ -16,17 +15,12 @@ public class WheelchairRenderer extends LivingEntityRenderer<WheelchairEntity, L
 	}
 
 	@Override
-	public LivingEntityRenderState createRenderState() {
-		return new LivingEntityRenderState();
-	}
-
-	@Override
-	public ResourceLocation getTextureLocation(LivingEntityRenderState state) {
+	public ResourceLocation getTextureLocation(WheelchairEntity entity) {
 		return TEXTURE;
 	}
 
 	@Override
-	protected boolean shouldShowName(WheelchairEntity entity, double distanceSq) {
-		return entity.hasCustomName() && super.shouldShowName(entity, distanceSq);
+	protected boolean shouldShowName(WheelchairEntity entity) {
+		return entity.hasCustomName() && super.shouldShowName(entity);
 	}
 }

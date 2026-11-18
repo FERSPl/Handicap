@@ -4,6 +4,7 @@ import com.handicap.HandicapMod;
 import com.handicap.LimbsPayload;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -11,8 +12,8 @@ import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
-import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.resources.ResourceLocation;
 
@@ -28,7 +29,7 @@ public final class CastRenderer {
 	private CastRenderer() {
 	}
 
-	public static void submit(PoseStack poseStack, SubmitNodeCollector collector, int light, ModelPart arm,
+	public static void render(PoseStack poseStack, MultiBufferSource buffers, int light, ModelPart arm,
 			int limbs, boolean right, boolean slim) {
 		int bit = right ? LimbsPayload.CAST_RIGHT_ARM : LimbsPayload.CAST_LEFT_ARM;
 		if ((limbs & bit) == 0 || !arm.visible) {
@@ -36,8 +37,8 @@ public final class CastRenderer {
 		}
 		poseStack.pushPose();
 		arm.translateAndRotate(poseStack);
-		collector.submitModelPart(part(right, slim), poseStack, RenderTypes.entityCutout(TEXTURE), light,
-			OverlayTexture.NO_OVERLAY, null);
+		VertexConsumer consumer = buffers.getBuffer(RenderType.entityCutout(TEXTURE));
+		part(right, slim).render(poseStack, consumer, light, OverlayTexture.NO_OVERLAY);
 		poseStack.popPose();
 	}
 

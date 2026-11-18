@@ -12,12 +12,11 @@ import java.util.List;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -87,7 +86,7 @@ public final class InventoryPanel {
 		return screen instanceof InventoryScreen || screen instanceof CreativeModeInventoryScreen;
 	}
 
-	public static void render(GuiGraphicsExtractor g, int left, int top, int imageWidth, int mouseX, int mouseY) {
+	public static void render(GuiGraphics g, int left, int top, int imageWidth, int mouseX, int mouseY) {
 		shown = false;
 		buttonShown = false;
 		Minecraft mc = Minecraft.getInstance();
@@ -153,13 +152,13 @@ public final class InventoryPanel {
 
 		int textX = x + inset;
 		logo(g, textX, y + PADDING + 1);
-		g.text(font, title, textX + LOGO_SIZE + LOGO_GAP, y + PADDING + 2, TITLE, false);
+		g.drawString(font, title, textX + LOGO_SIZE + LOGO_GAP, y + PADDING + 2, TITLE, false);
 		gearX = x + w - inset - GEAR;
 		gearY = y + PADDING + 2;
 		boolean gearHover = inside(mouseX, mouseY, gearX - 2, gearY - 2, GEAR + 4, GEAR + 4);
 		gear(g, gearX, gearY, gearHover ? ACCENT : MUTED);
 		if (gearHover) {
-			g.setTooltipForNextFrame(font, Component.literal("Settings"), mouseX, mouseY);
+			g.renderTooltip(font, Component.literal("Settings"), mouseX, mouseY);
 		}
 
 		int cardX = x + PADDING;
@@ -170,7 +169,7 @@ public final class InventoryPanel {
 
 		int listTop = cardY + CARD_PAD;
 		if (owned.isEmpty()) {
-			g.text(font, "None", textX, listTop, MUTED, false);
+			g.drawString(font, "None", textX, listTop, MUTED, false);
 		} else {
 			for (int i = scroll; i < owned.size() && i < scroll + visible; i++) {
 				Handicap d = owned.get(i);
@@ -193,11 +192,11 @@ public final class InventoryPanel {
 		}
 
 		int textY = cardY + cardH + 4;
-		g.text(font, timer, textX, textY, MUTED, false);
+		g.drawString(font, timer, textX, textY, MUTED, false);
 		textY += LINE;
-		g.text(font, stacking, textX, textY, MUTED, false);
+		g.drawString(font, stacking, textX, textY, MUTED, false);
 		if (mouseX >= x && mouseX < x + w && mouseY >= textY - 1 && mouseY < textY + LINE - 1) {
-			g.setTooltipForNextFrame(font, font.split(Component.literal(ClientState.stacking()
+			g.renderTooltip(font, font.split(Component.literal(ClientState.stacking()
 				? "Stacking is on: handicaps add up."
 				: "Stacking is off: a new handicap replaces the previous one."), 180), mouseX, mouseY);
 		}
@@ -210,12 +209,12 @@ public final class InventoryPanel {
 			buttonW = w - PADDING * 2;
 			boolean hover = mouseX >= buttonX && mouseX < buttonX + buttonW && mouseY >= buttonY && mouseY < buttonY + BUTTON_HEIGHT;
 			roundedFill(g, buttonX, buttonY, buttonW, BUTTON_HEIGHT, RADIUS, hover ? BUTTON_HOVER : BUTTON);
-			g.centeredText(font, "Next handicap", buttonX + buttonW / 2, buttonY + 3, TEXT);
+			g.drawCenteredString(font, "Next handicap", buttonX + buttonW / 2, buttonY + 3, TEXT);
 		}
 
 	}
 
-	private static void gear(GuiGraphicsExtractor g, int x, int y, int color) {
+	private static void gear(GuiGraphics g, int x, int y, int color) {
 		for (int row = 0; row < GEAR_SHAPE.length; row++) {
 			for (int col = 0; col < GEAR; col++) {
 				if (GEAR_SHAPE[row].charAt(col) == '#') {
@@ -225,7 +224,7 @@ public final class InventoryPanel {
 		}
 	}
 
-	static void roundedFill(GuiGraphicsExtractor g, int x, int y, int w, int h, int radius, int color) {
+	static void roundedFill(GuiGraphics g, int x, int y, int w, int h, int radius, int color) {
 		int r = Math.min(radius, Math.min(w, h) / 2);
 		for (int i = 0; i < r; i++) {
 			double dy = r - i - 0.5;
@@ -236,28 +235,28 @@ public final class InventoryPanel {
 		g.fill(x, y + r, x + w, y + h - r, color);
 	}
 
-	static void logo(GuiGraphicsExtractor g, int x, int y) {
-		g.blit(RenderPipelines.GUI_TEXTURED, LOGO, x, y, 0, 0, LOGO_SIZE, LOGO_SIZE, 32, 32, 32, 32);
+	static void logo(GuiGraphics g, int x, int y) {
+		g.blit(LOGO, x, y, LOGO_SIZE, LOGO_SIZE, 0, 0, 32, 32, 32, 32);
 	}
 
 	static int nameIndent() {
 		return HandicapConfig.coloredNames() ? 0 : DOT;
 	}
 
-	static void entry(GuiGraphicsExtractor g, Font font, Component name, int x, int y, int color) {
+	static void entry(GuiGraphics g, Font font, Component name, int x, int y, int color) {
 		entry(g, font, name, x, y, color, false);
 	}
 
-	static void entry(GuiGraphicsExtractor g, Font font, Component name, int x, int y, int color, boolean shadow) {
+	static void entry(GuiGraphics g, Font font, Component name, int x, int y, int color, boolean shadow) {
 		if (HandicapConfig.coloredNames()) {
-			g.text(font, name, x, y, color, shadow);
+			g.drawString(font, name, x, y, color, shadow);
 		} else {
 			dot(g, x, y, color);
-			g.text(font, name, x + DOT, y, TEXT, shadow);
+			g.drawString(font, name, x + DOT, y, TEXT, shadow);
 		}
 	}
 
-	static void dot(GuiGraphicsExtractor g, int x, int y, int color) {
+	static void dot(GuiGraphics g, int x, int y, int color) {
 		g.fill(x + 1, y + 2, x + 3, y + 6, color);
 		g.fill(x, y + 3, x + 4, y + 5, color);
 	}
@@ -276,7 +275,7 @@ public final class InventoryPanel {
 			Minecraft mc = Minecraft.getInstance();
 			if (mc.player != null) {
 				clickSound();
-				mc.player.connection.sendCommand("handicap next " + mc.player.getGameProfile().name());
+				mc.player.connection.sendCommand("handicap next " + mc.player.getGameProfile().getName());
 			}
 		}
 		return true;
@@ -313,14 +312,14 @@ public final class InventoryPanel {
 		return COLORS[d.ordinal() % COLORS.length];
 	}
 
-	private static void tooltip(GuiGraphicsExtractor g, Font font, Handicap d, boolean hidden, int mouseX, int mouseY) {
+	private static void tooltip(GuiGraphics g, Font font, Handicap d, boolean hidden, int mouseX, int mouseY) {
 		if (!ClientState.showDescriptions()) {
 			return;
 		}
 		List<FormattedCharSequence> lines = new ArrayList<>();
 		lines.add(hide(d.displayName, hidden).withColor(color(d) & 0xFFFFFF).getVisualOrderText());
 		lines.addAll(font.split(hide(d.description, hidden).withStyle(ChatFormatting.GRAY), 180));
-		g.setTooltipForNextFrame(font, lines, mouseX, mouseY);
+		g.renderTooltip(font, lines, mouseX, mouseY);
 	}
 
 	static Component timerLine() {

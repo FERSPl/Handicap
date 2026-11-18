@@ -1,8 +1,9 @@
 package com.handicap.client;
 
 import com.handicap.HandicapMod;
+import com.handicap.WheelchairEntity;
 
-import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -11,19 +12,19 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 
 /** Wheelchair model, exported from the Blockbench project (wheelchair.bbmodel, 128x128 texture). */
-public class WheelchairModel extends EntityModel<LivingEntityRenderState> {
+public class WheelchairModel extends HierarchicalModel<WheelchairEntity> {
 	public static final ModelLayerLocation LAYER = new ModelLayerLocation(HandicapMod.id("wheelchair"), "main");
 
+	private final ModelPart root;
 	private final ModelPart rightFrontWheel;
 	private final ModelPart leftFrontWheel;
 	private final ModelPart rightBackWheel;
 	private final ModelPart leftBackWheel;
 
 	public WheelchairModel(ModelPart root) {
-		super(root);
+		this.root = root;
 		this.rightFrontWheel = root.getChild("right_front_wheel");
 		this.leftFrontWheel = root.getChild("left_front_wheel");
 		this.rightBackWheel = root.getChild("right_back_wheel");
@@ -94,13 +95,16 @@ public class WheelchairModel extends EntityModel<LivingEntityRenderState> {
 	}
 
 	@Override
-	public void setupAnim(LivingEntityRenderState state) {
-		super.setupAnim(state);
-		// The wheels turn as the chair rolls. The small casters spin faster.
-		float roll = state.walkAnimationPos;
-		rightBackWheel.xRot = roll * 0.6f;
-		leftBackWheel.xRot = roll * 0.6f;
-		rightFrontWheel.xRot = roll * 2.0f;
-		leftFrontWheel.xRot = roll * 2.0f;
+	public ModelPart root() {
+		return root;
+	}
+
+	@Override
+	public void setupAnim(WheelchairEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks,
+			float netHeadYaw, float headPitch) {
+		rightBackWheel.xRot = limbSwing * 0.6f;
+		leftBackWheel.xRot = limbSwing * 0.6f;
+		rightFrontWheel.xRot = limbSwing * 2.0f;
+		leftFrontWheel.xRot = limbSwing * 2.0f;
 	}
 }

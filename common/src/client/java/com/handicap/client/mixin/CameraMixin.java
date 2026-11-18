@@ -19,7 +19,7 @@ public abstract class CameraMixin {
 	@Shadow
 	private Quaternionf rotation;
 
-	@Inject(method = "alignWithEntity", at = @At("TAIL"), require = 0)
+	@Inject(method = "setup", at = @At("TAIL"), require = 0)
 	private void handicap$tilt(CallbackInfo ci) {
 		if (ClientState.has(Handicap.SCOLIOSIS)) {
 			this.rotation.rotateZ((float) Math.toRadians(12.0));

@@ -1,7 +1,7 @@
 {
 	"required": false,
 	"package": "com.handicap.client.mixin",
-	"compatibilityLevel": "JAVA_25",
+	"compatibilityLevel": "JAVA_21",
 	"client": [
 		"CameraMixin",
 		"StringDecomposerMixin",
@@ -14,8 +14,7 @@
 		"EntityRenderDispatcherMixin",
 		"AbstractClientPlayerMixin",
 		"PlayerInfoMixin",
-		"KeyboardInputMixin",
-		"ClientInputAccessor"
+		"KeyboardInputMixin"
 	],
 	"injectors": {
 		"defaultRequire": 0

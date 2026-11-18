@@ -13,7 +13,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -31,7 +31,7 @@ import net.neoforged.neoforge.event.GameShuttingDownEvent;
 @Mod(value = HandicapMod.MOD_ID, dist = Dist.CLIENT)
 public class HandicapNeoForgeClient {
 	public HandicapNeoForgeClient(IEventBus modBus, ModContainer container) {
-		ClientState.sender = payload -> ClientPacketDistributor.sendToServer(payload);
+		ClientState.sender = payload -> PacketDistributor.sendToServer(payload);
 		modBus.addListener(this::registerKeys);
 		modBus.addListener(this::registerLayers);
 		modBus.addListener(this::registerModelLayers);
@@ -46,9 +46,7 @@ public class HandicapNeoForgeClient {
 	}
 
 	private void registerKeys(RegisterKeyMappingsEvent event) {
-		KeyMapping.Category category = new KeyMapping.Category(HandicapMod.id("main"));
-		event.registerCategory(category);
-		event.register(HandicapHud.createKey(category));
+		event.register(HandicapHud.createKey("key.category.handicap.main"));
 	}
 
 	private void registerLayers(RegisterGuiLayersEvent event) {

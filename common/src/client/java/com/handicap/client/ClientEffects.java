@@ -240,7 +240,7 @@ public final class ClientEffects {
 			sleepwalkTicks = 0;
 		}
 
-		int slot = p.getInventory().getSelectedSlot();
+		int slot = p.getInventory().selected;
 		if (lastSlot < 0) {
 			lastSlot = slot;
 		}
@@ -248,7 +248,7 @@ public final class ClientEffects {
 			if (stickyLock > 0) {
 				stickyLock--;
 				if (slot != lastSlot) {
-					p.getInventory().setSelectedSlot(lastSlot);
+					p.getInventory().selected = lastSlot;
 				}
 			} else if (slot != lastSlot) {
 				lastSlot = slot;
@@ -301,7 +301,7 @@ public final class ClientEffects {
 		}
 
 		if (ClientState.has(Handicap.ADHD) && rnd.nextInt(160) == 0) {
-			p.getInventory().setSelectedSlot(rnd.nextInt(9));
+			p.getInventory().selected = rnd.nextInt(9);
 		}
 
 		if (ClientState.has(Handicap.VERTIGO)) {

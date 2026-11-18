@@ -3,12 +3,11 @@ package com.handicap.client;
 import com.handicap.HandicapConfig;
 import com.handicap.SettingsPayload;
 
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.permissions.Permissions;
 
 public class HandicapSettingsScreen extends Screen {
 	private static final int[] TIMER = {0, 60, 120, 300, 600, 900, 1200, 1800, 3600};
@@ -46,7 +45,7 @@ public class HandicapSettingsScreen extends Screen {
 		boolean inWorld = this.minecraft.player != null;
 		boolean editRules = inWorld && InventoryPanel.canNext(this.minecraft.player);
 		boolean admin = !inWorld || this.minecraft.hasSingleplayerServer()
-			|| this.minecraft.player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER);
+			|| this.minecraft.player.hasPermissions(2);
 		String locked = inWorld ? " You don't have the permission to change this." : " Join a world to change this.";
 		int y = Math.max(26, this.height / 2 - 112);
 		displayY = y;
@@ -152,12 +151,12 @@ public class HandicapSettingsScreen extends Screen {
 	}
 
 	@Override
-	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-		super.extractRenderState(graphics, mouseX, mouseY, partialTick);
-		graphics.centeredText(this.font, this.title, this.width / 2, 12, 0xFFFFFFFF);
-		graphics.text(this.font, "Display", left, displayY, HEADER, true);
-		graphics.text(this.font, "Game rules (this world)", left, rulesY, HEADER, true);
-		graphics.text(this.font, "Server config", left, serverY, HEADER, true);
+	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		super.render(graphics, mouseX, mouseY, partialTick);
+		graphics.drawCenteredString(this.font, this.title, this.width / 2, 12, 0xFFFFFFFF);
+		graphics.drawString(this.font, "Display", left, displayY, HEADER, true);
+		graphics.drawString(this.font, "Game rules (this world)", left, rulesY, HEADER, true);
+		graphics.drawString(this.font, "Server config", left, serverY, HEADER, true);
 	}
 
 	@Override

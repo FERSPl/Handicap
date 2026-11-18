@@ -11,7 +11,7 @@ import java.util.List;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.effect.MobEffectInstance;
 
@@ -31,7 +31,7 @@ public final class HandicapHud {
 	private HandicapHud() {
 	}
 
-	public static KeyMapping createKey(KeyMapping.Category category) {
+	public static KeyMapping createKey(String category) {
 		toggleKey = new KeyMapping(
 			"key.handicap.toggle_list",
 			InputConstants.Type.KEYSYM,
@@ -40,7 +40,7 @@ public final class HandicapHud {
 		return toggleKey;
 	}
 
-	public static void render(GuiGraphicsExtractor graphics) {
+	public static void render(GuiGraphics graphics) {
 		Minecraft mc = Minecraft.getInstance();
 		if (!HandicapConfig.hudShown() || mc.player == null || InventoryPanel.supports(mc.screen)) {
 			return;
@@ -100,14 +100,14 @@ public final class HandicapHud {
 		y = Math.max(4, y);
 		boolean background = HandicapConfig.hudBackground();
 
-		graphics.pose().pushMatrix();
-		graphics.pose().scale(SCALE, SCALE);
+		graphics.pose().pushPose();
+		graphics.pose().scale(SCALE, SCALE, 1.0f);
 		if (background) {
 			InventoryPanel.roundedFill(graphics, x, y, boxWidth, boxHeight, RADIUS, InventoryPanel.HUD_BACKGROUND);
 		}
 		int textX = x + inset;
 		InventoryPanel.logo(graphics, textX, y + PADDING);
-		graphics.text(font, title, textX + InventoryPanel.LOGO_SIZE + InventoryPanel.LOGO_GAP, y + PADDING + 1, InventoryPanel.TITLE, !background);
+		graphics.drawString(font, title, textX + InventoryPanel.LOGO_SIZE + InventoryPanel.LOGO_GAP, y + PADDING + 1, InventoryPanel.TITLE, !background);
 		int cardY = y + PADDING + LINE_HEIGHT + 2;
 		if (background) {
 			InventoryPanel.roundedFill(graphics, x + PADDING, cardY, boxWidth - PADDING * 2, cardH, RADIUS, InventoryPanel.CARD);
@@ -118,12 +118,12 @@ public final class HandicapHud {
 			textY += LINE_HEIGHT;
 		}
 		if (more > 0) {
-			graphics.text(font, "+" + more + " more", textX, textY, InventoryPanel.MUTED, !background);
+			graphics.drawString(font, "+" + more + " more", textX, textY, InventoryPanel.MUTED, !background);
 		}
 		if (timerOn) {
-			graphics.text(font, timer, textX, cardY + cardH + 4, InventoryPanel.MUTED, !background);
+			graphics.drawString(font, timer, textX, cardY + cardH + 4, InventoryPanel.MUTED, !background);
 		}
-		graphics.pose().popMatrix();
+		graphics.pose().popPose();
 	}
 
 	private static int effectIconsHeight(Minecraft mc) {

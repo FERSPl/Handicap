@@ -21,7 +21,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.npc.villager.AbstractVillager;
+import net.minecraft.world.entity.npc.AbstractVillager;
 
 public final class Prosopagnosia {
 	private static final String HIDDEN_NAME = "???";
@@ -56,8 +56,8 @@ public final class Prosopagnosia {
 		FAKES.keySet().removeIf(id -> mc.level.getEntity(id) == null);
 		List<String> found = new ArrayList<>();
 		for (PlayerInfo info : mc.getConnection().getOnlinePlayers()) {
-			String name = info.getProfile().name();
-			if (mc.player != null && !info.getProfile().id().equals(mc.player.getUUID()) && name.length() >= 2) {
+			String name = info.getProfile().getName();
+			if (mc.player != null && !info.getProfile().getId().equals(mc.player.getUUID()) && name.length() >= 2) {
 				found.add(name);
 			}
 		}
