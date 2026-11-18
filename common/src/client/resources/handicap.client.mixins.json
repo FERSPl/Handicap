@@ -14,7 +14,8 @@
 		"EntityRenderDispatcherMixin",
 		"AbstractClientPlayerMixin",
 		"PlayerInfoMixin",
-		"KeyboardInputMixin"
+		"KeyboardInputMixin",
+		"GameRendererAccessor"
 	],
 	"injectors": {
 		"defaultRequire": 0

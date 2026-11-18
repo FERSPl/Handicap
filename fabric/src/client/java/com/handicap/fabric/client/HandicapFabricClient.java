@@ -21,7 +21,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 
 public class HandicapFabricClient implements ClientModInitializer {
 	@Override
@@ -36,7 +36,7 @@ public class HandicapFabricClient implements ClientModInitializer {
 			ClientLimbs.set(payload.player(), payload.limbs()));
 
 		EntityModelLayerRegistry.registerModelLayer(WheelchairModel.LAYER, WheelchairModel::createBodyLayer);
-		EntityRenderers.register(HandicapContent.wheelchair(), WheelchairRenderer::new);
+		EntityRendererRegistry.register(HandicapContent.wheelchair(), WheelchairRenderer::new);
 
 		KeyBindingHelper.registerKeyBinding(HandicapHud.createKey("key.category.handicap.main"));
 
