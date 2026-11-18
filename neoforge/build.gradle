@@ -19,6 +19,13 @@ sourceSets.main {
 	resources.srcDirs '../common/src/main/resources', '../common/src/client/resources'
 }
 
+sourceSets {
+	gametest {
+		compileClasspath += sourceSets.main.output
+		runtimeClasspath += sourceSets.main.output
+	}
+}
+
 neoForge {
 	version = project.neo_version
 
@@ -30,11 +37,26 @@ neoForge {
 			server()
 			programArgument '--nogui'
 		}
+		clientSmoke {
+			client()
+			sourceSet = sourceSets.gametest
+			gameDirectory = project.file('run-smoke')
+			systemProperty 'handicap.smoke', 'true'
+			programArguments.addAll('--quickPlaySingleplayer', 'Smoke')
+		}
+		gameTestServer {
+			type = "gameTestServer"
+			sourceSet = sourceSets.gametest
+			systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+		}
 	}
+
+	addModdingDependenciesTo(sourceSets.gametest)
 
 	mods {
 		"${mod_id}" {
 			sourceSet(sourceSets.main)
+			sourceSet(sourceSets.gametest)
 		}
 	}
 }
