@@ -1,3 +1,5 @@
+modLoader="javafml"
+loaderVersion="[1,)"
 license="LGPLv3"
 issueTrackerURL="https://github.com/FERSPl/Handicap/issues"
 
