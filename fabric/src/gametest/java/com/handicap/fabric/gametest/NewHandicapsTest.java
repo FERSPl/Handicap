@@ -41,6 +41,10 @@ public class NewHandicapsTest implements FabricClientGameTest {
 			if (variants != 6 || !chime) {
 				throw new AssertionError("sounds: " + variants + " fart variants, new handicap sound loaded=" + chime);
 			}
+			world.getServer().runCommand("handicap give @a double_vision");
+			context.waitTicks(40);
+			context.takeScreenshot("double-vision");
+			world.getServer().runCommand("handicap clear @a");
 			world.getServer().runCommand("handicap give @a flatulence");
 			world.getServer().runCommand("playsound handicap:flatulence player @a ~ ~ ~");
 			context.waitTicks(20);
