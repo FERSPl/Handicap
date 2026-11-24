@@ -15,6 +15,7 @@
 		"PlayerInfoMixin",
 		"KeyboardInputMixin",
 		"GameRendererAccessor",
+		"StiffNeckMixin",
 		"GameRendererTiltMixin"
 	],
 	"injectors": {

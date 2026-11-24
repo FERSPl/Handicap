@@ -33,6 +33,8 @@ public class HandicapFabric implements ModInitializer {
 	public void onInitialize() {
 		Registry.register(BuiltInRegistries.ENTITY_TYPE, HandicapContent.WHEELCHAIR_ENTITY_KEY, HandicapContent.createEntity());
 		Registry.register(BuiltInRegistries.ITEM, HandicapContent.WHEELCHAIR_ITEM_KEY, HandicapContent.createItem());
+		Registry.register(BuiltInRegistries.SOUND_EVENT, HandicapContent.FLATULENCE_SOUND_ID, HandicapContent.createFlatulenceSound());
+		Registry.register(BuiltInRegistries.SOUND_EVENT, HandicapContent.NEW_HANDICAP_SOUND_ID, HandicapContent.createNewHandicapSound());
 		FabricDefaultAttributeRegistry.register(HandicapContent.wheelchair(), WheelchairEntity.createAttributes());
 		ItemGroupEvents.modifyEntriesEvent(HandicapContent.TOOLS_TAB).register(entries ->
 			entries.accept(HandicapContent.wheelchairItem()));
