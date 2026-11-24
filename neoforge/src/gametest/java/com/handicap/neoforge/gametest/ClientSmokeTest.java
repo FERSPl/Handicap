@@ -14,9 +14,11 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 
 @EventBusSubscriber(modid = HandicapMod.MOD_ID, value = Dist.CLIENT)
 public final class ClientSmokeTest {
-	private static final List<String> STEPS = List.of(
+	private static final List<String> ALL_STEPS = List.of(
 		"color_blind", "myopia", "hyperopia", "tunnel_vision", "inverted_vision", "visual_agnosia",
 		"derealization", "migraine", "scoliosis", "blind");
+	private static final String ONLY = System.getProperty("handicap.smoke.steps", "");
+	private static final List<String> STEPS = ONLY.isBlank() ? ALL_STEPS : List.of(ONLY.split(","));
 	private static final int STEP = 60;
 	private static int ticks;
 
@@ -39,6 +41,7 @@ public final class ClientSmokeTest {
 			run(mc, "handicap clear @a");
 			run(mc, "time set noon");
 			run(mc, "weather clear");
+			run(mc, "execute as @a at @s positioned over world_surface run tp @s ~ ~ ~ 0 0");
 		}
 		if (ticks == start + 40) {
 			shot(mc, "baseline");
@@ -53,6 +56,15 @@ public final class ClientSmokeTest {
 			}
 		}
 		int end = start + STEP * (STEPS.size() + 1);
+		if (!ONLY.isBlank()) {
+			if (ticks == end) {
+				run(mc, "handicap clear @a");
+				HandicapMod.LOGGER.info("[Handicap smoke] finished");
+			} else if (ticks == end + 20) {
+				mc.stop();
+			}
+			return;
+		}
 		if (ticks == end) {
 			run(mc, "handicap clear @a");
 			run(mc, "handicap give @a all");

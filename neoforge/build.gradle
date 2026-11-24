@@ -42,6 +42,7 @@ neoForge {
 			sourceSet = sourceSets.gametest
 			gameDirectory = project.file('run-smoke')
 			systemProperty 'handicap.smoke', 'true'
+			systemProperty 'handicap.smoke.steps', project.findProperty('smokeSteps') ?: ''
 			programArguments.addAll('--quickPlaySingleplayer', 'Smoke')
 		}
 		gameTestServer {
