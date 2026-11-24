@@ -5,7 +5,7 @@ import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
 import net.fabricmc.fabric.api.client.gametest.v1.context.TestSingleplayerContext;
 
 public class FilterStackTest implements FabricClientGameTest {
-	private static final String[] FILTERS = {"color_blind", "tunnel_vision", "derealization", "inverted_vision"};
+	private static final String[] FILTERS = {"color_blind", "tunnel_vision", "derealization", "inverted_vision", "double_vision"};
 
 	@Override
 	public void runTest(ClientGameTestContext context) {

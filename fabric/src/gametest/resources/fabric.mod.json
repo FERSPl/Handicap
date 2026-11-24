@@ -14,7 +14,8 @@
 			"com.handicap.fabric.gametest.PermissionTest",
 			"com.handicap.fabric.gametest.WheelchairTest",
 			"com.handicap.fabric.gametest.SettingsMenuTest",
-			"com.handicap.fabric.gametest.FilterStackTest"
+			"com.handicap.fabric.gametest.FilterStackTest",
+			"com.handicap.fabric.gametest.NewHandicapsTest"
 		]
 	}
 }

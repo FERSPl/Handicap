@@ -3,6 +3,7 @@ package com.handicap;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.CreativeModeTab;
@@ -22,6 +23,10 @@ public final class HandicapContent {
 
 	private static EntityType<WheelchairEntity> wheelchair;
 	private static Item wheelchairItem;
+	private static SoundEvent flatulenceSound;
+	private static SoundEvent newHandicapSound;
+	public static final Identifier FLATULENCE_SOUND_ID = HandicapMod.id("flatulence");
+	public static final Identifier NEW_HANDICAP_SOUND_ID = HandicapMod.id("new_handicap");
 
 	private HandicapContent() {
 	}
@@ -42,6 +47,24 @@ public final class HandicapContent {
 
 	public static EntityType<WheelchairEntity> wheelchair() {
 		return wheelchair;
+	}
+
+	public static SoundEvent createFlatulenceSound() {
+		flatulenceSound = SoundEvent.createVariableRangeEvent(FLATULENCE_SOUND_ID);
+		return flatulenceSound;
+	}
+
+	public static SoundEvent createNewHandicapSound() {
+		newHandicapSound = SoundEvent.createVariableRangeEvent(NEW_HANDICAP_SOUND_ID);
+		return newHandicapSound;
+	}
+
+	public static SoundEvent newHandicapSound() {
+		return newHandicapSound;
+	}
+
+	public static SoundEvent flatulenceSound() {
+		return flatulenceSound;
 	}
 
 	public static Item wheelchairItem() {

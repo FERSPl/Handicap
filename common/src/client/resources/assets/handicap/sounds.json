@@ -1,0 +1,19 @@
+{
+	"flatulence": {
+		"category": "player",
+		"sounds": [
+			"handicap:flatulence_tiny",
+			"handicap:flatulence_pop",
+			"handicap:flatulence_short",
+			"handicap:flatulence_soft",
+			"handicap:flatulence_long",
+			"handicap:flatulence_rumble"
+		]
+	},
+	"new_handicap": {
+		"category": "ui",
+		"sounds": [
+			"handicap:new_handicap"
+		]
+	}
+}

@@ -7,20 +7,20 @@
 </p>
 
 <p align="center">
-  A Fabric, Neoforge & Quilt mod that makes every 10 minutes a new challenge.
+  A Fabric, Quilt, NeoForge & Forge mod that makes every 10 minutes a new challenge.
 </p>
 
 ---
 <div align="center"><center>
-
-[![BisectHosting](https://img.shields.io/badge/BisectHosting-25%25%20OFF%20%E2%80%A2%20GET%20A%20SERVER-00b8d4?style=for-the-badge&logo=curseforge&logoColor=white)](https://url-shortener.curseforge.com/PKZnN)
-
+ 
 [![Latest Version](https://img.shields.io/github/v/release/FERSPl/Handicap?color=blueviolet&logo=github "View latest release")](https://github.com/FERSPl/Handicap/releases)
-![Mod loader: Fabric](https://img.shields.io/badge/modloader-Fabric-1976d2?style=flat-square&logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAACXBIWXMAAAsTAAALEwEAmpwYAAAFHGlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4gPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iQWRvYmUgWE1QIENvcmUgNS42LWMxNDIgNzkuMTYwOTI0LCAyMDE3LzA3LzEzLTAxOjA2OjM5ICAgICAgICAiPiA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMiPiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtbG5zOmRjPSJodHRwOi8vcHVybC5vcmcvZGMvZWxlbWVudHMvMS4xLyIgeG1sbnM6cGhvdG9zaG9wPSJodHRwOi8vbnMuYWRvYmUuY29tL3Bob3Rvc2hvcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RFdnQ9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZUV2ZW50IyIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ0MgMjAxOCAoV2luZG93cykiIHhtcDpDcmVhdGVEYXRlPSIyMDE4LTEyLTE2VDE2OjU0OjE3LTA4OjAwIiB4bXA6TW9kaWZ5RGF0ZT0iMjAxOS0wNy0yOFQyMToxNzo0OC0wNzowMCIgeG1wOk1ldGFkYXRhRGF0ZT0iMjAxOS0wNy0yOFQyMToxNzo0OC0wNzowMCIgZGM6Zm9ybWF0PSJpbWFnZS9wbmciIHBob3Rvc2hvcDpDb2xvck1vZGU9IjMiIHBob3Rvc2hvcDpJQ0NQcm9maWxlPSJzUkdCIElFQzYxOTY2LTIuMSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDowZWRiMWMyYy1mZjhjLWU0NDEtOTMxZi00OTVkNGYxNGM3NjAiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6MGVkYjFjMmMtZmY4Yy1lNDQxLTkzMWYtNDk1ZDRmMTRjNzYwIiB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6MGVkYjFjMmMtZmY4Yy1lNDQxLTkzMWYtNDk1ZDRmMTRjNzYwIj4gPHhtcE1NOkhpc3Rvcnk+IDxyZGY6U2VxPiA8cmRmOmxpIHN0RXZ0OmFjdGlvbj0iY3JlYXRlZCIgc3RFdnQ6aW5zdGFuY2VJRD0ieG1wLmlpZDowZWRiMWMyYy1mZjhjLWU0NDEtOTMxZi00OTVkNGYxNGM3NjAiIHN0RXZ0OndoZW49IjIwMTgtMTItMTZUMTY6NTQ6MTctMDg6MDAiIHN0RXZ0OnNvZnR3YXJlQWdlbnQ9IkFkb2JlIFBob3Rvc2hvcCBDQyAyMDE4IChXaW5kb3dzKSIvPiA8L3JkZjpTZXE+IDwveG1wTU06SGlzdG9yeT4gPC9yZGY6RGVzY3JpcHRpb24+IDwvcmRmOlJERj4gPC94OnhtcG1ldGE+IDw/eHBhY2tldCBlbmQ9InIiPz4/HiGMAAAAtUlEQVRYw+XXrQqAMBQF4D2P2eBL+QIG8RnEJFaNBjEum+0+zMQLtwwv+wV3ZzhhMDgfJ0wUSinxZUQWgKos1JP/AbD4OneIDyQPwCFniA+EJ4CaXm4TxAXCC0BNHgLhAdAnx9hC8PwGSRtAFVMQjF7cNTWED8B1cgwW20yfJgAvrssAsZ1cB3g/xckAxr6FmCDU5N6f488BrpCQ4rQBJkiMYh4ACmLzwOQF0CExinkCsvw7vgGikl+OotaKRwAAAABJRU5ErkJggg==) 
-![Mod loader: Quilt](https://img.shields.io/badge/modloader-Quilt-c36ed4?style=flat-square)
-![Mod loader: NeoForge](https://img.shields.io/badge/modloader-NeoForge-e68325?style=flat-square) 
 [![License Badge](https://img.shields.io/badge/license-LGPLv3-green "View the License")](https://github.com/FERSPl/Handicap/blob/main/LICENSE) 
 [![Issues Badge](https://img.shields.io/github/issues/FERSPl/Handicap?color=orange&logo=github "View or open an issue")](https://github.com/FERSPl/Handicap/issues)
+
+![Mod loader: Fabric](https://img.shields.io/badge/modloader-Fabric-1976d2?style=flat-square) 
+![Mod loader: Quilt](https://img.shields.io/badge/modloader-Quilt-c36ed4?style=flat-square)
+![Mod loader: NeoForge](https://img.shields.io/badge/modloader-NeoForge-e68325?style=flat-square) 
+![Mod loader: Forge](https://img.shields.io/badge/modloader-Forge-1e2a3a?style=flat-square) 
 
 [![Modrinth Badge](https://img.shields.io/modrinth/dt/handicap?label=Modrinth&logo=modrinth "View our Modrinth page")](https://modrinth.com/mod/handicap) 
 [![CurseForge Badge](https://img.shields.io/curseforge/dt/1758595?label=CurseForge&logo=curseforge&color=f16436 "View our CurseForge page")](https://www.curseforge.com/minecraft/mc-mods/handicap) 
@@ -29,7 +29,7 @@
 
 ## <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/about.png" alt="About">
 
-**Handicap** is a Minecraft mod that randomly assigns players handicaps at regular intervals. Survive as long as possible, adapt your playstyle, and discover all 64 unique handicaps.
+**Handicap** is a Minecraft mod that randomly assigns players handicaps at regular intervals. Survive as long as possible, adapt your playstyle, and discover all 67 unique handicaps.
 
 You can also choose which handicaps to apply using commands, customize the timer, and decide whether handicaps stack.
 
@@ -37,7 +37,7 @@ You can also choose which handicaps to apply using commands, customize the timer
 
 ### Features
 
-- 🎭 **64 unique handicaps** that change the way you play.
+- 🎭 **67 unique handicaps** that change the way you play.
 - ⏳ **A new random handicap every 10 minutes**, with stacking, max and duration all adjustable in the settings menu.
 - 🔗 **Synchronization** — turn it on and every player shares the same handicaps: when one gets or loses a handicap, everyone does.
 - 🎒 **Inventory panel and on-screen list** — see your handicaps, what they do and the time left. The backtick (`) key opens the settings.
@@ -140,15 +140,18 @@ The timer and the duration are measured in minutes. For example, `0.5` means eve
 | 62 | Broken Arm | `broken_arm` | Breaking blocks takes much longer, and your arm is in a cast. |
 | 63 | Prosopagnosia | `prosopagnosia` | You can't recognize faces, mixing up all the players and mobs. |
 | 64 | Derealization | `derealization` | The world turns into an unrecognizable mess. |
+| 65 | Flatulence | `flatulence` | You randomly fart. |
+| 66 | Stiff Neck | `stiff_neck` | You can barely look up or down. |
+| 67 | Double Vision | `double_vision` | You see everything twice, slightly shifted. |
 
-⚠️ Only one screen filter is displayed at a time, with Blind taking priority over Phantom Light, Inverted Vision, Tunnel Vision, Migraine, Color Blind, Visual Agnosia, Myopia, and Hyperopia. [26.1 & 26.2]
+⚠️ Only one screen filter is displayed at a time, with Blind taking priority over Phantom Light, Inverted Vision, Tunnel Vision, Migraine, Color Blind, Visual Agnosia, Double Vision, Myopia, and Hyperopia. [26.1, 26.2, 1.21.1 & 1.20.1]
 
 ##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/configuration.png" alt="Configuration">
 
 All the settings are in one menu. Open it from the gear on the Handicap panel in your inventory, or from the mod list:
 
 - **Fabric and Quilt**: install [Mod Menu](https://modrinth.com/mod/modmenu), then select Handicap and click *Configure*.
-- **NeoForge**: open the *Mods* screen, select Handicap and click *Config*.
+- **NeoForge** and **Forge**: open the *Mods* screen, select Handicap and click *Config*.
 
 The menu has three sections:
 
@@ -167,10 +170,11 @@ On a dedicated server, `handicap.json` of the server decides.
 
 ### Requirements
 
-- Minecraft **26.1** or newer (pick the right Handicap version!)
-- **Fabric** or **Quilt**: [Fabric Loader](https://fabricmc.net/) 0.19.5 or newer (latest version recommended) or Quilt Loader, and [Fabric API](https://modrinth.com/mod/fabric-api).
-- **NeoForge**: [NeoForge](https://neoforged.net/) 26.1.0.19-beta or newer
-- Java 25 (the official Minecraft launcher already includes it)
+- Minecraft **26.1** or newer, **1.21.1** or **1.20.1** (pick the right Handicap version!)
+- **Fabric** or **Quilt**: [Fabric Loader](https://fabricmc.net/) (latest version recommended) or Quilt Loader, and [Fabric API](https://modrinth.com/mod/fabric-api).
+- **NeoForge** (26.x and 1.21.1): [NeoForge](https://neoforged.net/) 26.1.0.19-beta or newer for 26.x, 21.1 for 1.21.1.
+- **Forge** (1.20.1): [Forge](https://files.minecraftforge.net/) 47 or newer.
+- Java 25 for 26.x, Java 21 for 1.21.1, Java 17 for 1.20.1 (the official Minecraft launcher already includes the right one).
 
 Install the mod on the **client**, and also on the **server** if you play multiplayer.
 

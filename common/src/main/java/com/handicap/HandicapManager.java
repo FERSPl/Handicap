@@ -50,6 +50,7 @@ public final class HandicapManager {
 	};
 
 	private static final class Runtime {
+		int fartSeconds = -1;
 		int cancerSeconds;
 		int sprintSeconds;
 		int windedSeconds;
@@ -288,6 +289,11 @@ public final class HandicapManager {
 
 	private static void announceNew(ServerPlayer p, Handicap d) {
 		announce(p, Component.literal(d.displayName).withStyle(ChatFormatting.RED, ChatFormatting.BOLD));
+		if (HandicapContent.newHandicapSound() != null) {
+			p.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
+				net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.wrapAsHolder(HandicapContent.newHandicapSound()),
+				net.minecraft.sounds.SoundSource.UI, p.getX(), p.getEyeY(), p.getZ(), 0.6f, 1.0f, p.getRandom().nextLong()));
+		}
 	}
 
 	public static boolean remove(ServerPlayer p, Handicap d, boolean announce) {
@@ -654,6 +660,15 @@ public final class HandicapManager {
 	}
 
 	private static void tickMoreHandicaps(ServerPlayer p, Set<Handicap> set, Runtime rt, RandomSource rnd) {
+		if (!set.contains(Handicap.FLATULENCE)) {
+			rt.fartSeconds = -1;
+		} else if (rt.fartSeconds < 0) {
+			rt.fartSeconds = 40 + rnd.nextInt(21);
+		} else if (rt.fartSeconds-- == 0) {
+			fart(p, rnd);
+			rt.fartSeconds = 40 + rnd.nextInt(21);
+		}
+
 		setModifier(p, Attributes.BLOCK_BREAK_SPEED, "broken_arm", -0.65, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
 			set.contains(Handicap.BROKEN_ARM));
 
@@ -967,6 +982,17 @@ public final class HandicapManager {
 			return 1;
 		}
 		return 0;
+	}
+
+	private static void fart(ServerPlayer p, RandomSource rnd) {
+		if (!(p.level() instanceof ServerLevel level) || HandicapContent.flatulenceSound() == null) {
+			return;
+		}
+		level.playSound(null, p.getX(), p.getY(), p.getZ(), HandicapContent.flatulenceSound(),
+			net.minecraft.sounds.SoundSource.PLAYERS, 0.75f, 0.85f + rnd.nextFloat() * 0.3f);
+		net.minecraft.world.phys.Vec3 back = p.getLookAngle().multiply(1.0, 0.0, 1.0).normalize().scale(-0.4);
+		level.sendParticles(net.minecraft.core.particles.ParticleTypes.SNEEZE, p.getX() + back.x, p.getY() + 0.7,
+			p.getZ() + back.z, 10, 0.15, 0.1, 0.15, 0.01);
 	}
 
 	private static void setModifier(ServerPlayer p, Holder<Attribute> attribute, String name, double amount,
