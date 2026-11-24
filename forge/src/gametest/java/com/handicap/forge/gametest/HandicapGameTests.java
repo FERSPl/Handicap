@@ -183,6 +183,15 @@ public class HandicapGameTests {
 		helper.succeed();
 	}
 
+	@GameTest(template = EMPTY, batch = "handicap_sounds")
+	public static void newSoundsRegistered(GameTestHelper helper) {
+		helper.assertTrue(net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.containsKey(HandicapContent.FLATULENCE_SOUND_ID),
+			"the flatulence sound is not registered");
+		helper.assertTrue(net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.containsKey(HandicapContent.NEW_HANDICAP_SOUND_ID),
+			"the new handicap sound is not registered");
+		helper.succeed();
+	}
+
 	@GameTest(template = EMPTY, batch = "handicap_recipe")
 	public static void wheelchairRecipeLoaded(GameTestHelper helper) {
 		MinecraftServer server = helper.getLevel().getServer();

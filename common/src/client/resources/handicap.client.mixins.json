@@ -16,6 +16,7 @@
 		"PlayerInfoMixin",
 		"KeyboardInputMixin",
 		"GameRendererAccessor",
+		"StiffNeckMixin",
 		"GameRendererTiltMixin",
 		"MultiPlayerGameModeMixin"
 	],

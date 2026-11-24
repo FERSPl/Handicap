@@ -24,7 +24,7 @@ import net.minecraftforge.fml.common.Mod;
 public final class ClientSmokeTest {
 	private static final List<String> ALL_STEPS = List.of(
 		"color_blind", "myopia", "hyperopia", "tunnel_vision", "inverted_vision", "visual_agnosia",
-		"derealization", "migraine", "scoliosis", "blind");
+		"derealization", "migraine", "scoliosis", "blind", "double_vision");
 	private static final String ONLY = System.getProperty("handicap.smoke.steps", "");
 	private static final List<String> STEPS = ONLY.isBlank() ? ALL_STEPS : List.of(ONLY.split(","));
 	private static final int STEP = 60;
