@@ -51,6 +51,7 @@ public final class ClientEffects {
 	private static final Identifier HYPEROPIA_EFFECT = HandicapMod.id("hyperopia");
 	private static final Identifier TUNNEL_EFFECT = HandicapMod.id("tunnel");
 	private static final Identifier AGNOSIA_EFFECT = HandicapMod.id("agnosia");
+	private static final Identifier DOUBLE_VISION_EFFECT = HandicapMod.id("double_vision");
 	private static final Identifier MIGRAINE_EFFECT = HandicapMod.id("migraine");
 	private static final Identifier DEREALIZATION_EFFECT = HandicapMod.id("derealization");
 	private static final Identifier DRUNK_ID = HandicapMod.id("drunk_client");
@@ -156,6 +157,8 @@ public final class ClientEffects {
 			desired = COLOR_BLIND_EFFECT;
 		} else if (ClientState.has(Handicap.VISUAL_AGNOSIA)) {
 			desired = AGNOSIA_EFFECT;
+		} else if (ClientState.has(Handicap.DOUBLE_VISION)) {
+			desired = DOUBLE_VISION_EFFECT;
 		} else if (ClientState.has(Handicap.MYOPIA)) {
 			desired = MYOPIA_EFFECT;
 		} else if (ClientState.has(Handicap.HYPEROPIA)) {
@@ -333,10 +336,13 @@ public final class ClientEffects {
 		}
 
 		if (ClientState.has(Handicap.SCHIZOPHRENIA) && rnd.nextInt(600) == 0) {
-			if (rnd.nextBoolean()) {
+			if (rnd.nextInt(3) != 0) {
 				SoundEvent[] sounds = {
-					SoundEvents.CREEPER_PRIMED, SoundEvents.ZOMBIE_AMBIENT, SoundEvents.SKELETON_AMBIENT,
-					SoundEvents.ENDERMAN_STARE, SoundEvents.SPIDER_AMBIENT
+					SoundEvents.CREEPER_PRIMED, SoundEvents.GENERIC_EXPLODE.value(), SoundEvents.ZOMBIE_AMBIENT,
+					SoundEvents.ZOMBIE_ATTACK_WOODEN_DOOR, SoundEvents.SKELETON_AMBIENT, SoundEvents.SKELETON_SHOOT,
+					SoundEvents.ENDERMAN_STARE, SoundEvents.ENDERMAN_TELEPORT, SoundEvents.SPIDER_AMBIENT,
+					SoundEvents.PIGLIN_ANGRY, SoundEvents.ZOMBIFIED_PIGLIN_ANGRY, SoundEvents.WITCH_AMBIENT,
+					SoundEvents.PHANTOM_SWOOP
 				};
 				SoundEvent sound = sounds[rnd.nextInt(sounds.length)];
 				double dx = (rnd.nextDouble() - 0.5) * 12.0;

@@ -71,6 +71,10 @@ public class HandicapNeoForge {
 	private void registerContent(RegisterEvent event) {
 		event.register(Registries.ENTITY_TYPE, helper ->
 			helper.register(HandicapContent.WHEELCHAIR_ENTITY_KEY, HandicapContent.createEntity()));
+		event.register(Registries.SOUND_EVENT, helper ->
+			helper.register(HandicapContent.FLATULENCE_SOUND_ID, HandicapContent.createFlatulenceSound()));
+		event.register(Registries.SOUND_EVENT, helper ->
+			helper.register(HandicapContent.NEW_HANDICAP_SOUND_ID, HandicapContent.createNewHandicapSound()));
 		event.register(Registries.ITEM, helper ->
 			helper.register(HandicapContent.WHEELCHAIR_ITEM_KEY, HandicapContent.createItem()));
 	}

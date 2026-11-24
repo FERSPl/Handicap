@@ -66,7 +66,10 @@ public enum Handicap {
 	MIGRAINE("migraine", "Migraine", "Migraine episodes blur and brighten the edges of your screen"),
 	BROKEN_ARM("broken_arm", "Broken Arm", "Breaking blocks takes much longer"),
 	PROSOPAGNOSIA("prosopagnosia", "Prosopagnosia", "You can't recognize faces: players, villagers and monsters all look alike"),
-	DEREALIZATION("derealization", "Derealization", "The world turns into an unrecognizable mess");
+	DEREALIZATION("derealization", "Derealization", "The world turns into an unrecognizable mess"),
+	FLATULENCE("flatulence", "Flatulence", "You randomly fart"),
+	STIFF_NECK("stiff_neck", "Stiff Neck", "You can barely look up or down"),
+	DOUBLE_VISION("double_vision", "Double Vision", "You see everything twice, slightly shifted");
 
 	public final String id;
 	public final String displayName;
