@@ -2,8 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "C": { "item": "minecraft:coal" },
-    "N": { "item": "minecraft:iron_nugget" }
+    "C": {
+      "item": "minecraft:coal"
+    },
+    "N": {
+      "item": "minecraft:iron_nugget"
+    }
   },
   "pattern": [
     "CCC",
@@ -11,6 +15,6 @@
     "CCC"
   ],
   "result": {
-    "id": "handicap:wheelchair"
+    "item": "handicap:wheelchair"
   }
 }

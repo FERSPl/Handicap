@@ -1,5 +1,6 @@
 package com.handicap.client.mixin;
 
+import com.handicap.HandicapRules;
 import com.handicap.client.CastLayer;
 import com.handicap.client.CastRenderer;
 import com.handicap.client.ClientLimbs;
@@ -35,10 +36,17 @@ public abstract class AvatarRendererMixin {
 
 	@Inject(method = "renderNameTag", at = @At("HEAD"), cancellable = true)
 	private void handicap$hideName(AbstractClientPlayer player, Component name, PoseStack poseStack,
-			MultiBufferSource buffers, int light, float partialTick, CallbackInfo ci) {
+			MultiBufferSource buffers, int light, CallbackInfo ci) {
 		Minecraft mc = Minecraft.getInstance();
 		if (Prosopagnosia.active() && mc.player != null && player.getId() != mc.player.getId()) {
 			ci.cancel();
+		}
+	}
+
+	@Inject(method = "scale", at = @At("TAIL"))
+	private void handicap$short(AbstractClientPlayer player, PoseStack poseStack, float partialTick, CallbackInfo ci) {
+		if (HandicapRules.isShort(player)) {
+			poseStack.scale(HandicapRules.SHORT_SCALE, HandicapRules.SHORT_SCALE, HandicapRules.SHORT_SCALE);
 		}
 	}
 

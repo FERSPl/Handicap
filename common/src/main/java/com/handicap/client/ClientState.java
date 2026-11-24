@@ -9,7 +9,7 @@ public final class ClientState {
 	public static volatile int duration = 0;
 	public static volatile long disabled = 0L;
 	public static volatile long disabled2 = 0L;
-	public static volatile java.util.function.Consumer<net.minecraft.network.protocol.common.custom.CustomPacketPayload> sender;
+	public static volatile java.util.function.Consumer<com.handicap.HandicapPayload> sender;
 	public static volatile int flags = 0;
 	public static volatile int timer = -1;
 	public static volatile int maxHandicaps = 0;

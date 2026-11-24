@@ -1,19 +1,17 @@
 plugins {
 	id 'java-library'
-	id 'net.neoforged.moddev' version "${moddevgradle_version}"
+	id 'net.neoforged.moddev.legacyforge' version "${moddevgradle_version}"
 }
 
 base {
-	archivesName = "${mod_id}-neoforge"
+	archivesName = "${mod_id}-forge"
 }
 
 version = "${mod_version}+mc${mc_label}"
 group = 'com.handicap'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
-// Code shared with the other loaders. NeoForge uses a single source set, so the
-// common client code is compiled in too (it is only ever loaded on the client).
 sourceSets.main {
 	java.srcDirs '../common/src/main/java', '../common/src/client/java'
 	resources.srcDirs '../common/src/main/resources', '../common/src/client/resources'
@@ -26,8 +24,8 @@ sourceSets {
 	}
 }
 
-neoForge {
-	version = project.neo_version
+legacyForge {
+	version = "${minecraft_version}-${forge_version}"
 
 	runs {
 		client {
@@ -42,12 +40,12 @@ neoForge {
 			sourceSet = sourceSets.gametest
 			gameDirectory = project.file('run-smoke')
 			systemProperty 'handicap.smoke', 'true'
-			programArguments.addAll('--quickPlaySingleplayer', 'Smoke')
+			systemProperty 'handicap.smoke.steps', project.findProperty('smokeSteps') ?: ''
 		}
 		gameTestServer {
 			type = "gameTestServer"
 			sourceSet = sourceSets.gametest
-			systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+			systemProperty 'forge.enabledGameTestNamespaces', mod_id
 		}
 	}
 
@@ -61,25 +59,41 @@ neoForge {
 	}
 }
 
+mixin {
+	add sourceSets.main, "${mod_id}.refmap.json"
+	config "${mod_id}.mixins.json"
+	config "${mod_id}.client.mixins.json"
+}
+
+dependencies {
+	annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+
 processResources {
+	filesMatching("*.mixins.json") {
+		filter { line -> line.replace('"required": false,', '"required": false,\n\t"refmap": "handicap.refmap.json",') }
+	}
 	def props = [
-		mod_id             : mod_id,
-		mod_version        : project.version.toString(),
-		neo_min_version    : neo_min_version,
-		neo_minecraft_range: neo_minecraft_range,
+		mod_id               : mod_id,
+		mod_version          : project.version.toString(),
+		forge_min_version    : forge_min_version,
+		forge_minecraft_range: forge_minecraft_range,
 	]
 	inputs.properties props
 
-	filesMatching("META-INF/neoforge.mods.toml") {
+	filesMatching("META-INF/mods.toml") {
 		expand props
 	}
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
+	it.options.release = 17
 }
 
 jar {
+	manifest {
+		attributes('MixinConfigs': "${mod_id}.mixins.json,${mod_id}.client.mixins.json")
+	}
 	from(rootProject.file('LICENSE')) {
 		rename { "${it}_${mod_id}" }
 	}

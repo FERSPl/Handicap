@@ -1,4 +1,4 @@
-package com.handicap.neoforge.gametest;
+package com.handicap.forge.gametest;
 
 import com.handicap.Handicap;
 import com.handicap.HandicapContent;
@@ -7,22 +7,48 @@ import com.handicap.HandicapMod;
 import com.handicap.HandicapState;
 import com.handicap.WheelchairEntity;
 
+import com.mojang.authlib.GameProfile;
+
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.GameType;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+import net.minecraftforge.common.util.FakePlayerFactory;
+import net.minecraftforge.gametest.GameTestHolder;
+import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 @GameTestHolder(HandicapMod.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class HandicapGameTests {
 	private static final String EMPTY = "empty";
+	private static int players;
+
+	@SuppressWarnings("unchecked")
+	private static ServerPlayer player(GameTestHelper helper) {
+		ServerPlayer player = FakePlayerFactory.get(helper.getLevel(), new GameProfile(UUID.randomUUID(), "htest" + players++));
+		try {
+			PlayerList list = helper.getLevel().getServer().getPlayerList();
+			Field players = PlayerList.class.getDeclaredField("players");
+			players.setAccessible(true);
+			((List<ServerPlayer>) players.get(list)).add(player);
+			Field byUuid = PlayerList.class.getDeclaredField("playersByUUID");
+			byUuid.setAccessible(true);
+			((Map<UUID, ServerPlayer>) byUuid.get(list)).put(player.getUUID(), player);
+		} catch (ReflectiveOperationException e) {
+			helper.fail("Could not add the test player: " + e);
+		}
+		return player;
+	}
 
 	private static ServerPlayer reset(GameTestHelper helper) {
 		HandicapState state = HandicapManager.state();
@@ -37,7 +63,7 @@ public class HandicapGameTests {
 		for (Handicap d : Handicap.values()) {
 			state.setDisabled(d, false);
 		}
-		ServerPlayer player = helper.makeMockServerPlayerInLevel();
+		ServerPlayer player = player(helper);
 		player.setGameMode(GameType.SURVIVAL);
 		return player;
 	}
@@ -60,10 +86,10 @@ public class HandicapGameTests {
 	public static void everyHandicapRuns(GameTestHelper helper) {
 		ServerPlayer player = reset(helper);
 		player.getAbilities().invulnerable = true;
-		run(helper, "execute as " + player.getStringUUID() + " run handicap give @s all");
+		run(helper, "handicap give " + player.getGameProfile().getName() + " all");
 		expect(helper, player, Handicap.values().length, "give all");
 		helper.runAfterDelay(200, () -> {
-			run(helper, "execute as " + player.getStringUUID() + " run handicap clear @s");
+			run(helper, "handicap clear " + player.getGameProfile().getName());
 			expect(helper, player, 0, "clear after 10 s with every handicap");
 			helper.succeed();
 		});
@@ -78,9 +104,9 @@ public class HandicapGameTests {
 			HandicapManager.giveRandom(player);
 		}
 		expect(helper, player, 3, "max 3 after 6 random handicaps");
-		run(helper, "execute as " + player.getStringUUID() + " run handicap give @s all");
+		run(helper, "handicap give " + player.getGameProfile().getName() + " all");
 		expect(helper, player, Handicap.values().length, "give all ignores max");
-		run(helper, "execute as " + player.getStringUUID() + " run handicap clear @s");
+		run(helper, "handicap clear " + player.getGameProfile().getName());
 		state.setMaxHandicaps(0);
 		HandicapManager.giveRandom(player);
 		HandicapManager.giveRandom(player);
@@ -110,7 +136,7 @@ public class HandicapGameTests {
 		ServerPlayer player = reset(helper);
 		HandicapState state = HandicapManager.state();
 		state.setDisabled(Handicap.BLIND, true);
-		run(helper, "execute as " + player.getStringUUID() + " run handicap give @s all");
+		run(helper, "handicap give " + player.getGameProfile().getName() + " all");
 		helper.assertFalse(state.has(player.getUUID(), Handicap.BLIND), "a disabled handicap was given by give all");
 		expect(helper, player, Handicap.values().length - 1, "give all with one disabled");
 		helper.assertFalse(HandicapManager.give(player, Handicap.BLIND, true), "a disabled handicap was given directly");
@@ -121,7 +147,7 @@ public class HandicapGameTests {
 	@GameTest(template = EMPTY, batch = "handicap_sync")
 	public static void syncSharesHandicaps(GameTestHelper helper) {
 		ServerPlayer first = reset(helper);
-		ServerPlayer second = helper.makeMockServerPlayerInLevel();
+		ServerPlayer second = player(helper);
 		HandicapState state = HandicapManager.state();
 		state.setSync(true);
 		HandicapManager.give(first, Handicap.COLOR_BLIND, true);
@@ -160,9 +186,9 @@ public class HandicapGameTests {
 	@GameTest(template = EMPTY, batch = "handicap_recipe")
 	public static void wheelchairRecipeLoaded(GameTestHelper helper) {
 		MinecraftServer server = helper.getLevel().getServer();
-		Optional<RecipeHolder<?>> recipe = server.getRecipeManager().byKey(HandicapMod.id("wheelchair"));
+		Optional<? extends Recipe<?>> recipe = server.getRecipeManager().byKey(HandicapMod.id("wheelchair"));
 		helper.assertTrue(recipe.isPresent(), "the wheelchair recipe is not loaded");
-		helper.assertTrue(recipe.get().value().getResultItem(server.registryAccess()).is(HandicapContent.wheelchairItem()),
+		helper.assertTrue(recipe.get().getResultItem(server.registryAccess()).is(HandicapContent.wheelchairItem()),
 			"the wheelchair recipe does not make a wheelchair");
 		helper.succeed();
 	}

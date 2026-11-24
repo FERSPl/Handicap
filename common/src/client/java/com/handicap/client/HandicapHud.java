@@ -133,7 +133,7 @@ public final class HandicapHud {
 			if (!effect.showIcon()) {
 				continue;
 			}
-			if (effect.getEffect().value().isBeneficial()) {
+			if (effect.getEffect().isBeneficial()) {
 				beneficial = true;
 			} else {
 				harmful = true;

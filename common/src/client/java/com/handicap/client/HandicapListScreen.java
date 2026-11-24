@@ -63,7 +63,7 @@ public class HandicapListScreen extends Screen {
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollY) {
 		scroll -= (int) Math.signum(scrollY) * 3;
 		rebuildWidgets();
 		return true;
@@ -71,6 +71,7 @@ public class HandicapListScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		this.renderBackground(graphics);
 		super.render(graphics, mouseX, mouseY, partialTick);
 		graphics.drawCenteredString(this.font, this.title, this.width / 2, 12, 0xFFFFFFFF);
 		int total = Handicap.values().length;

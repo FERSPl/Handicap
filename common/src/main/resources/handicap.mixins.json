@@ -1,9 +1,12 @@
 {
 	"required": false,
+	"minVersion": "0.8",
 	"package": "com.handicap.mixin",
-	"compatibilityLevel": "JAVA_21",
+	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-		"ContainerMenuMixin"
+		"ContainerMenuMixin",
+		"LivingEntityRulesMixin",
+		"PlayerRulesMixin"
 	],
 	"injectors": {
 		"defaultRequire": 0

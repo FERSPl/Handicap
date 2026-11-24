@@ -109,7 +109,7 @@ public final class InventoryPanel {
 		Component stacking = Component.literal("Stacking: ").append(
 			Component.literal(ClientState.stacking()
 				? "On (" + (ClientState.maxHandicaps == 0 ? "∞" : ClientState.maxHandicaps) + ")"
-				: "Off").withColor(TIME & 0xFFFFFF));
+				: "Off").withStyle(style -> style.withColor(TIME & 0xFFFFFF)));
 		boolean canNext = canNext(player);
 
 		int contentW = Math.max(LOGO_SIZE + LOGO_GAP + font.width(title) + 4 + GEAR, Math.max(font.width(timer), font.width(stacking)));
@@ -317,7 +317,7 @@ public final class InventoryPanel {
 			return;
 		}
 		List<FormattedCharSequence> lines = new ArrayList<>();
-		lines.add(hide(d.displayName, hidden).withColor(color(d) & 0xFFFFFF).getVisualOrderText());
+		lines.add(hide(d.displayName, hidden).withStyle(style -> style.withColor(color(d) & 0xFFFFFF)).getVisualOrderText());
 		lines.addAll(font.split(hide(d.description, hidden).withStyle(ChatFormatting.GRAY), 180));
 		g.renderTooltip(font, lines, mouseX, mouseY);
 	}
@@ -331,7 +331,7 @@ public final class InventoryPanel {
 		String time = seconds >= 3600
 			? String.format("%d:%02d:%02d", seconds / 3600, (seconds % 3600) / 60, seconds % 60)
 			: String.format("%d:%02d", seconds / 60, seconds % 60);
-		return Component.literal("Next in ").append(Component.literal(time).withColor(TIME & 0xFFFFFF));
+		return Component.literal("Next in ").append(Component.literal(time).withStyle(style -> style.withColor(TIME & 0xFFFFFF)));
 	}
 
 	static boolean canNext(LocalPlayer player) {

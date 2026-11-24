@@ -43,6 +43,7 @@ public final class ClientEffects {
 	private static int stickyLock = 0;
 	private static int lastSlot = -1;
 	private static boolean postEffectWarned = false;
+	private static boolean lastShort = false;
 	private static boolean postEffectDumped = false;
 	private static boolean textAltered = false;
 
@@ -200,7 +201,7 @@ public final class ClientEffects {
 		if (sneezeSlowTicks > 0) {
 			sneezeSlowTicks--;
 		}
-		setLocalModifier(p, Attributes.MOVEMENT_SPEED, SNEEZE_ID, -0.8, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+		setLocalModifier(p, Attributes.MOVEMENT_SPEED, SNEEZE_ID, -0.8, AttributeModifier.Operation.MULTIPLY_TOTAL,
 			ClientState.has(Handicap.SNEEZING) && sneezeSlowTicks > 0);
 
 		if (ClientState.has(Handicap.JUMP_CURSE)) {
@@ -221,8 +222,12 @@ public final class ClientEffects {
 		if (magnetTicks > 0) {
 			magnetTicks--;
 		}
-		setLocalModifier(p, Attributes.JUMP_STRENGTH, MAGNET_ID, -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
-			ClientState.has(Handicap.MAGNET_FEET) && magnetTicks > 0);
+		com.handicap.HandicapRules.clientJumpBlocked = ClientState.has(Handicap.MAGNET_FEET) && magnetTicks > 0;
+		boolean shortNow = ClientState.has(Handicap.SHORT);
+		if (shortNow != lastShort) {
+			lastShort = shortNow;
+			p.refreshDimensions();
+		}
 
 		if (ClientState.has(Handicap.SLEEPWALKING)) {
 			if (sleepwalkTicks > 0) {
@@ -262,7 +267,7 @@ public final class ClientEffects {
 
 		boolean drunkSlide = false;
 		if (ClientState.has(Handicap.DRUNK) && p.onGround()) {
-			float friction = mc.level.getBlockState(p.getBlockPosBelowThatAffectsMyMovement()).getBlock().getFriction();
+			float friction = mc.level.getBlockState(net.minecraft.core.BlockPos.containing(p.getX(), p.getBoundingBox().minY - 0.5000001, p.getZ())).getBlock().getFriction();
 			if (friction > 0.1f && friction < 0.9f) {
 				Vec3 v = p.getDeltaMovement();
 				float k = 1.04f / friction;
@@ -277,7 +282,7 @@ public final class ClientEffects {
 				drunkSlide = true;
 			}
 		}
-		setLocalModifier(p, Attributes.MOVEMENT_SPEED, DRUNK_ID, -0.77, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, drunkSlide);
+		setLocalModifier(p, Attributes.MOVEMENT_SPEED, DRUNK_ID, -0.77, AttributeModifier.Operation.MULTIPLY_TOTAL, drunkSlide);
 
 		if (ClientState.has(Handicap.HAND_TREMORS) && mc.screen == null && mc.options.keyAttack.isDown() && rnd.nextInt(80) == 0) {
 			mc.options.keyAttack.setDown(false);
@@ -423,17 +428,18 @@ public final class ClientEffects {
 		return GLOW_3_EFFECT;
 	}
 
-	private static void setLocalModifier(LocalPlayer p, Holder<Attribute> attribute, ResourceLocation id, double amount,
+	private static void setLocalModifier(LocalPlayer p, Attribute attribute, ResourceLocation id, double amount,
 			AttributeModifier.Operation operation, boolean active) {
 		AttributeInstance inst = p.getAttribute(attribute);
 		if (inst == null) {
 			return;
 		}
-		boolean present = inst.getModifier(id) != null;
+		java.util.UUID uuid = com.handicap.HandicapRules.modifierId(id);
+		boolean present = inst.getModifier(uuid) != null;
 		if (active && !present) {
-			inst.addOrReplacePermanentModifier(new AttributeModifier(id, amount, operation));
+			inst.addPermanentModifier(new AttributeModifier(uuid, id.toString(), amount, operation));
 		} else if (!active && present) {
-			inst.removeModifier(id);
+			inst.removeModifier(uuid);
 		}
 	}
 
@@ -442,12 +448,13 @@ public final class ClientEffects {
 		if (inst == null) {
 			return;
 		}
-		boolean present = inst.getModifier(LEG_ID) != null;
+		java.util.UUID uuid = com.handicap.HandicapRules.modifierId(LEG_ID);
+		boolean present = inst.getModifier(uuid) != null;
 		if (active && !present) {
-			inst.addOrReplacePermanentModifier(
-				new AttributeModifier(LEG_ID, -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+			inst.addPermanentModifier(
+				new AttributeModifier(uuid, LEG_ID.toString(), -1.0, AttributeModifier.Operation.MULTIPLY_TOTAL));
 		} else if (!active && present) {
-			inst.removeModifier(LEG_ID);
+			inst.removeModifier(uuid);
 		}
 	}
 }

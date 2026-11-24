@@ -16,4 +16,4 @@ pluginManagement {
 // Shared code lives in common/ (compiled into both loader jars); each loader has its own module.
 rootProject.name = 'handicap'
 include 'fabric'
-include 'neoforge'
+include 'forge'

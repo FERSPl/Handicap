@@ -1,16 +1,14 @@
 package com.handicap;
 
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 
 public record SyncPayload(long mask, long mask2, int flags, int timer, int interval, int maxHandicaps, int duration,
-		long disabled, long disabled2) implements CustomPacketPayload {
-	public static final CustomPacketPayload.Type<SyncPayload> TYPE = new CustomPacketPayload.Type<>(HandicapMod.id("sync"));
+		long disabled, long disabled2) implements HandicapPayload {
+	public static final ResourceLocation ID = HandicapMod.id("sync");
 
-	public static final StreamCodec<RegistryFriendlyByteBuf, SyncPayload> CODEC = CustomPacketPayload.codec(SyncPayload::write, SyncPayload::read);
-
-	private void write(RegistryFriendlyByteBuf buf) {
+	@Override
+	public void write(FriendlyByteBuf buf) {
 		buf.writeVarLong(mask);
 		buf.writeVarLong(mask2);
 		buf.writeVarInt(flags);
@@ -22,13 +20,13 @@ public record SyncPayload(long mask, long mask2, int flags, int timer, int inter
 		buf.writeVarLong(disabled2);
 	}
 
-	private static SyncPayload read(RegistryFriendlyByteBuf buf) {
+	public static SyncPayload read(FriendlyByteBuf buf) {
 		return new SyncPayload(buf.readVarLong(), buf.readVarLong(), buf.readVarInt(), buf.readVarInt(), buf.readVarInt(),
 			buf.readVarInt(), buf.readVarInt(), buf.readVarLong(), buf.readVarLong());
 	}
 
 	@Override
-	public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
-		return TYPE;
+	public ResourceLocation id() {
+		return ID;
 	}
 }

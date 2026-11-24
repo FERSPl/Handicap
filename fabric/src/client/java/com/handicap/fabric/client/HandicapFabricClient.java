@@ -19,6 +19,9 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
+import net.fabricmc.fabric.api.client.screen.v1.ScreenMouseEvents;
+import com.handicap.client.InventoryPanel;
 
 import net.minecraft.client.KeyMapping;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
@@ -26,14 +29,21 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 public class HandicapFabricClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
-		ClientPlayNetworking.registerGlobalReceiver(SyncPayload.TYPE, (payload, context) -> {
-			ClientState.apply(payload);
+		ClientPlayNetworking.registerGlobalReceiver(SyncPayload.ID, (client, handler, buf, responseSender) -> {
+			SyncPayload payload = SyncPayload.read(buf);
+			client.execute(() -> ClientState.apply(payload));
 		});
 
-		ClientState.sender = ClientPlayNetworking::send;
+		ClientState.sender = payload -> {
+			net.minecraft.network.FriendlyByteBuf buf = net.fabricmc.fabric.api.networking.v1.PacketByteBufs.create();
+			payload.write(buf);
+			ClientPlayNetworking.send(payload.id(), buf);
+		};
 
-		ClientPlayNetworking.registerGlobalReceiver(LimbsPayload.TYPE, (payload, context) ->
-			ClientLimbs.set(payload.player(), payload.limbs()));
+		ClientPlayNetworking.registerGlobalReceiver(LimbsPayload.ID, (client, handler, buf, responseSender) -> {
+			LimbsPayload payload = LimbsPayload.read(buf);
+			client.execute(() -> ClientLimbs.set(payload.player(), payload.limbs()));
+		});
 
 		EntityModelLayerRegistry.registerModelLayer(WheelchairModel.LAYER, WheelchairModel::createBodyLayer);
 		EntityRendererRegistry.register(HandicapContent.wheelchair(), WheelchairRenderer::new);
@@ -41,6 +51,13 @@ public class HandicapFabricClient implements ClientModInitializer {
 		KeyBindingHelper.registerKeyBinding(HandicapHud.createKey("key.category.handicap.main"));
 
 		HudRenderCallback.EVENT.register((graphics, tickCounter) -> HandicapHud.render(graphics));
+
+		ScreenEvents.AFTER_INIT.register((client, screen, width, height) -> {
+			if (InventoryPanel.supports(screen)) {
+				ScreenMouseEvents.allowMouseScroll(screen).register((s, mouseX, mouseY, horizontal, vertical) ->
+					!InventoryPanel.scroll(mouseX, mouseY, vertical));
+			}
+		});
 
 		ClientTickEvents.START_CLIENT_TICK.register(ClientEffects::tick);
 		ClientTickEvents.END_CLIENT_TICK.register(client -> HandicapHud.tick());

@@ -94,6 +94,8 @@ public final class HandicapManager {
 	private HandicapManager() {
 	}
 
+	private static final Set<UUID> SHORT_PLAYERS = new java.util.HashSet<>();
+
 	public static HandicapState state() {
 		return state;
 	}
@@ -394,18 +396,19 @@ public final class HandicapManager {
 		RandomSource rnd = p.getRandom();
 
 		boolean isShort = set.contains(Handicap.SHORT);
-		setModifier(p, Attributes.SCALE, "short_scale", -0.55, AttributeModifier.Operation.ADD_MULTIPLIED_BASE, isShort);
-		setModifier(p, Attributes.BLOCK_INTERACTION_RANGE, "short_block_reach", -1.0, AttributeModifier.Operation.ADD_VALUE, isShort);
-		setModifier(p, Attributes.ENTITY_INTERACTION_RANGE, "short_entity_reach", -0.75, AttributeModifier.Operation.ADD_VALUE, isShort);
-		setModifier(p, Attributes.JUMP_STRENGTH, "short_jump", -0.55, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, isShort);
-		setModifier(p, Attributes.MAX_HEALTH, "short_health", -10.0, AttributeModifier.Operation.ADD_VALUE, isShort);
+		if (isShort != SHORT_PLAYERS.contains(id)) {
+			if (isShort) {
+				SHORT_PLAYERS.add(id);
+			} else {
+				SHORT_PLAYERS.remove(id);
+			}
+			p.refreshDimensions();
+		}
+		setModifier(p, Attributes.MAX_HEALTH, "short_health", -10.0, AttributeModifier.Operation.ADDITION, isShort);
 
 		boolean arthritis = set.contains(Handicap.ARTHRITIS);
-		setModifier(p, Attributes.BLOCK_BREAK_SPEED, "arthritis_mining", -0.5, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, arthritis);
-		setModifier(p, Attributes.ATTACK_SPEED, "arthritis_attack", -0.35, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, arthritis);
+		setModifier(p, Attributes.ATTACK_SPEED, "arthritis_attack", -0.35, AttributeModifier.Operation.MULTIPLY_TOTAL, arthritis);
 
-		setModifier(p, Attributes.FALL_DAMAGE_MULTIPLIER, "brittle_bones", 1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
-			set.contains(Handicap.BRITTLE_BONES));
 
 		int stage = state.cancerStage(id);
 		if (set.contains(Handicap.CANCER)) {
@@ -425,7 +428,7 @@ public final class HandicapManager {
 				stage = 0;
 			}
 		}
-		setModifier(p, Attributes.MAX_HEALTH, "cancer_health", -2.0 * stage, AttributeModifier.Operation.ADD_VALUE,
+		setModifier(p, Attributes.MAX_HEALTH, "cancer_health", -2.0 * stage, AttributeModifier.Operation.ADDITION,
 			set.contains(Handicap.CANCER) && stage > 0);
 
 		if (!set.contains(Handicap.ASTHMA)) {
@@ -445,7 +448,7 @@ public final class HandicapManager {
 		} else {
 			rt.sprintSeconds = Math.max(0, rt.sprintSeconds - 2);
 		}
-		setModifier(p, Attributes.MOVEMENT_SPEED, "asthma_winded", -0.5, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+		setModifier(p, Attributes.MOVEMENT_SPEED, "asthma_winded", -0.5, AttributeModifier.Operation.MULTIPLY_TOTAL,
 			rt.windedSeconds > 0);
 
 		if (!set.contains(Handicap.NARCOLEPSY)) {
@@ -466,8 +469,7 @@ public final class HandicapManager {
 		}
 
 		boolean asleep = rt.narcoSeconds > 0;
-		setModifier(p, Attributes.MOVEMENT_SPEED, "narcolepsy_move", -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, asleep);
-		setModifier(p, Attributes.JUMP_STRENGTH, "narcolepsy_jump", -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, asleep);
+		setModifier(p, Attributes.MOVEMENT_SPEED, "narcolepsy_move", -1.0, AttributeModifier.Operation.MULTIPLY_TOTAL, asleep);
 
 		if (set.contains(Handicap.INSOMNIA) && p.isSleeping()) {
 			p.stopSleepInBed(true, true);
@@ -547,11 +549,9 @@ public final class HandicapManager {
 
 		tickMoreHandicaps(p, set, rt, rnd);
 
-		setModifier(p, Attributes.JUMP_STRENGTH, "paraplegia_jump", -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
-			set.contains(Handicap.PARAPLEGIA));
-		setModifier(p, Attributes.MOVEMENT_SPEED, "reduced_mobility", -0.3, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+		setModifier(p, Attributes.MOVEMENT_SPEED, "reduced_mobility", -0.3, AttributeModifier.Operation.MULTIPLY_TOTAL,
 			set.contains(Handicap.REDUCED_MOBILITY));
-		setModifier(p, Attributes.MOVEMENT_SPEED, "celiac_slow", -0.35, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, false);
+		setModifier(p, Attributes.MOVEMENT_SPEED, "celiac_slow", -0.35, AttributeModifier.Operation.MULTIPLY_TOTAL, false);
 		if (!set.contains(Handicap.SEIZURES)) {
 			rt.seizureSeconds = 0;
 		} else {
@@ -566,8 +566,7 @@ public final class HandicapManager {
 			}
 		}
 		boolean seizing = rt.seizureSeconds > 0;
-		setModifier(p, Attributes.MOVEMENT_SPEED, "seizure_move", -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, seizing);
-		setModifier(p, Attributes.JUMP_STRENGTH, "seizure_jump", -1.0, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL, seizing);
+		setModifier(p, Attributes.MOVEMENT_SPEED, "seizure_move", -1.0, AttributeModifier.Operation.MULTIPLY_TOTAL, seizing);
 
 		if (!set.contains(Handicap.OCD)) {
 			rt.ocdType = 0;
@@ -657,8 +656,6 @@ public final class HandicapManager {
 	}
 
 	private static void tickMoreHandicaps(ServerPlayer p, Set<Handicap> set, Runtime rt, RandomSource rnd) {
-		setModifier(p, Attributes.BLOCK_BREAK_SPEED, "broken_arm", -0.65, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
-			set.contains(Handicap.BROKEN_ARM));
 
 		if (!set.contains(Handicap.SLEEP_APNEA)) {
 			rt.sleepSeconds = 0;
@@ -686,10 +683,10 @@ public final class HandicapManager {
 				rt.apneaSlow--;
 			}
 		}
-		setModifier(p, Attributes.MOVEMENT_SPEED, "sleep_apnea_slow", -0.35, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+		setModifier(p, Attributes.MOVEMENT_SPEED, "sleep_apnea_slow", -0.35, AttributeModifier.Operation.MULTIPLY_TOTAL,
 			rt.apneaSlow > 0);
 
-		setModifier(p, Attributes.ATTACK_DAMAGE, "muscle_weakness", -0.5, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+		setModifier(p, Attributes.ATTACK_DAMAGE, "muscle_weakness", -0.5, AttributeModifier.Operation.MULTIPLY_TOTAL,
 			set.contains(Handicap.MUSCLE_WEAKNESS));
 
 		if (!set.contains(Handicap.HYPOTENSION)) {
@@ -700,9 +697,9 @@ public final class HandicapManager {
 			rt.hypoSeconds = 8;
 			overlay(p, Component.literal("Your blood pressure drops... you feel weak."));
 		}
-		setModifier(p, Attributes.MOVEMENT_SPEED, "hypotension_slow", -0.45, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+		setModifier(p, Attributes.MOVEMENT_SPEED, "hypotension_slow", -0.45, AttributeModifier.Operation.MULTIPLY_TOTAL,
 			rt.hypoSeconds > 0);
-		setModifier(p, Attributes.ATTACK_DAMAGE, "hypotension_weak", -0.3, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+		setModifier(p, Attributes.ATTACK_DAMAGE, "hypotension_weak", -0.3, AttributeModifier.Operation.MULTIPLY_TOTAL,
 			rt.hypoSeconds > 0);
 
 		if (!set.contains(Handicap.POOR_CIRCULATION)) {
@@ -726,7 +723,7 @@ public final class HandicapManager {
 				overlay(p, Component.literal("Your legs are numb..."));
 			}
 		}
-		setModifier(p, Attributes.MOVEMENT_SPEED, "poor_circulation", -0.45, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+		setModifier(p, Attributes.MOVEMENT_SPEED, "poor_circulation", -0.45, AttributeModifier.Operation.MULTIPLY_TOTAL,
 			rt.numbSeconds > 0);
 
 		if (!set.contains(Handicap.CLUMSINESS)) {
@@ -758,9 +755,9 @@ public final class HandicapManager {
 				rt.phobiaSeconds = 3;
 			}
 		}
-		setModifier(p, Attributes.MOVEMENT_SPEED, "monster_phobia_slow", -0.4, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+		setModifier(p, Attributes.MOVEMENT_SPEED, "monster_phobia_slow", -0.4, AttributeModifier.Operation.MULTIPLY_TOTAL,
 			rt.phobiaSeconds > 0);
-		setModifier(p, Attributes.ATTACK_DAMAGE, "monster_phobia_weak", -0.4, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+		setModifier(p, Attributes.ATTACK_DAMAGE, "monster_phobia_weak", -0.4, AttributeModifier.Operation.MULTIPLY_TOTAL,
 			rt.phobiaSeconds > 0);
 
 		if (!set.contains(Handicap.CLAUSTROPHOBIA)) {
@@ -776,7 +773,7 @@ public final class HandicapManager {
 				rt.claustroSeconds = 2;
 			}
 		}
-		setModifier(p, Attributes.MOVEMENT_SPEED, "claustrophobia", -0.35, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+		setModifier(p, Attributes.MOVEMENT_SPEED, "claustrophobia", -0.35, AttributeModifier.Operation.MULTIPLY_TOTAL,
 			rt.claustroSeconds > 0);
 
 		if (!set.contains(Handicap.SLOW_REFLEXES)) {
@@ -784,7 +781,7 @@ public final class HandicapManager {
 		} else if (rt.reflexSeconds > 0) {
 			rt.reflexSeconds--;
 		}
-		setModifier(p, Attributes.MOVEMENT_SPEED, "slow_reflexes", -0.5, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
+		setModifier(p, Attributes.MOVEMENT_SPEED, "slow_reflexes", -0.5, AttributeModifier.Operation.MULTIPLY_TOTAL,
 			rt.reflexSeconds > 0);
 	}
 
@@ -972,17 +969,20 @@ public final class HandicapManager {
 		return 0;
 	}
 
-	private static void setModifier(ServerPlayer p, Holder<Attribute> attribute, String name, double amount,
+	private static void setModifier(ServerPlayer p, Attribute attribute, String name, double amount,
 			AttributeModifier.Operation operation, boolean active) {
 		AttributeInstance inst = p.getAttribute(attribute);
 		if (inst == null) {
 			return;
 		}
-		ResourceLocation id = HandicapMod.id(name);
+		UUID id = HandicapRules.modifierId(HandicapMod.id(name));
 		AttributeModifier existing = inst.getModifier(id);
 		if (active) {
-			if (existing == null || existing.amount() != amount) {
-				inst.addOrReplacePermanentModifier(new AttributeModifier(id, amount, operation));
+			if (existing == null || existing.getAmount() != amount) {
+				if (existing != null) {
+					inst.removeModifier(id);
+				}
+				inst.addPermanentModifier(new AttributeModifier(id, "handicap." + name, amount, operation));
 			}
 		} else if (existing != null) {
 			inst.removeModifier(id);

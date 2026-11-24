@@ -141,7 +141,7 @@ public class HandicapSettingsScreen extends Screen {
 	}
 
 	private static void label(Button button, String name, String value) {
-		Component text = button.active ? Component.literal(value).withColor(VALUE) : Component.literal(value);
+		Component text = button.active ? Component.literal(value).withStyle(style -> style.withColor(VALUE)) : Component.literal(value);
 		button.setMessage(Component.literal(name + ": ").append(text));
 	}
 
@@ -152,6 +152,7 @@ public class HandicapSettingsScreen extends Screen {
 
 	@Override
 	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+		this.renderBackground(graphics);
 		super.render(graphics, mouseX, mouseY, partialTick);
 		graphics.drawCenteredString(this.font, this.title, this.width / 2, 12, 0xFFFFFFFF);
 		graphics.drawString(this.font, "Display", left, displayY, HEADER, true);

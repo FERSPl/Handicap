@@ -1,20 +1,23 @@
 package com.handicap;
 
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceLocation;
 
-public record SettingsPayload(String key, int value) implements CustomPacketPayload {
-	public static final CustomPacketPayload.Type<SettingsPayload> TYPE = new CustomPacketPayload.Type<>(HandicapMod.id("settings"));
-
-	public static final StreamCodec<RegistryFriendlyByteBuf, SettingsPayload> CODEC = StreamCodec.composite(
-		ByteBufCodecs.STRING_UTF8, SettingsPayload::key,
-		ByteBufCodecs.VAR_INT, SettingsPayload::value,
-		SettingsPayload::new);
+public record SettingsPayload(String key, int value) implements HandicapPayload {
+	public static final ResourceLocation ID = HandicapMod.id("settings");
 
 	@Override
-	public CustomPacketPayload.Type<? extends CustomPacketPayload> type() {
-		return TYPE;
+	public void write(FriendlyByteBuf buf) {
+		buf.writeUtf(key);
+		buf.writeVarInt(value);
+	}
+
+	public static SettingsPayload read(FriendlyByteBuf buf) {
+		return new SettingsPayload(buf.readUtf(), buf.readVarInt());
+	}
+
+	@Override
+	public ResourceLocation id() {
+		return ID;
 	}
 }

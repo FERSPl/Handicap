@@ -39,11 +39,4 @@ public abstract class ContainerScreenMixin {
 			cir.setReturnValue(true);
 		}
 	}
-
-	@Inject(method = "mouseScrolled", at = @At("HEAD"), cancellable = true)
-	private void handicap$scroll(double mouseX, double mouseY, double scrollX, double scrollY, CallbackInfoReturnable<Boolean> cir) {
-		if (InventoryPanel.supports((Screen) (Object) this) && InventoryPanel.scroll(mouseX, mouseY, scrollY)) {
-			cir.setReturnValue(true);
-		}
-	}
 }

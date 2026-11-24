@@ -23,8 +23,8 @@ jobs:
         with:
           name: Fabric
           path: fabric/build/libs/
-      - name: capture NeoForge artifacts
+      - name: capture Forge artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: NeoForge
-          path: neoforge/build/libs/
+          name: Forge
+          path: forge/build/libs/

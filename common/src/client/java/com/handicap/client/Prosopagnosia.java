@@ -1,7 +1,5 @@
 package com.handicap.client;
 
-import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.client.resources.PlayerSkin;
 
 import com.handicap.Handicap;
 import com.handicap.client.mixin.WalkAnimationAccessor;
@@ -39,10 +37,6 @@ public final class Prosopagnosia {
 	private static List<String> names = List.of();
 
 	private Prosopagnosia() {
-	}
-
-	public static PlayerSkin steveSkin() {
-		return new PlayerSkin(DefaultPlayerSkin.getDefaultTexture(), null, null, null, PlayerSkin.Model.WIDE, false);
 	}
 
 	public static boolean active() {

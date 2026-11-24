@@ -24,13 +24,13 @@ import net.minecraft.world.phys.Vec3;
 public class WheelchairEntity extends LivingEntity {
 	public WheelchairEntity(EntityType<? extends WheelchairEntity> type, Level level) {
 		super(type, level);
+		setMaxUpStep(1.0f);
 	}
 
 	public static AttributeSupplier.Builder createAttributes() {
 		return LivingEntity.createLivingAttributes()
 			.add(Attributes.MAX_HEALTH, 10.0)
-			.add(Attributes.MOVEMENT_SPEED, 0.1)
-			.add(Attributes.STEP_HEIGHT, 1.0);
+			.add(Attributes.MOVEMENT_SPEED, 0.1);
 	}
 
 	@Override
@@ -42,6 +42,11 @@ public class WheelchairEntity extends LivingEntity {
 			player.startRiding(this);
 		}
 		return InteractionResult.SUCCESS;
+	}
+
+	@Override
+	public double getPassengersRidingOffset() {
+		return 0.25;
 	}
 
 	@Override

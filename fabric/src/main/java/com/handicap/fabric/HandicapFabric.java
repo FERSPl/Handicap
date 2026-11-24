@@ -18,14 +18,15 @@ import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRe
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.message.v1.ServerMessageEvents;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import com.handicap.HandicapPayload;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 
 public class HandicapFabric implements ModInitializer {
@@ -37,21 +38,22 @@ public class HandicapFabric implements ModInitializer {
 		ItemGroupEvents.modifyEntriesEvent(HandicapContent.TOOLS_TAB).register(entries ->
 			entries.accept(HandicapContent.wheelchairItem()));
 
-		PayloadTypeRegistry.playS2C().register(SyncPayload.TYPE, SyncPayload.CODEC);
-		PayloadTypeRegistry.playS2C().register(LimbsPayload.TYPE, LimbsPayload.CODEC);
-		PayloadTypeRegistry.playC2S().register(SettingsPayload.TYPE, SettingsPayload.CODEC);
-		ServerPlayNetworking.registerGlobalReceiver(SettingsPayload.TYPE, (payload, context) ->
-			HandicapManager.applySetting(context.player(), payload.key(), payload.value()));
+		ServerPlayNetworking.registerGlobalReceiver(SettingsPayload.ID, (server, player, handler, buf, responseSender) -> {
+			SettingsPayload payload = SettingsPayload.read(buf);
+			server.execute(() -> HandicapManager.applySetting(player, payload.key(), payload.value()));
+		});
 
 		HandicapMod.init(new HandicapMod.Platform() {
 			@Override
 			public boolean canSend(ServerPlayer player) {
-				return ServerPlayNetworking.canSend(player, SyncPayload.TYPE);
+				return ServerPlayNetworking.canSend(player, SyncPayload.ID);
 			}
 
 			@Override
-			public void send(ServerPlayer player, CustomPacketPayload payload) {
-				ServerPlayNetworking.send(player, payload);
+			public void send(ServerPlayer player, HandicapPayload payload) {
+				FriendlyByteBuf buf = PacketByteBufs.create();
+				payload.write(buf);
+				ServerPlayNetworking.send(player, payload.id(), buf);
 			}
 
 			@Override

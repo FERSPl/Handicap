@@ -18,7 +18,7 @@ public final class HandicapContent {
 	public static final ResourceKey<EntityType<?>> WHEELCHAIR_ENTITY_KEY = ResourceKey.create(Registries.ENTITY_TYPE, WHEELCHAIR_ID);
 	public static final ResourceKey<Item> WHEELCHAIR_ITEM_KEY = ResourceKey.create(Registries.ITEM, WHEELCHAIR_ID);
 	public static final ResourceKey<CreativeModeTab> TOOLS_TAB = ResourceKey.create(Registries.CREATIVE_MODE_TAB,
-		ResourceLocation.withDefaultNamespace("tools_and_utilities"));
+		new ResourceLocation("minecraft", "tools_and_utilities"));
 
 	private static EntityType<WheelchairEntity> wheelchair;
 	private static Item wheelchairItem;
@@ -29,7 +29,6 @@ public final class HandicapContent {
 	public static EntityType<WheelchairEntity> createEntity() {
 		wheelchair = EntityType.Builder.of(WheelchairEntity::new, MobCategory.MISC)
 			.sized(0.9f, 1.0f)
-			.passengerAttachments(0.25f)
 			.clientTrackingRange(10)
 			.build(WHEELCHAIR_ID.toString());
 		return wheelchair;
