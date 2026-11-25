@@ -12,6 +12,8 @@
 
 ---
 <div align="center"><center>
+
+[![BisectHosting](https://img.shields.io/badge/BisectHosting-25%25%20OFF%20%E2%80%A2%20GET%20A%20SERVER-00b8d4?style=for-the-badge&logo=curseforge&logoColor=white)](https://url-shortener.curseforge.com/PKZnN)
  
 [![Latest Version](https://img.shields.io/github/v/release/FERSPl/Handicap?color=blueviolet&logo=github "View latest release")](https://github.com/FERSPl/Handicap/releases)
 [![License Badge](https://img.shields.io/badge/license-LGPLv3-green "View the License")](https://github.com/FERSPl/Handicap/blob/main/LICENSE) 
