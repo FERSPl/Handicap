@@ -12,6 +12,7 @@ public record LimbsPayload(UUID player, int limbs) implements HandicapPayload {
 	public static final int RIGHT_LEG = 8;
 	public static final int CAST_LEFT_ARM = 16;
 	public static final int CAST_RIGHT_ARM = 32;
+	public static final int SHORT = 64;
 
 	public static final ResourceLocation ID = HandicapMod.id("limbs");
 

@@ -29,6 +29,15 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 public class HandicapFabricClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
+		ClientLimbs.onShortChange = id -> {
+			net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+			if (mc.level != null) {
+				net.minecraft.world.entity.player.Player player = mc.level.getPlayerByUUID(id);
+				if (player != null) {
+					player.refreshDimensions();
+				}
+			}
+		};
 		ClientPlayNetworking.registerGlobalReceiver(SyncPayload.ID, (client, handler, buf, responseSender) -> {
 			SyncPayload payload = SyncPayload.read(buf);
 			client.execute(() -> ClientState.apply(payload));

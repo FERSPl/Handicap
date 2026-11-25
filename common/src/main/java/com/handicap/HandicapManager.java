@@ -660,6 +660,9 @@ public final class HandicapManager {
 		if (set.contains(Handicap.BROKEN_ARM)) {
 			limbs |= p.getMainArm() == HumanoidArm.RIGHT ? LimbsPayload.CAST_RIGHT_ARM : LimbsPayload.CAST_LEFT_ARM;
 		}
+		if (set.contains(Handicap.SHORT)) {
+			limbs |= LimbsPayload.SHORT;
+		}
 		return limbs;
 	}
 

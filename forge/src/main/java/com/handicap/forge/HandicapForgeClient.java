@@ -3,6 +3,7 @@ package com.handicap.forge;
 import com.handicap.HandicapContent;
 import com.handicap.HandicapMod;
 import com.handicap.client.ClientEffects;
+import com.handicap.client.ClientLimbs;
 import com.handicap.client.ClientState;
 import com.handicap.client.HandicapHud;
 import com.handicap.client.HandicapSettingsScreen;
@@ -29,6 +30,15 @@ public final class HandicapForgeClient {
 	}
 
 	public static void init(IEventBus modBus) {
+		ClientLimbs.onShortChange = id -> {
+			net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+			if (mc.level != null) {
+				net.minecraft.world.entity.player.Player player = mc.level.getPlayerByUUID(id);
+				if (player != null) {
+					player.refreshDimensions();
+				}
+			}
+		};
 		ClientState.sender = payload -> HandicapForge.CHANNEL.sendToServer(payload);
 		modBus.addListener(HandicapForgeClient::registerKeys);
 		modBus.addListener(HandicapForgeClient::registerOverlays);

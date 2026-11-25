@@ -1,5 +1,6 @@
 package com.handicap;
 
+import com.handicap.client.ClientLimbs;
 import com.handicap.client.ClientState;
 
 import java.nio.charset.StandardCharsets;
@@ -25,7 +26,10 @@ public final class HandicapRules {
 			return false;
 		}
 		if (p.level().isClientSide()) {
-			return p.isLocalPlayer() && ClientState.has(d);
+			if (p.isLocalPlayer()) {
+				return ClientState.has(d);
+			}
+			return d == Handicap.SHORT && (ClientLimbs.get(p.getUUID()) & LimbsPayload.SHORT) != 0;
 		}
 		HandicapState state = HandicapManager.state();
 		return state != null && state.has(p.getUUID(), d);
