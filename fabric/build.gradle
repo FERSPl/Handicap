@@ -43,9 +43,16 @@ fabricApi {
 }
 
 repositories {
-	maven {
-		name = "Terraformers"
-		url = "https://maven.terraformersmc.com/"
+	exclusiveContent {
+		forRepository {
+			maven {
+				name = "Terraformers"
+				url = "https://maven.terraformersmc.com/"
+			}
+		}
+		filter {
+			includeGroup "com.terraformersmc"
+		}
 	}
 }
 
