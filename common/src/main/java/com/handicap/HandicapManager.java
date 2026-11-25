@@ -663,10 +663,10 @@ public final class HandicapManager {
 		if (!set.contains(Handicap.FLATULENCE)) {
 			rt.fartSeconds = -1;
 		} else if (rt.fartSeconds < 0) {
-			rt.fartSeconds = 40 + rnd.nextInt(21);
+			rt.fartSeconds = 30 + rnd.nextInt(16);
 		} else if (rt.fartSeconds-- == 0) {
 			fart(p, rnd);
-			rt.fartSeconds = 40 + rnd.nextInt(21);
+			rt.fartSeconds = 30 + rnd.nextInt(16);
 		}
 
 		setModifier(p, Attributes.BLOCK_BREAK_SPEED, "broken_arm", -0.65, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL,
