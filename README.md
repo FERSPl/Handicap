@@ -196,3 +196,11 @@ Handicap is released under the [LGPLv3 License](LICENSE).
 
 ## Featured in
 [![Youtube](https://img.youtube.com/vi/E-tQTPjQ_j8/maxresdefault.jpg)](https://www.youtube.com/watch?v=E-tQTPjQ_j8)
+
+## Disclaimer
+
+This mod is not intended to make fun of or disrespect people with disabilities. I have great respect for people living with disabilities and the challenges they may face.
+
+The purpose of this mod is entertainment, but it can also encourage curiosity and awareness about different disabilities. Like players might come across a condition they have never heard of and decide to learn more about it.
+
+Please remember that the in-game effects are fictional gameplay interpretations and do not necessarily represent the real-life experiences of people with these conditions.
