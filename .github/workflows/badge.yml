@@ -1,4 +1,4 @@
-name: Update CurseForge badge
+name: Update badges
 
 on:
   schedule:
@@ -14,9 +14,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: curl -fsSL "https://luken.cc/badges/curseforge/1758595" -o uikit/curseforge-badge.svg
+      - run: curl -fsSL "https://luken.cc/badges/modrinth/handicap" -o uikit/modrinth-badge.tmp && mv uikit/modrinth-badge.tmp uikit/modrinth-badge.svg || true
       - run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add uikit/curseforge-badge.svg
-          git diff --cached --quiet || git commit -m "Update CurseForge badge"
+          git add uikit/*.svg
+          git diff --cached --quiet || git commit -m "Update badges"
           git push
