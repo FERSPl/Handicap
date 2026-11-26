@@ -1,0 +1,22 @@
+name: Update CurseForge badge
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  badge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: curl -fsSL "https://luken.cc/badges/curseforge/1758595" -o uikit/curseforge-badge.svg
+      - run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add uikit/curseforge-badge.svg
+          git diff --cached --quiet || git commit -m "Update CurseForge badge"
+          git push
