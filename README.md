@@ -13,10 +13,10 @@
 ---
 <div align="center"><center>
 
-<a href="https://fabricmc.net/"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/fabric_vector.svg" alt="Fabric" height="40"></a>
-<a href="https://quiltmc.org/"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/quilt_vector.svg" alt="Quilt" height="40"></a>
-<a href="https://neoforged.net/"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/neoforge_vector.svg" alt="NeoForge" height="40"></a>
-<a href="https://files.minecraftforge.net/"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/forge_vector.svg" alt="Forge" height="40"></a>
+<a href="https://www.curseforge.com/minecraft/mc-mods/handicap/files/all?page=1&pageSize=20&gameVersionTypeId=4&showAlphaFiles=hide"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/fabric_vector.svg" alt="Fabric" height="40"></a>
+<a href="https://www.curseforge.com/minecraft/mc-mods/handicap/files/all?page=1&pageSize=20&gameVersionTypeId=5&showAlphaFiles=hide"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/quilt_vector.svg" alt="Quilt" height="40"></a>
+<a href="https://www.curseforge.com/minecraft/mc-mods/handicap/files/all?page=1&pageSize=20&gameVersionTypeId=6&showAlphaFiles=hide"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/neoforge_vector.svg" alt="NeoForge" height="40"></a>
+<a href="https://www.curseforge.com/minecraft/mc-mods/handicap/files/all?page=1&pageSize=20&gameVersionTypeId=1&showAlphaFiles=hide"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/forge_vector.svg" alt="Forge" height="40"></a>
 
 <a href="https://www.curseforge.com/minecraft/mc-mods/handicap"><img src="https://luken.cc/badges/curseforge/1758595" alt="CurseForge" height="56"></a>
 <a href="https://url-shortener.curseforge.com/PKZnN"><img src="https://raw.githubusercontent.com/FERSPl/Handicap/main/uikit/bisecthosting.svg" alt="BisectHosting" height="56"></a>
