@@ -30,6 +30,8 @@
 You can also choose which handicaps to apply using commands, customize the timer, and decide whether handicaps stack.
 
 > Inspired by [Disabilities](https://modrinth.com/mod/disabilities) by OddSense. Handicap is an independent implementation with its own code.
+>
+> ⚠️ This mod is not meant to make fun of people with disabilities. Please read the [Disclaimer](#disclaimer).
 
 ### Features
 
