@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/handicap-header.png" alt="Handicap banner">
+  <img src="https://raw.githubusercontent.com/FERSPl/Handicap/main/uikit/handicap-header.png" alt="Handicap banner">
 </div>
 
 <p align="center">
@@ -13,23 +13,17 @@
 ---
 <div align="center"><center>
 
-[![BisectHosting](https://img.shields.io/badge/BisectHosting-25%25%20OFF%20%E2%80%A2%20GET%20A%20SERVER-00b8d4?style=for-the-badge&logo=curseforge&logoColor=white)](https://url-shortener.curseforge.com/PKZnN)
- 
-[![Latest Version](https://img.shields.io/github/v/release/FERSPl/Handicap?color=blueviolet&logo=github "View latest release")](https://github.com/FERSPl/Handicap/releases)
-[![License Badge](https://img.shields.io/badge/license-LGPLv3-green "View the License")](https://github.com/FERSPl/Handicap/blob/main/LICENSE) 
-[![Issues Badge](https://img.shields.io/github/issues/FERSPl/Handicap?color=orange&logo=github "View or open an issue")](https://github.com/FERSPl/Handicap/issues)
+<a href="https://fabricmc.net/"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/fabric_vector.svg" alt="Fabric" height="40"></a>
+<a href="https://quiltmc.org/"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/quilt_vector.svg" alt="Quilt" height="40"></a>
+<a href="https://neoforged.net/"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/neoforge_vector.svg" alt="NeoForge" height="40"></a>
+<a href="https://files.minecraftforge.net/"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/forge_vector.svg" alt="Forge" height="40"></a>
 
-![Mod loader: Fabric](https://img.shields.io/badge/modloader-Fabric-1976d2?style=flat-square) 
-![Mod loader: Quilt](https://img.shields.io/badge/modloader-Quilt-c36ed4?style=flat-square)
-![Mod loader: NeoForge](https://img.shields.io/badge/modloader-NeoForge-e68325?style=flat-square) 
-![Mod loader: Forge](https://img.shields.io/badge/modloader-Forge-1e2a3a?style=flat-square) 
-
-[![Modrinth Badge](https://img.shields.io/modrinth/dt/handicap?label=Modrinth&logo=modrinth "View our Modrinth page")](https://modrinth.com/mod/handicap) 
-[![CurseForge Badge](https://img.shields.io/curseforge/dt/1758595?label=CurseForge&logo=curseforge&color=f16436 "View our CurseForge page")](https://www.curseforge.com/minecraft/mc-mods/handicap) 
+<a href="https://www.curseforge.com/minecraft/mc-mods/handicap"><img src="https://luken.cc/badges/curseforge/1758595" alt="CurseForge" height="56"></a>
+<a href="https://url-shortener.curseforge.com/PKZnN"><img src="https://raw.githubusercontent.com/FERSPl/Handicap/main/uikit/bisecthosting.svg" alt="BisectHosting" height="56"></a>
 
 </center></div>
 
-## <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/about.png" alt="About">
+## <img src="https://raw.githubusercontent.com/FERSPl/Handicap/main/uikit/about.png" alt="About">
 
 **Handicap** is a Minecraft mod that randomly assigns players handicaps at regular intervals. Survive as long as possible, adapt your playstyle, and discover all 67 unique handicaps.
 
@@ -47,7 +41,7 @@ You can also choose which handicaps to apply using commands, customize the timer
 - 💬 **Commands** to give, clear and list handicaps.
 - 💾 **Saved per world** and 🌐 **multiplayer ready** (install on client and server).
 
-##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/commands.png" alt="Commands">
+##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/main/uikit/commands.png" alt="Commands">
 
 By default, only **operators** can use `/handicap`, except in singleplayer where the host always can. You can change this in the config screen or in `handicap.json` (see [Configuration](#configuration)).
 
@@ -74,7 +68,7 @@ The timer and the duration are measured in minutes. For example, `0.5` means eve
 - **With operator permission**: you can use every command on any player, with or without selectors.
 - **Without operator permission** (the command permission is set to *Player*, or you host a singleplayer world with cheats off): you can only target **yourself**, by typing your own player name. Selectors like `@s` and `@a` are refused by Minecraft for players who are not operators. You can still change every setting with `/handicap settings`, which applies to the whole server.
 
-##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/handicaps.png" alt="Handicaps">
+##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/main/uikit/handicaps.png" alt="Handicaps">
 
 | # | Handicap | ID | Effect |
 |---:|---|---|---|
@@ -148,7 +142,7 @@ The timer and the duration are measured in minutes. For example, `0.5` means eve
 
 ⚠️ Only one screen filter is displayed at a time, with Blind taking priority over Phantom Light, Inverted Vision, Tunnel Vision, Migraine, Color Blind, Visual Agnosia, Double Vision, Myopia, and Hyperopia. [26.1, 26.2, 1.21.1 & 1.20.1]
 
-##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/configuration.png" alt="Configuration">
+##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/main/uikit/configuration.png" alt="Configuration">
 
 All the settings are in one menu. Open it from the gear on the Handicap panel in your inventory, or from the mod list:
 
@@ -188,16 +182,16 @@ Install the mod on the **client**, and also on the **server** if you play multip
 4. 🚀 Launch Minecraft using your loader's profile.
 5. 🎉 Enjoy my mod!
 
-##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/26.3/uikit/contributing.png" alt="Contributing-License">
+##   <img src="https://raw.githubusercontent.com/FERSPl/Handicap/main/uikit/contributing.png" alt="Contributing-License">
 
 Bug reports and suggestions are welcome. Please open an [issue](https://github.com/FERSPl/Handicap/issues) in this repository.
 
 Handicap is released under the [LGPLv3 License](LICENSE).
 
-## Featured in
+## **Featured in**
 [![Youtube](https://img.youtube.com/vi/E-tQTPjQ_j8/maxresdefault.jpg)](https://www.youtube.com/watch?v=E-tQTPjQ_j8)
 
-## Disclaimer
+## **Disclaimer**
 
 This mod is not intended to make fun of or disrespect people with disabilities. I have great respect for people living with disabilities and the challenges they may face.
 
