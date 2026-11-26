@@ -18,7 +18,7 @@
 <a href="https://www.curseforge.com/minecraft/mc-mods/handicap/files/all?page=1&pageSize=20&gameVersionTypeId=6&showAlphaFiles=hide"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/neoforge_vector.svg" alt="NeoForge" height="40"></a>
 <a href="https://www.curseforge.com/minecraft/mc-mods/handicap/files/all?page=1&pageSize=20&gameVersionTypeId=1&showAlphaFiles=hide"><img src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3/assets/cozy/supported/forge_vector.svg" alt="Forge" height="40"></a>
 
-<a href="https://www.curseforge.com/minecraft/mc-mods/handicap"><img src="https://raw.githubusercontent.com/FERSPl/Handicap/main/uikit/curseforge-badge.svg" alt="CurseForge" height="56"></a>
+<a href="https://www.curseforge.com/minecraft/mc-mods/handicap"><img src="https://raw.githubusercontent.com/FERSPl/Handicap/badges/curseforge-badge.svg" alt="CurseForge" height="56"></a>
 <a href="https://url-shortener.curseforge.com/PKZnN"><img src="https://raw.githubusercontent.com/FERSPl/Handicap/main/uikit/bisecthosting.svg" alt="BisectHosting" height="56"></a>
 
 </center></div>

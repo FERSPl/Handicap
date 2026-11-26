@@ -12,12 +12,19 @@ jobs:
   badge:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - run: curl -fsSL "https://luken.cc/badges/curseforge/1758595" -o uikit/curseforge-badge.svg
-      - run: curl -fsSL "https://luken.cc/badges/modrinth/handicap" -o uikit/modrinth-badge.tmp && mv uikit/modrinth-badge.tmp uikit/modrinth-badge.svg || true
       - run: |
+          mkdir out
+          curl -fsSL "https://luken.cc/badges/curseforge/1758595" -o out/curseforge-badge.svg
+          curl -fsSL "https://luken.cc/badges/modrinth/handicap" -o out/modrinth-badge.svg \
+            || curl -fsSL "https://raw.githubusercontent.com/${{ github.repository }}/badges/modrinth-badge.svg" -o out/modrinth-badge.svg \
+            || true
+      - env:
+          TOKEN: ${{ github.token }}
+        run: |
+          cd out
+          git init -b badges
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add uikit/*.svg
-          git diff --cached --quiet || git commit -m "Update badges"
-          git push
+          git add .
+          git commit -m "Update badges"
+          git push --force "https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git" badges
